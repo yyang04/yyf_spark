@@ -1,9 +1,6 @@
-package waimai
+package mt.waimai
 
-import utils.SparkJob
-import org.apache.spark.graphx._
-import org.apache.spark.rdd.RDD
-import org.apache.spark.{SparkConf, SparkContext}
+import mt.utils.SparkJob
 
 object GHSClustering extends SparkJob {
     def main(args: Array[String]): Unit = {
