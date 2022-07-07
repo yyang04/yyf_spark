@@ -2,7 +2,7 @@ package mt.waimai
 
 import mt.utils.SparkJob
 
-object GHSClustering extends SparkJob {
+object GhsClustering extends SparkJob {
     def main(args: Array[String]): Unit = {
         super.initSpark("GHSClustering", args)
         val count = spark.sql(
