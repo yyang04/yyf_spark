@@ -1,4 +1,4 @@
-package mt.utils
+package utils
 
 import scopt.OptionParser
 
