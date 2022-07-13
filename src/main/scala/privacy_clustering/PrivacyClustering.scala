@@ -5,8 +5,8 @@ import privacy_clustering.Metrics.{add, div}
 
 object PrivacyClustering {
     // data[id, cluster] label need cached
-    def privacy_filter(label: RDD[(String, Int)],
-                       threshold: Int): RDD[(String, Int)]={
+    def privacy_filter(label: RDD[(Int, Int)],
+                       threshold: Int): RDD[(Int, Int)]={
         val labelCount = label.map{
             case (_, label) => (label, 1)
         }.reduceByKey(_+_)
@@ -19,9 +19,9 @@ object PrivacyClustering {
     }
 
     // label need cached
-    def cluster_centers(x: RDD[(String, Array[Double])],
-                        label: RDD[(String, Int)]
-                       ): RDD[(String, Array[Double])] ={
+    def cluster_centers(x: RDD[(Int, Array[Double])],
+                        label: RDD[(Int, Int)]
+                       ): RDD[(Int, Array[Double])] ={
 
         val le = x.join(label)
           .map{
