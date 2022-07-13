@@ -1,14 +1,10 @@
-package clustering
+package privacy_clustering
 
 import utils.SparkJob
 
 object GhsClustering extends SparkJob {
     def main(args: Array[String]): Unit = {
-        super.initSpark("GHSClustering", args)
-
-
-
-
+        super.initSpark(this.getClass.getName, args)
         val count = spark.sql(
             """
               |select count(*) from mart_waimaiad.platinum_ctr_offline_feature_train_data_wc_zw180_murmur_newpage_life
