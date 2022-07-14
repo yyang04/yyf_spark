@@ -1,16 +1,10 @@
 package local
-import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.graphx.{Edge, _}
-import org.apache.log4j.{Level, Logger}
+import utils.LocalSparkJob
 
-
-object Test {
+object Test extends LocalSparkJob {
     def main(args: Array[String]): Unit = {
-        Logger.getLogger("org").setLevel(Level.OFF)
-        val conf = new SparkConf().setMaster("local").setAppName(this.getClass.getName)
-          .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-        val sc = new SparkContext(conf)
-
+        super.initSpark()
         val vertices = sc.makeRDD((0L to 9L).map((_, 0)))
         var edges = sc.makeRDD(Seq(
             Edge(0L, 1L, 4),
