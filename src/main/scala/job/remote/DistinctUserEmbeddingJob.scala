@@ -23,6 +23,7 @@ object DistinctUserEmbeddingJob extends RemoteSparkJob{
     def saveAsTable(res: RDD[(String, Array[Double])],
                     tableName: String,
                     date: String): DataFrame = {
+
         spark.sql(s"""
                 create table if not exists $tableName (
                     uuid string,
