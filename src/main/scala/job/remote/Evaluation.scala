@@ -11,7 +11,6 @@ object Evaluation extends RemoteSparkJob{
               |where dt = 20211125
               |and cluster = simhash
               |""".stripMargin).rdd.map(row=>{
-            val uuid = row.getAs[String](0)
             val user_emb = row.getAs[Seq[Double]](1).toArray
             val cluster_center = row.getAs[Seq[Double]](2).toArray
             (user_emb, cluster_center)
