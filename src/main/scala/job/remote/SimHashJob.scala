@@ -21,10 +21,11 @@ object SimHashJob extends RemoteSparkJob {
         saveAsTable(result, "mart_waimaiad.privacy_clustering_user_cluster_test", "20211125", "simhash")
     }
 
-    def saveAsTable(res: RDD[(String, Array[Double], Array[Double])],
+    def saveAsTable(result: RDD[(String, Array[Double], Array[Double])],
                     tableName: String,
                     date: String,
-                    cluster:String): DataFrame = {
+                    cluster: String): DataFrame = {
+
         spark.sql(s"""
                 create table if not exists $tableName (
                     uuid string,
@@ -35,9 +36,8 @@ object SimHashJob extends RemoteSparkJob {
             """.stripMargin)
 
         val temp_input_data = "temp_input_data"
-        val df = res.toDF("uuid", "user_emb", "cluster_center")
+        val df = result.toDF("uuid", "user_emb", "cluster_center")
         df.createOrReplaceTempView(temp_input_data)
-
         spark.sql(s"""
                 insert overwrite table $tableName partition (dt=$date, cluster=$cluster)
                 select * from (

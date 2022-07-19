@@ -1,5 +1,9 @@
 package job.remote
 
-object Evaluation {
+import utils.SparkJobs.RemoteSparkJob
+
+object Evaluation extends RemoteSparkJob{
+
+
 
 }
