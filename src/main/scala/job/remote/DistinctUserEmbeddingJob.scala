@@ -17,7 +17,6 @@ object DistinctUserEmbeddingJob extends RemoteSparkJob{
             case(uuid, (expose_time, user_emb)) => (uuid, user_emb)
         }.repartition(8000)
         saveAsTable(data, "mart_waimaiad.privacy_clustering_user_emb_test", "20211125")
-
     }
 
     def saveAsTable(res: RDD[(String, Array[Double])],
