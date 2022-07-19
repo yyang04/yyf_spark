@@ -11,7 +11,6 @@ object DistinctUserEmbeddingJob extends RemoteSparkJob{
             val uuid = row.split(',')(1)
             val user_emb = row.split(',').slice(2, row.length).map(_.toDouble)
             (uuid, (expose_time, user_emb))
-        }).reduceByKey((x, y) => if (x._1 > y._1) x else y ).repartition(8000)
-        data.saveAsTextFile(path+ "user_embedding_unique")
+        }).reduceByKey((x, y) => if (x._1 > y._1) x else y ).repartition(8000).toDF("")
     }
 }

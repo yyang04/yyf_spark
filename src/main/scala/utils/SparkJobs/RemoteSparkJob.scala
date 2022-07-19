@@ -1,14 +1,15 @@
 package utils.SparkJobs
 
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
 
-abstract class RemoteSparkJob extends ArgsParser with Serializable {
+abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializable {
     Logger.getLogger("org").setLevel(Level.ERROR)
     var spark: SparkSession = _
     var sc: SparkContext = _
     var params: Config = Config()
+    override var _sqlContext: SQLContext = _
 
     def main(args: Array[String]): Unit ={
         initSpark(args)
