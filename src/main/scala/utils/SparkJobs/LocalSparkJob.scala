@@ -1,7 +1,7 @@
-package utils
+package utils.SparkJobs
 
-import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.log4j.{Level, Logger}
+import org.apache.spark.{SparkConf, SparkContext}
 
 abstract class LocalSparkJob{
     Logger.getLogger("org").setLevel(Level.OFF)

@@ -1,6 +1,6 @@
-package local
+package job.local
 
-import utils.LocalSparkJob
+import utils.SparkJobs.LocalSparkJob
 
 object AffinityClusteringTest extends LocalSparkJob {
     def main(args: Array[String]): Unit = {

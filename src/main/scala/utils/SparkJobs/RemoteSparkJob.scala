@@ -1,19 +1,27 @@
-package utils
+package utils.SparkJobs
 
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.{SparkConf, SparkContext}
 
-abstract class SparkJob extends ArgsParser with Serializable {
+abstract class RemoteSparkJob extends ArgsParser with Serializable {
     Logger.getLogger("org").setLevel(Level.ERROR)
     var spark: SparkSession = _
     var sc: SparkContext = _
     var params: Config = Config()
-    def initSpark(name: String, args: Array[String]): Unit ={
+
+    def main(args: Array[String]): Unit ={
+        initSpark(args)
+        run()
+    }
+
+    def run(): Unit ={}
+
+    def initSpark(args: Array[String]): Unit ={
         this.params = super.initParams(args)
         val conf = {
             new SparkConf()
-              .setAppName(name)
+              .setAppName(this.getClass.getName)
               .set("spark.serializer","org.apache.spark.serializer.KryoSerializer")  // 优化应用序列化（使用Kryo）
               .set("spark.kryoserializer.buffer.max", "512m")                        // 默认64 Kryo序列化缓存允许的最大值。这个值必须大于你尝试序列化的对象
               .set("hive.exec.dynamic.partition", "true")                            // 是否允许动态生成分区

@@ -1,5 +1,7 @@
 package utils
 import org.apache.spark.rdd.RDD
+import utils.AF.{ArrayUnionFind, ArrayUnionFindCompressed}
+
 import scala.collection.mutable
 import scala.util.control.Breaks
 import scala.util.Random

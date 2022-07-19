@@ -1,7 +1,6 @@
-package utils
+package utils.SparkJobs
 
 import scopt.OptionParser
-
 case class Config(beginDt: String = "",
                   endDt: String = "")
 
