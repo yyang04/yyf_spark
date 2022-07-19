@@ -43,6 +43,7 @@ abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializ
           .config(conf)
           .enableHiveSupport.getOrCreate
 
+        this._sqlContext = this.spark.sqlContext
         val confMap = spark.sparkContext.getConf.getAll.toMap
         val core = confMap.getOrElse("spark.executor.cores", "4").toInt
         val executor = confMap.getOrElse("spark.executor.instances", confMap.getOrElse("spark.dynamicAllocation.maxExecutors", "600")).toInt
