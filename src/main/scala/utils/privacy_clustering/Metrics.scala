@@ -20,6 +20,4 @@ object Metrics {
         }.reduce((x, y) => (x._1 + y._1, x._2 + y._2))
         r._1 / r._2
     }
-
-
 }
