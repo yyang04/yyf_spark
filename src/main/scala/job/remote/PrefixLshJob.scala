@@ -3,7 +3,7 @@ package job.remote
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.DataFrame
 import utils.SparkJobs.RemoteSparkJob
-import utils.privacy_clustering.SimHashClustering
+import utils.privacy_clustering.{PrefixLshClustering}
 
 object PrefixLshJob extends RemoteSparkJob {
     override def run(): Unit = {
@@ -16,7 +16,7 @@ object PrefixLshJob extends RemoteSparkJob {
             val user_emb = row.getAs[Seq[Double]](1).toArray
             (uuid, user_emb)
         })
-        val model = new SimHashClustering(18, 1, 2000)
+        val model = new PrefixLshClustering(20, 1, 2000)
         val result = model.fit(data)
         saveAsTable(result, "mart_waimaiad.privacy_clustering_user_cluster_test_prefixlsh", "20211125")
     }
