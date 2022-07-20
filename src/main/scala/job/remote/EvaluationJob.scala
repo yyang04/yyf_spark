@@ -6,6 +6,7 @@ import utils.privacy_clustering.Metrics
 object EvaluationJob extends RemoteSparkJob{
     override def run(): Unit = {
         val algorithm = params.algorithm
+        println(algorithm)
         val data = spark.sql(
             s"""select uuid, user_emb, cluster_center
               |from mart_waimaiad.privacy_clustering_user_cluster_test

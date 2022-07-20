@@ -18,7 +18,7 @@ object PrefixLshJob extends RemoteSparkJob {
             (uuid, user_emb)
         })
 
-        val model = new PrefixLshClustering(20, 1, 2000)
+        val model = new PrefixLshClustering(25, 10, 2000)
         val result = model.fit(data)
 
         saveAsTable(rdd=result,

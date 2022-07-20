@@ -6,8 +6,12 @@ import utils.SparkJobs.RemoteSparkJob
 
 
 object SimHashJob extends RemoteSparkJob {
-    // (cosine similarity,0.677317939988443)
-    // (minkowski distance,3.750147692362911)
+//    (cosine similarity,0.6773179399884419)
+//    (minkowski distance,3.750147692362917)
+
+    // prefixlsh
+//    (cosine similarity,0.6773179399884436)
+//    (minkowski distance,3.7501476923629093)
     override def run(): Unit = {
         val threshold = params.threshold
         val data = spark.sql(
