@@ -66,7 +66,7 @@ class PrefixLshClustering (val p: Int,
         result
     }
 
-    def pre_count(hash_labels:RDD[(Long, String)]): Map[String, (Int, List[String])]= {
+    def pre_count(hash_labels: RDD[(Long, String)]): Map[String, (Int, List[String])] = {
         val counter = new mutable.ListBuffer[(String, (Int, List[String]))]
         var tmp = hash_labels.map(x => (x._2, 1)).reduceByKey(_+_).map{
             case(id, count) => (id, (count, List[String](id)))
@@ -94,7 +94,7 @@ class PrefixLshClustering (val p: Int,
                 case (None, None) => res += e -> counter(e)._2
                 case (_ , None) => q.enqueue(e + "0")
                 case (None, _)  => q.enqueue(e + "1")
-                case (Some(x),Some(y)) if x >= this.threshold && y >= this.threshold => q.enqueue(e + "0"); q.enqueue(e + "1")
+                case (Some(x), Some(y)) if x >= this.threshold && y >= this.threshold => q.enqueue(e + "0"); q.enqueue(e + "1")
                 case _ => res += e -> counter(e)._2
             }
         }

@@ -8,7 +8,7 @@ import utils.SparkJobs.RemoteSparkJob
 object SimHashJob extends RemoteSparkJob {
     override def run(): Unit = {
         val data = spark.sql(
-            """select uuid, user_emb
+        """select uuid, user_emb
               |from mart_waimaiad.privacy_clustering_user_emb_test
               |where dt = 20211125
               |""".stripMargin).rdd.map(row=>{
