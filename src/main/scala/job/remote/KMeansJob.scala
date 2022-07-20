@@ -15,6 +15,8 @@ object KMeansJob extends RemoteSparkJob {
             (uuid, Vectors.dense(user_emb))
         }).cache()
 
+        
+
 
 
 

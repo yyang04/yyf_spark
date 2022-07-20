@@ -5,7 +5,8 @@ case class Config(beginDt: String = "",
                   endDt: String = "",
                   tableName: String = "",
                   sql: String = "",
-                  threshold: Int = 2000)
+                  threshold: Int = 2000,
+                  algorithm: String = "simhash")
 
 class ArgsParser {
     val parser: OptionParser[Config] = new scopt.OptionParser[Config]("scopt") {
