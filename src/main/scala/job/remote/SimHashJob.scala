@@ -48,7 +48,7 @@ object SimHashJob extends RemoteSparkJob {
         val df = rdd.toDF("uuid", "user_emb", "cluster_center")
         df.createOrReplaceTempView(temp_input_data)
         spark.sql(s"""
-                insert overwrite table $tableName partition (dt=$date, threshold=$threshold, algorithm='simhash')
+                insert overwrite table $tableName partition (dt=$date, threshold=$threshold, algorithm='$algorithm')
                 select * from (
                     $temp_input_data
             )""".stripMargin)
