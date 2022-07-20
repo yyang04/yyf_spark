@@ -3,7 +3,7 @@ package job.remote
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.DataFrame
 import utils.SparkJobs.RemoteSparkJob
-import utils.privacy_clustering.{PrefixLshClustering}
+import utils.privacy_clustering.PrefixLshClustering
 
 object PrefixLshJob extends RemoteSparkJob {
     override def run(): Unit = {
