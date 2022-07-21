@@ -37,6 +37,8 @@ abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializ
               .set("spark.yarn.executor.memoryOverhead","1024")
               .set("spark.yarn.driver.memoryOverhead","1024")
               .set("spark.hadoop.hive.mt.renew.token.enable", "true")
+              .set("spark.hadoop.hive.mt.renew.token.enable", "true")
+              .set("spark.driver.maxResultSize","12G")
         }
         this.spark = SparkSession
           .builder()
