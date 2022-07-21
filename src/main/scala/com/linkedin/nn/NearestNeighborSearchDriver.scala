@@ -4,6 +4,7 @@
  */
 package com.linkedin.nn
 
+
 import com.databricks.spark.avro._
 import com.linkedin.nn.Types.ItemId
 import com.linkedin.nn.algorithm.{BruteForceNNS, CosineSignRandomProjectionNNS, JaccardMinHashNNS, L2ScalarRandomProjectionNNS}

@@ -22,7 +22,7 @@ class AffinityClustering (val upperBound: Int,
     def fit(sc:SparkContext, x: RDD[(String, Array[Double])]): RDD[(String, Array[Double], Array[Double])] = {
         val numericIDtoStringID = x.zipWithIndex().map(_.swap).persist(StorageLevel.MEMORY_AND_DISK)
         val data = numericIDtoStringID.map{ case(id, (_, emb)) => (id, emb) }
-        val edges = create_l2_similarity_graph(data, 10).map{ case(src, dst, weight) => Edge(src, dst, EdgeAttr(weight))}
+        val edges = create_l2_similarity_graph(data, 5).map{ case(src, dst, weight) => Edge(src, dst, EdgeAttr(weight))}
         val vertex = sc.parallelize((0L until data.count()).map(x => (x, VertexAttr(x, Neighbor(x, 0.0)))), 2000)
         val graph = Graph(vertex, edges).cache()
 
@@ -47,7 +47,7 @@ class AffinityClustering (val upperBound: Int,
         val model =
             new L2ScalarRandomProjectionNNS()
               .setNumHashes(300)
-              .setSignatureLength(40)
+              .setSignatureLength(20)
               .setJoinParallelism(8000)
               .setBucketLimit(1000)
               .setBucketWidth(2)
@@ -68,7 +68,7 @@ class AffinityClustering (val upperBound: Int,
         val model =
             new L2ScalarRandomProjectionNNS()
               .setNumHashes(300)
-              .setSignatureLength(40)
+              .setSignatureLength(20)
               .setJoinParallelism(8000)
               .setBucketLimit(1000)
               .setBucketWidth(2)
@@ -85,7 +85,7 @@ class AffinityClustering (val upperBound: Int,
         var graph = g
 
         Breaks.breakable {
-            for ( _ <- 0 until 2) {
+            for ( _ <- 0 until 7) {
                 graph = graph.joinVertices(
                     graph.aggregateMessages[Neighbor](
                         sendMsg = ctx =>
