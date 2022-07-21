@@ -35,12 +35,10 @@ class AffinityClustering (val upperBound: Int,
         val data = numericIDtoStringID.map{ case(id, (_, emb)) => (id, emb) }
 
         val edges = create_l2_similarity_graph(data, num_neighbors).map{ case(src, dst, weight) => Edge(src, dst, EdgeAttr(weight)) }.cache()
-        edges.collect.foreach(println(_))
 
         val vertex = edges.flatMap{ case Edge(src, dst, w) => List(src, dst) }.distinct().map(x => (x, VertexAttr(x, Neighbor(x, 0.0))))
 
         val graph = Graph(vertex, edges).cache()
-        graph.vertices.collect.foreach(println(_))
 
         edges.unpersist()
 
@@ -117,7 +115,6 @@ class AffinityClustering (val upperBound: Int,
                             case (n1, n2) => if (n1.weight > n2.weight) n2 else n1
                         })
                 )((_, attr1, attr2) => VertexAttr(attr1.parent, attr2))
-                graph.vertices.collect.foreach(println(_))
                 mst = mst.union(
                     Graph(
                         vertices = graph.vertices,
@@ -129,8 +126,6 @@ class AffinityClustering (val upperBound: Int,
                         }
                     ).map { case (vid, n) => Edge(vid, n.vertexId, 0) })
 
-                graph.vertices.collect.foreach(println(_))
-                mst.collect.foreach(println(_))
 
                 val new_graph = graph.joinVertices(
                     Graph(vertices = graph.vertices, edges = mst)
