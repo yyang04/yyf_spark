@@ -15,6 +15,7 @@ class ArgsParser {
         opt[String]("endDt").action((x, c) => c.copy(endDt = x))
         opt[String]("tableName").action((x, c) => c.copy(tableName = x))
         opt[String]("sql").action((x, c) => c.copy(sql = x))
+        opt[String]("algorithm").action((x, c) => c.copy(algorithm = x))
         opt[Int]("threshold").action((x, c) => c.copy(threshold = x))
     }
 

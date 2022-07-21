@@ -15,4 +15,11 @@ abstract class LocalSparkJob{
           .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
         this.sc = new SparkContext(conf)
     }
+
+    def main(args: Array[String]): Unit = {
+        initSpark()
+        run()
+    }
+
+    def run(): Unit = {}
 }
