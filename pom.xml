@@ -94,10 +94,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-
     </dependencies>
-
 
     <build>
         <plugins>
@@ -173,5 +170,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

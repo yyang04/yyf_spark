@@ -32,7 +32,7 @@ class AffinityClustering (val upperBound: Int,
         label = privacy_filter(label, threshold=threshold)
         centers = cluster_centers(data, label)
 
-        val cl = label.join(centers).map{ case(id, (label, center)) => (id, center)}
+        val cl = label.join(centers).map{ case(id, (_, center)) => (id, center)}
         val result = numericIDtoStringID.join(cl).map{ case(_, ((uuid, emb), center)) => (uuid, emb, center)}
         numericIDtoStringID.unpersist()
         result
@@ -40,7 +40,7 @@ class AffinityClustering (val upperBound: Int,
 
 
     def create_l2_similarity_graph(x: RDD[(Long, Array[Double])],
-                                num_neighbors: Int): RDD[(Long, Long, Float)] = {
+                                num_neighbors: Int): RDD[(Long, Long, Double)] = {
         val items = x.map{ case(id, embedding) => (id, Vectors.dense(embedding)) }
         val numFeatures = items.first._2.size
         val numCandidates = num_neighbors
@@ -56,7 +56,7 @@ class AffinityClustering (val upperBound: Int,
               .createModel(numFeatures)
 
         val neighbors: RDD[(Long, Long, Double)] = model.getSelfAllNearestNeighbors(items, numCandidates)
-        neighbors.map(x=> (x._1, x._2, x._3.toFloat))
+        neighbors.map(x=> (x._1, x._2, x._3))
     }
 
     def predict(x: RDD[(Long, Array[Double])], centers: RDD[(Long, Array[Double])]): RDD[(Long, Int)] = {
@@ -112,24 +112,14 @@ class AffinityClustering (val upperBound: Int,
                     Graph(vertices = graph.vertices, edges = mst)
                       .connectedComponents.vertices)((_, attr1, attr2) => VertexAttr(attr2, attr1.neighbor)).cache()
 
-                val count = graph.vertices.map{ case(vid, attr) => (attr.parent, 1) }.reduceByKey(_ + _).collect().map(_._2)
+                val count = graph.vertices.map{ case(_, attr) => (attr.parent, 1) }.reduceByKey(_ + _).collect().map(_._2)
                 if (count.exists(_ > upperBound)) Breaks.break()
                 graph = new_graph
                 new_graph.unpersist()
             }
         }
 
-        var label = graph.vertices.map{ case(vid, attr) => (vid, attr.parent.toInt) }.cache()
+        val label = graph.vertices.map{ case(vid, attr) => (vid, attr.parent.toInt) }.cache()
         privacy_filter(label, lowerBound).filter(_._2 != -1)
     }
-
-
-
-
-
-
-
-
-
-
 }
