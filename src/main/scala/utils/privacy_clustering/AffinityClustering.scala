@@ -17,23 +17,45 @@ case class EdgeAttr (weight: Double)
 
 class AffinityClustering (val upperBound: Int,
                           val lowerBound: Int,
-                          val threshold: Int)
+                          val threshold: Int,
+                          val numHashes: Int,
+                          val signatureLength: Int,
+                          val joinParallelism: Int,
+                          val bucketLimit: Int,
+                          val bucketWidth: Int,
+                          val outputPartitions: Int,
+                          val num_neighbors: Int,
+                          val num_steps: Int
+                         )
 {
     def fit(sc:SparkContext, x: RDD[(String, Array[Double])]): RDD[(String, Array[Double], Array[Double])] = {
+
         val numericIDtoStringID = x.zipWithIndex().map(_.swap).persist(StorageLevel.MEMORY_AND_DISK)
+
         val data = numericIDtoStringID.map{ case(id, (_, emb)) => (id, emb) }
-        val edges = create_l2_similarity_graph(data, 5).map{ case(src, dst, weight) => Edge(src, dst, EdgeAttr(weight))}
-        val vertex = sc.parallelize((0L until data.count()).map(x => (x, VertexAttr(x, Neighbor(x, 0.0)))), 2000)
+
+        val edges = create_l2_similarity_graph(data, num_neighbors).map{ case(src, dst, weight) => Edge(src, dst, EdgeAttr(weight)) }.cache()
+        edges.collect.foreach(println(_))
+
+        val vertex = edges.flatMap{ case Edge(src, dst, w) => List(src, dst) }.distinct().map(x => (x, VertexAttr(x, Neighbor(x, 0.0))))
+
         val graph = Graph(vertex, edges).cache()
+        graph.vertices.collect.foreach(println(_))
+
+        edges.unpersist()
 
         var label = cluster(sc, graph)
+
         var centers = cluster_centers(data, label)
+
         label = predict(data, centers)
+
         label = privacy_filter(label, threshold=threshold)
+
         centers = cluster_centers(data, label)
 
-        val cl = label.join(centers).map{ case(id, (_, center)) => (id, center)}
-        val result = numericIDtoStringID.join(cl).map{ case(_, ((uuid, emb), center)) => (uuid, emb, center)}
+        val cl = label.join(centers).map{ case(id, (_, center)) => (id, center) }
+        val result = numericIDtoStringID.join(cl).map{ case(_, ((uuid, emb), center)) => (uuid, emb, center) }
         numericIDtoStringID.unpersist()
         result
     }
@@ -46,15 +68,14 @@ class AffinityClustering (val upperBound: Int,
         val numCandidates = num_neighbors
         val model =
             new L2ScalarRandomProjectionNNS()
-              .setNumHashes(300)
-              .setSignatureLength(20)
-              .setJoinParallelism(8000)
-              .setBucketLimit(1000)
-              .setBucketWidth(2)
+              .setNumHashes(numHashes)
+              .setSignatureLength(signatureLength)
+              .setJoinParallelism(outputPartitions)
+              .setBucketLimit(bucketLimit)
+              .setBucketWidth(bucketWidth)
               .setShouldSampleBuckets(true)
-              .setNumOutputPartitions(8000)
+              .setNumOutputPartitions(outputPartitions)
               .createModel(numFeatures)
-
         val neighbors: RDD[(Long, Long, Double)] = model.getSelfAllNearestNeighbors(items, numCandidates)
         neighbors.map(x=> (x._1, x._2, x._3))
     }
@@ -67,15 +88,14 @@ class AffinityClustering (val upperBound: Int,
         val numCandidates = 1
         val model =
             new L2ScalarRandomProjectionNNS()
-              .setNumHashes(300)
-              .setSignatureLength(20)
-              .setJoinParallelism(8000)
-              .setBucketLimit(1000)
-              .setBucketWidth(2)
+              .setNumHashes(numHashes)
+              .setSignatureLength(signatureLength)
+              .setJoinParallelism(outputPartitions)
+              .setBucketLimit(bucketLimit)
+              .setBucketWidth(bucketWidth)
               .setShouldSampleBuckets(true)
-              .setNumOutputPartitions(8000)
+              .setNumOutputPartitions(outputPartitions)
               .createModel(numFeatures)
-
         val neighbors: RDD[(Long, Long, Double)] = model.getAllNearestNeighbors(items, candidatePool, numCandidates)
         neighbors.map(x=> (x._1, x._2.toInt))
     }
@@ -85,7 +105,7 @@ class AffinityClustering (val upperBound: Int,
         var graph = g
 
         Breaks.breakable {
-            for ( _ <- 0 until 7) {
+            for ( _ <- 0 until num_steps) {
                 graph = graph.joinVertices(
                     graph.aggregateMessages[Neighbor](
                         sendMsg = ctx =>
@@ -97,6 +117,7 @@ class AffinityClustering (val upperBound: Int,
                             case (n1, n2) => if (n1.weight > n2.weight) n2 else n1
                         })
                 )((_, attr1, attr2) => VertexAttr(attr1.parent, attr2))
+                graph.vertices.collect.foreach(println(_))
                 mst = mst.union(
                     Graph(
                         vertices = graph.vertices,
@@ -107,6 +128,9 @@ class AffinityClustering (val upperBound: Int,
                             case (n1, n2) => if (n1.weight > n2.weight) n2 else n1
                         }
                     ).map { case (vid, n) => Edge(vid, n.vertexId, 0) })
+
+                graph.vertices.collect.foreach(println(_))
+                mst.collect.foreach(println(_))
 
                 val new_graph = graph.joinVertices(
                     Graph(vertices = graph.vertices, edges = mst)

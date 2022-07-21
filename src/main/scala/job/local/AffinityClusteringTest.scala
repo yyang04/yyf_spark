@@ -11,12 +11,14 @@ case class EdgeAttr (weight: Double)
 
 
 object AffinityClusteringTest extends LocalSparkJob {
+    // Edge(1,2,9), Edge(1,7,20), Edge(0,6,7),
     override def run(): Unit = {
         val nodes = sc.parallelize((0L to 8L).map(x => (x, VertexAttr(x, Neighbor(x, 0.0)))), 2)
         var edges = sc.parallelize(
-            Seq(Edge(0,1,4), Edge(1,2,9), Edge(2,3,6), Edge(3,5,5), Edge(2,4,2),
-                Edge(4,3,10), Edge(4,5,15), Edge(4,8,5), Edge(4,7,1), Edge(0,6,7),
-                Edge(1,6,11), Edge(1,7,20), Edge(6,7,1), Edge(7,8,3), Edge(8,5,12)), 2)
+            Seq(Edge(0,-1,4), Edge(2,3,6), Edge(3,5,5), Edge(2,4,2),
+                Edge(4,3,10), Edge(4,5,15), Edge(4,8,5), Edge(4,7,1),
+                Edge(1,6,11), Edge(6,7,1), Edge(7,8,3), Edge(8,5,12))
+            , 2)
           .map{ case Edge(src, dst, w) => Edge(src, dst, EdgeAttr(w.toDouble)) }
         edges = edges.union(edges.map{ case Edge(src, dst, w) => Edge(dst, src, w) })
         var graph = Graph(nodes, edges).cache()

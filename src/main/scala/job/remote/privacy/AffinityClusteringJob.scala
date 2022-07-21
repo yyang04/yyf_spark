@@ -18,7 +18,19 @@ object AffinityClusteringJob extends RemoteSparkJob {
             (uuid, user_emb)
         })
 
-        val model = new AffinityClustering(30000, 1000, 2000)
+        val model = new AffinityClustering(
+            upperBound = 40000,
+            lowerBound = 500,
+            threshold = 2000,
+            numHashes = 300,
+            signatureLength = 40,
+            joinParallelism = 8000,
+            bucketLimit = 1000,
+            bucketWidth = 10,
+            outputPartitions = 8000,
+            num_neighbors = 5,
+            num_steps = 5
+        )
         val result = model.fit(sc, data)
 
         saveAsTable(rdd = result,
