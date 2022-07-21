@@ -7,7 +7,6 @@ import org.apache.spark.storage.StorageLevel
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.graphx._
 import PrivacyClustering.{privacy_filter, cluster_centers}
-import job.local.{Neighbor, VertexAttr}
 
 import scala.util.control.Breaks
 
