@@ -7,12 +7,7 @@ import utils.privacy_clustering.{AffinityClustering, EdgeAttr, Neighbor, VertexA
 
 import java.util.{Random => JR}
 import breeze.linalg.{*, Axis, norm, DenseMatrix => BDM, DenseVector => BDV}
-import com.linkedin.nn.algorithm.L2ScalarRandomProjectionNNS
-import org.apache.spark.SparkContext
-import org.apache.spark.graphx.{Edge, Graph}
 import utils.privacy_clustering.Metrics.evaluate_minkowski
-import utils.privacy_clustering.PrivacyClustering.privacy_filter
-
 import scala.util.control.Breaks
 
 object AffinityClusteringJob extends LocalSparkJob {
