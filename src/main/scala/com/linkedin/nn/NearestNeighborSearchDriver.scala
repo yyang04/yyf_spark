@@ -4,8 +4,7 @@
  */
 package com.linkedin.nn
 
-
-import com.databricks.spark.avro._
+import org.apache.spark.sql.avro._
 import com.linkedin.nn.Types.ItemId
 import com.linkedin.nn.algorithm.{BruteForceNNS, CosineSignRandomProjectionNNS, JaccardMinHashNNS, L2ScalarRandomProjectionNNS}
 import com.linkedin.nn.params.NNSCLIParams
@@ -20,19 +19,19 @@ import org.apache.spark.{SparkConf, SparkContext}
 import scala.collection.Map
 
 /**
-  * This is a driver utility to run the nearest neighbor search algorithms
-  */
+ * This is a driver utility to run the nearest neighbor search algorithms
+ */
 object NearestNeighborSearchDriver {
   /**
-    * Get feature index map from a pre-existing stored list of features. The stored list is expected to contain one
-    * feature per line with the name and term separated by [[CommonConstantsAndUtils.separator]]
-    *
-    * Note: The list of features is expected to fit in the spark driver memory
-    *
-    * @param nameTermPath Path containing stored list of features
-    * @param sc [[SparkContext]]
-    * @return Feature index map as a broadcast variable
-    */
+   * Get feature index map from a pre-existing stored list of features. The stored list is expected to contain one
+   * feature per line with the name and term separated by [[CommonConstantsAndUtils.separator]]
+   *
+   * Note: The list of features is expected to fit in the spark driver memory
+   *
+   * @param nameTermPath Path containing stored list of features
+   * @param sc [[SparkContext]]
+   * @return Feature index map as a broadcast variable
+   */
   def getFeatureIndexMap(nameTermPath: String, sc: SparkContext): Broadcast[Map[String, Int]] = {
     sc.broadcast(
       sc.textFile(nameTermPath)
@@ -42,18 +41,18 @@ object NearestNeighborSearchDriver {
   }
 
   /**
-    * Read an avro dataset containing the item id and a bag of (name, term, value) features into an RDD of item id
-    * and vector.
-    *
-    * The dataset may contain other fields
-    *
-    * @param path Path to the avro dataset
-    * @param idColumnName Name of the column containing item id
-    * @param attributesColumnName Name of feature bag column
-    * @param featureIndexMapB Broadcasted feature index map
-    * @param sparkSession [[SparkSession]]
-    * @return Key-value RDD of item id to the vector representation
-    */
+   * Read an avro dataset containing the item id and a bag of (name, term, value) features into an RDD of item id
+   * and vector.
+   *
+   * The dataset may contain other fields
+   *
+   * @param path Path to the avro dataset
+   * @param idColumnName Name of the column containing item id
+   * @param attributesColumnName Name of feature bag column
+   * @param featureIndexMapB Broadcasted feature index map
+   * @param sparkSession [[SparkSession]]
+   * @return Key-value RDD of item id to the vector representation
+   */
   def readDataset(path: String,
                   idColumnName: String,
                   attributesColumnName: String,
@@ -61,7 +60,7 @@ object NearestNeighborSearchDriver {
                   sparkSession: SparkSession): RDD[(ItemId, Vector)] = {
 
     val numFeatures = featureIndexMapB.value.size
-    sparkSession.read.avro(path)
+    sparkSession.read.format("avro").load(path)
       .select(idColumnName, attributesColumnName)
       .rdd
       .map(r =>
@@ -82,18 +81,18 @@ object NearestNeighborSearchDriver {
   }
 
   /**
-    * Write the neighbors RDD back to HDFS as an avro dataset
-    * @param neighbors Neighbors RDD
-    * @param outputPath Path where the output should be stored. The content at the path will be overwritten
-    * @param sparkSession [[SparkSession]]
-    */
+   * Write the neighbors RDD back to HDFS as an avro dataset
+   * @param neighbors Neighbors RDD
+   * @param outputPath Path where the output should be stored. The content at the path will be overwritten
+   * @param sparkSession [[SparkSession]]
+   */
   def writeOutput(neighbors: RDD[(Long, Long, Double)], outputPath: String, sparkSession: SparkSession): Unit = {
     val output = neighbors.map{ case (x, y, z) => Row(x, y, z) }
     val schema = StructType(Array(
       StructField("itemId", LongType, nullable = false),
       StructField("candidateId", LongType, nullable = false),
       StructField("distance", DoubleType, nullable = false)))
-    sparkSession.createDataFrame(output, schema).write.mode(SaveMode.Overwrite).avro(outputPath)
+    sparkSession.createDataFrame(output, schema).write.mode(SaveMode.Overwrite).format("avro").save(outputPath)
   }
 
   /**

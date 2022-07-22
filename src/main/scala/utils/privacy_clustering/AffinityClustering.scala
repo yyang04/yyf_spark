@@ -53,8 +53,11 @@ class AffinityClustering (val upperBound: Int,
         centers = cluster_centers(data, label)
 
         val cl = label.join(centers).map{ case(id, (_, center)) => (id, center) }
+
         val result = numericIDtoStringID.join(cl).map{ case(_, ((uuid, emb), center)) => (uuid, emb, center) }
+
         numericIDtoStringID.unpersist()
+
         result
     }
 
@@ -115,10 +118,11 @@ class AffinityClustering (val upperBound: Int,
                             case (n1, n2) => if (n1.weight > n2.weight) n2 else n1
                         })
                 )((_, attr1, attr2) => VertexAttr(attr1.parent, attr2))
+
                 mst = mst.union(
                     Graph(
                         vertices = graph.vertices,
-                        edges = graph.vertices.map { case (vid, VertexAttr(parent, _)) => Edge(vid, parent, 0) }
+                        edges = graph.vertices.map { case (vid, VertexAttr(parent, _) ) => Edge(vid, parent, 0) }
                     ).aggregateMessages[Neighbor](
                         sendMsg = ctx => ctx.sendToDst(ctx.srcAttr.neighbor),
                         mergeMsg = {
@@ -128,8 +132,10 @@ class AffinityClustering (val upperBound: Int,
 
 
                 val new_graph = graph.joinVertices(
-                    Graph(vertices = graph.vertices, edges = mst)
-                      .connectedComponents.vertices)((_, attr1, attr2) => VertexAttr(attr2, attr1.neighbor)).cache()
+                    Graph(
+                        vertices = graph.vertices,
+                        edges = mst
+                    ).connectedComponents.vertices)((_, attr1, attr2) => VertexAttr(attr2, attr1.neighbor)).cache()
 
                 val count = graph.vertices.map{ case(_, attr) => (attr.parent, 1) }.reduceByKey(_ + _).collect().map(_._2)
                 if (count.exists(_ > upperBound)) Breaks.break()
