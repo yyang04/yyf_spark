@@ -12,6 +12,7 @@ object AffinityClusteringJob extends RemoteSparkJob {
             """select uuid, user_emb
               |from mart_waimaiad.privacy_clustering_user_emb_test
               |where dt = 20211125
+              |limit 1000000
               |""".stripMargin).rdd.map(row => {
             val uuid = row.getAs[String](0)
             val user_emb = row.getAs[Seq[Double]](1).toArray
@@ -19,9 +20,9 @@ object AffinityClusteringJob extends RemoteSparkJob {
         })
 
         val model = new AffinityClustering(
-            upperBound = 40000,
+            upperBound = 3000,
             lowerBound = 500,
-            threshold = 2000,
+            threshold = 1000,
             numHashes = 300,
             signatureLength = 40,
             joinParallelism = 8000,
