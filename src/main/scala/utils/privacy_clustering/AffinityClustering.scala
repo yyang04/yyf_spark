@@ -128,14 +128,15 @@ class AffinityClustering (val upperBound: Int,
                         mergeMsg = {
                             case (n1, n2) => if (n1.weight > n2.weight) n2 else n1
                         }
-                    ).map { case (vid, n) => Edge(vid, n.vertexId, 0) })
+                    ).map { case (vid, n) => Edge(vid, n.vertexId, 0.0) })
 
                 mst.foreach(x => println(x))
 
+                val v = mst.flatMap{ case Edge(src, dst, w) => List(src, dst) }.map(x => (x, 0))
 
                 val new_graph = graph.joinVertices(
                     Graph(
-                        vertices = graph.vertices,
+                        vertices = v,
                         edges = mst
                     ).connectedComponents.vertices)((_, attr1, attr2) => VertexAttr(attr2, attr1.neighbor)).cache()
 
