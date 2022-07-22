@@ -23,7 +23,6 @@
         <spark.run>compile</spark.run>
     </properties>
 
-
     <dependencies>
         <dependency>
             <groupId>org.scala-lang</groupId>
@@ -65,14 +64,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.tensorflow</groupId>
-            <artifactId>spark-tensorflow-connector_2.11</artifactId>
-            <version>1.13.1</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-avro_2.11</artifactId>
+            <artifactId>spark-avro_${spark.scala.version}</artifactId>
             <version>${spark.version}</version>
         </dependency>
 
@@ -82,22 +75,12 @@
             <version>31.1-jre</version>
         </dependency>
 
-
         <dependency>
             <groupId>com.sankuai.meituan</groupId>
             <artifactId>mtconfig-client</artifactId>
-            <version>2.2.0</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>libthrift</artifactId>
-                    <groupId>org.apache.thrift</groupId>
-                </exclusion>
-            </exclusions>
+            <version>2.3.2</version>
         </dependency>
-
-
     </dependencies>
-
 
     <build>
         <plugins>
@@ -111,6 +94,7 @@
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-eclipse-plugin</artifactId>
@@ -137,6 +121,7 @@
                     </sourceIncludes>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
