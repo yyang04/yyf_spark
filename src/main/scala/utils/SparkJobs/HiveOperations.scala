@@ -9,7 +9,7 @@ object HiveOperations {
                     partition: Map[String, Any]): Unit = {
 
         val typeMap = Map("String" -> "string", "Integer" -> "int")
-        val full_table_name = "mart.waimaiad.yyf04_" + tableName
+        val full_table_name = "mart_waimaiad.yyf04_" + tableName
         val schema = df.schema.map(x => x.name + " " + x.dataType.simpleString).mkString(",\n")
         val partitionString = partition.map{ case (k,v) => k + " " + typeMap(v.getClass.getSimpleName)}.mkString(", ")
 
