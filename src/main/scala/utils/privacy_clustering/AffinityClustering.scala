@@ -6,7 +6,9 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.graphx._
-import PrivacyClustering.{privacy_filter, cluster_centers}
+import PrivacyClustering.{cluster_centers, privacy_filter}
+import org.apache.spark.sql.SparkSession
+import utils.SparkJobs.HiveOperations.saveAsTable
 
 import scala.util.control.Breaks
 
@@ -28,19 +30,29 @@ class AffinityClustering (val upperBound: Int,
                           val num_steps: Int
                          )
 {
-    def fit(sc:SparkContext, x: RDD[(String, Array[Double])]): RDD[(String, Array[Double], Array[Double])] = {
+    def fit(sc:SparkContext, spark: SparkSession, x: RDD[(String, Array[Double])]): RDD[(String, Array[Double], Array[Double])] = {
+        import spark.implicits._
 
         val numericIDtoStringID = x.zipWithIndex().map(_.swap).persist(StorageLevel.MEMORY_AND_DISK)
 
         val data = numericIDtoStringID.map{ case(id, (_, emb)) => (id, emb) }
 
-        val edges = create_l2_similarity_graph(data, num_neighbors).map{ case(src, dst, weight) => Edge(src, dst, EdgeAttr(weight)) }.cache()
+        val edges = create_l2_similarity_graph(data, num_neighbors).map{ case(src, dst, weight) => Edge(src, dst, weight) }
+
+        saveAsTable(spark,
+            edges.toDF("src", "dst", "weight"),
+            tableName="graph_resys",
+            partition=Map("dt"->"20211125", "partition"->"affinityclustering"))
+
 
         val vertex = edges.flatMap{ case Edge(src, dst, w) => List(src, dst) }.distinct().map(x => (x, VertexAttr(x, Neighbor(x, 0.0))))
 
-        val graph = Graph(vertex, edges).cache()
 
-        edges.unpersist()
+
+
+
+        val graph = Graph(vertex, edges)
+
 
         var label = cluster(sc, graph)
 
@@ -101,7 +113,7 @@ class AffinityClustering (val upperBound: Int,
         neighbors.map(x=> (x._1, x._2.toInt))
     }
 
-    def cluster(sc:SparkContext, g:Graph[VertexAttr, EdgeAttr]): RDD[(Long, Int)] ={
+    def cluster(sc:SparkContext, g:Graph[VertexAttr, Double]): RDD[(Long, Int)] ={
         var mst = sc.emptyRDD[Edge[Int]]
         var graph = g
 
@@ -111,8 +123,8 @@ class AffinityClustering (val upperBound: Int,
                     graph.aggregateMessages[Neighbor](
                         sendMsg = ctx =>
                             if (ctx.dstAttr.parent != ctx.srcAttr.parent) {
-                                ctx.sendToSrc(Neighbor(ctx.dstId, ctx.attr.weight))
-                                ctx.sendToDst(Neighbor(ctx.srcId, ctx.attr.weight))
+                                ctx.sendToSrc(Neighbor(ctx.dstId, ctx.attr))
+                                ctx.sendToDst(Neighbor(ctx.srcId, ctx.attr))
                             },
                         mergeMsg = {
                             case (n1, n2) => if (n1.weight > n2.weight) n2 else n1
