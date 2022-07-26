@@ -37,22 +37,30 @@ class AffinityClustering (val upperBound: Int,
 
         val data = numericIDtoStringID.map{ case(id, (_, emb)) => (id, emb) }
 
-        val edges = create_l2_similarity_graph(data, num_neighbors).map{ case(src, dst, weight) => Edge(src, dst, weight) }
+        var edges = create_l2_similarity_graph(data, num_neighbors).map{ case(src, dst, weight) => (src, dst, weight) }
 
         saveAsTable(spark,
             edges.toDF("src", "dst", "weight"),
             tableName="graph_resys",
             partition=Map("dt"->"20211125", "partition"->"affinityclustering"))
 
+        edges = spark.sql(
+            s"""
+               |select src, dst, weight from mart_waimaiad.yyf04_graph_resys
+               |where dt = 20211125
+               |and partition = 'affinityclustering'
+               |""".stripMargin).rdd.map( row => {
+            val src = row.getAs[Long](0)
+            val dst = row.getAs[Long](1)
+            val weight = row.getAs[Double](2)
+            (src, dst, weight)
+        })
 
-        val vertex = edges.flatMap{ case Edge(src, dst, w) => List(src, dst) }.distinct().map(x => (x, VertexAttr(x, Neighbor(x, 0.0))))
+        val edgesWrap = edges.map{ case (src, dst, weight) => Edge(src, dst, weight) }
 
+        val vertex = edgesWrap.flatMap{ case Edge(src, dst, _) => List(src, dst) }.distinct().map(x => (x, VertexAttr(x, Neighbor(x, 0.0))))
 
-
-
-
-        val graph = Graph(vertex, edges)
-
+        val graph = Graph(vertex, edgesWrap)
 
         var label = cluster(sc, graph)
 
@@ -142,20 +150,17 @@ class AffinityClustering (val upperBound: Int,
                         }
                     ).map { case (vid, n) => Edge(vid, n.vertexId, 0) })
 
-                mst.foreach(x => println(x))
+                val v = mst.flatMap{ case Edge(src, dst, _) => List(src, dst) }.map(x => (x, 0))
 
-                val v = mst.flatMap{ case Edge(src, dst, w) => List(src, dst) }.map(x => (x, 0))
-
-                val new_graph = graph.joinVertices(
+                graph = graph.joinVertices(
                     Graph(
                         vertices = v,
                         edges = mst
                     ).connectedComponents.vertices)((_, attr1, attr2) => VertexAttr(attr2, attr1.neighbor)).cache()
 
                 val count = graph.vertices.map{ case(_, attr) => (attr.parent, 1) }.reduceByKey(_ + _).collect().map(_._2)
+
                 if (count.exists(_ > upperBound)) Breaks.break()
-                graph = new_graph
-                new_graph.unpersist()
             }
         }
 
