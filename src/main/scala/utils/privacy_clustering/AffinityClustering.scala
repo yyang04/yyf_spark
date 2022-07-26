@@ -150,13 +150,12 @@ class AffinityClustering (val upperBound: Int,
                         }
                     ).map { case (vid, n) => Edge(vid, n.vertexId, 0) })
 
-                val v = mst.flatMap{ case Edge(src, dst, _) => List(src, dst) }.map(x => (x, 0))
 
                 graph = graph.joinVertices(
                     Graph(
-                        vertices = v,
+                        vertices = g.vertices,
                         edges = mst
-                    ).connectedComponents.vertices)((_, attr1, attr2) => VertexAttr(attr2, attr1.neighbor)).cache()
+                    ).connectedComponents.vertices)((_, attr1, attr2) => VertexAttr(attr2, attr1.neighbor))
 
                 val count = graph.vertices.map{ case(_, attr) => (attr.parent, 1) }.reduceByKey(_ + _).collect().map(_._2)
 
