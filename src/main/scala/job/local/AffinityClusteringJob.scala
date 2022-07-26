@@ -27,7 +27,5 @@ object AffinityClusteringJob extends LocalSparkJob {
             num_neighbors = 10,
             num_steps = 3
         )
-        val result = model.fit(sc, data)
-        println(evaluate_minkowski(result.map(x => (x._2, x._3))))
     }
 }
