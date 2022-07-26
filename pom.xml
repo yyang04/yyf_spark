@@ -56,11 +56,11 @@
             <scope>${spark.run}</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-hive_${spark.scala.version}</artifactId>
-            <version>${spark.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.spark</groupId>-->
+<!--            <artifactId>spark-hive_${spark.scala.version}</artifactId>-->
+<!--            <version>${spark.version}</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.github.scopt</groupId>
