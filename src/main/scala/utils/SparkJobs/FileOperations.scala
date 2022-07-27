@@ -5,6 +5,8 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.SparkContext
 
+import scala.reflect.ClassTag
+
 object FileOperations {
     def saveAsTable(spark:SparkSession,
                     df: DataFrame,
@@ -43,7 +45,7 @@ object FileOperations {
               )""".stripMargin)
     }
 
-    def persistRDD[T](sc: SparkContext,
+    def persistRDD[T:ClassTag](sc: SparkContext,
                       hdfs: FileSystem,
                       rdd: RDD[T],
                       path: String
