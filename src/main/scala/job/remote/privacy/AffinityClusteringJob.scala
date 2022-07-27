@@ -3,7 +3,7 @@ package job.remote.privacy
 
 import utils.SparkJobs.RemoteSparkJob
 import utils.privacy_clustering.AffinityClustering
-import utils.SparkJobs.HiveOperations.saveAsTable
+import utils.SparkJobs.FileOperations.saveAsTable
 
 
 object AffinityClusteringJob extends RemoteSparkJob {
@@ -32,7 +32,7 @@ object AffinityClusteringJob extends RemoteSparkJob {
             num_neighbors = 5,
             num_steps = 5
         )
-        val result = model.fit(sc, spark, data)
+        val result = model.fit(sc, spark, hdfs, data)
         val df = result.toDF("uuid", "user_emb", "cluster_center")
 
         saveAsTable(

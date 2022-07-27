@@ -17,7 +17,8 @@ abstract class LocalSparkJob extends SQLImplicits with Serializable {
           .setAppName(this.getClass.getName)
           .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
           .set("spark.sql.catalogImplementation","hive")
-        this.spark = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate
+        // this.spark = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate
+        this.spark = SparkSession.builder().config(conf).getOrCreate
         this.sc = spark.sparkContext
         this._sqlContext = this.spark.sqlContext
     }

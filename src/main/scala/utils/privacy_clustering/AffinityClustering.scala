@@ -8,7 +8,8 @@ import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.graphx._
 import PrivacyClustering.{cluster_centers, privacy_filter}
 import org.apache.spark.sql.SparkSession
-import utils.SparkJobs.HiveOperations.saveAsTable
+import utils.SparkJobs.FileOperations.{saveAsTable, persistRDD}
+import org.apache.hadoop.fs.FileSystem
 
 import scala.util.control.Breaks
 
@@ -30,20 +31,19 @@ class AffinityClustering (val upperBound: Int,
                           val num_steps: Int
                          )
 {
-    def fit(sc:SparkContext, spark: SparkSession, x: RDD[(String, Array[Double])]): RDD[(String, Array[Double], Array[Double])] = {
+    def fit(sc:SparkContext,
+            spark: SparkSession,
+            hdfs: FileSystem,
+            x: RDD[(String, Array[Double])]): RDD[(String, Array[Double], Array[Double])] = {
         import spark.implicits._
-
         val numericIDtoStringID = x.zipWithIndex().map(_.swap).persist(StorageLevel.MEMORY_AND_DISK)
-
         val data = numericIDtoStringID.map{ case(id, (_, emb)) => (id, emb) }
-
         var edges = create_l2_similarity_graph(data, num_neighbors).map{ case(src, dst, weight) => (src, dst, weight) }
 
         saveAsTable(spark,
             edges.toDF("src", "dst", "weight"),
             tableName="graph_resys",
             partition=Map("dt"->"20211125", "partition"->"affinityclustering"))
-
         edges = spark.sql(
             s"""
                |select src, dst, weight from mart_waimaiad.yyf04_graph_resys
@@ -62,7 +62,7 @@ class AffinityClustering (val upperBound: Int,
 
         val graph = Graph(vertex, edgesWrap)
 
-        var label = cluster(sc, graph)
+        var label = cluster(sc, spark, hdfs, graph)
 
         var centers = cluster_centers(data, label)
 
@@ -121,7 +121,11 @@ class AffinityClustering (val upperBound: Int,
         neighbors.map(x=> (x._1, x._2.toInt))
     }
 
-    def cluster(sc:SparkContext, g:Graph[VertexAttr, Double]): RDD[(Long, Int)] ={
+    def cluster(sc:SparkContext,
+                spark:SparkSession,
+                hdfs:FileSystem,
+                g:Graph[VertexAttr, Double]): RDD[(Long, Int)] ={
+
         var mst = sc.emptyRDD[Edge[Int]]
         var graph = g
 
@@ -157,8 +161,12 @@ class AffinityClustering (val upperBound: Int,
                         edges = mst
                     ).connectedComponents.vertices)((_, attr1, attr2) => VertexAttr(attr2, attr1.neighbor))
 
-                val count = graph.vertices.map{ case(_, attr) => (attr.parent, 1) }.reduceByKey(_ + _).collect().map(_._2)
+                val verticesRDD = persistRDD[(VertexId, VertexAttr)](sc, hdfs, graph.vertices, "vertices")
+                val edgesRDD = persistRDD[Edge[Double]](sc, hdfs, graph.edges, "edges")
 
+                graph = Graph(verticesRDD, edgesRDD)
+
+                val count = graph.vertices.map{ case(_, attr) => (attr.parent, 1) }.reduceByKey(_ + _).collect().map(_._2)
                 if (count.exists(_ > upperBound)) Breaks.break()
             }
         }

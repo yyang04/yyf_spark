@@ -3,12 +3,14 @@ package utils.SparkJobs
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{DataFrame, SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.hadoop.fs.FileSystem
 
 abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializable {
     Logger.getLogger("org").setLevel(Level.ERROR)
     var spark: SparkSession = _
     var sc: SparkContext = _
     var params: Config = Config()
+    var hdfs: FileSystem = _
     override var _sqlContext: SQLContext = _
 
     def main(args: Array[String]): Unit ={
@@ -58,8 +60,8 @@ abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializ
         spark.conf.set("spark.default.parallelism", parallelism)
         this.sc = spark.sparkContext
         this.sc.hadoopConfiguration.set("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false")
+        this.hdfs = FileSystem.get(sc.hadoopConfiguration)
     }
-
 }
 
 

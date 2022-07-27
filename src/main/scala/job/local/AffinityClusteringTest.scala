@@ -3,11 +3,11 @@ package job.local
 
 import utils.SparkJobs.LocalSparkJob
 import org.apache.spark.graphx._
+import utils.privacy_clustering.{Neighbor, VertexAttr}
 
 import scala.util.control.Breaks
 case class Neighbor (vertexId: Long, weight: Double)
 case class VertexAttr (parent: Long, neighbor: Neighbor)
-case class EdgeAttr (weight: Double)
 
 
 object AffinityClusteringTest extends LocalSparkJob {
@@ -15,23 +15,22 @@ object AffinityClusteringTest extends LocalSparkJob {
     override def run(): Unit = {
         val nodes = sc.parallelize((0L to 8L).map(x => (x, VertexAttr(x, Neighbor(x, 0.0)))), 2)
         var edges = sc.parallelize(
-            Seq(Edge(0,-1,4), Edge(2,3,6), Edge(3,5,5), Edge(2,4,2),
+            Seq(Edge(0,1,4), Edge(2,3,6), Edge(1,0,4), Edge(3,5,5), Edge(5,3,5), Edge(2,4,2),Edge(0,6,7),
                 Edge(4,3,10), Edge(4,5,15), Edge(4,8,5), Edge(4,7,1),
                 Edge(1,6,11), Edge(6,7,1), Edge(7,8,3), Edge(8,5,12))
-            , 2)
-          .map{ case Edge(src, dst, w) => Edge(src, dst, EdgeAttr(w.toDouble)) }
-        edges = edges.union(edges.map{ case Edge(src, dst, w) => Edge(dst, src, w) })
-        var graph = Graph(nodes, edges).cache()
-
+            , 100)
+          .map{ case Edge(src, dst, w) => Edge(src, dst, w.toDouble) }
+        // edges = edges.union(edges.map{ case Edge(src, dst, w) => Edge(dst, src, w) })
+        var graph = Graph(nodes, edges)
         var mst = sc.emptyRDD[Edge[Int]]
         Breaks.breakable {
-            for ( _ <- 0 until 2) {
+            for ( _ <- 0 until 3) {
                 graph = graph.joinVertices(
                     graph.aggregateMessages[Neighbor](
                         sendMsg = ctx =>
                             if (ctx.dstAttr.parent != ctx.srcAttr.parent) {
-                                ctx.sendToSrc(Neighbor(ctx.dstId, ctx.attr.weight))
-                                ctx.sendToDst(Neighbor(ctx.srcId, ctx.attr.weight))
+                                ctx.sendToSrc(Neighbor(ctx.dstId, ctx.attr))
+                                ctx.sendToDst(Neighbor(ctx.srcId, ctx.attr))
                             },
                         mergeMsg = {
                             case (n1, n2) => if (n1.weight > n2.weight) n2 else n1
@@ -41,7 +40,7 @@ object AffinityClusteringTest extends LocalSparkJob {
                 mst = mst.union(
                     Graph(
                         vertices = graph.vertices,
-                        edges = graph.vertices.map { case (vid, VertexAttr(parent, _)) => Edge(vid, parent, 0) }
+                        edges = graph.vertices.map { case (vid, VertexAttr(parent, _) ) => Edge(vid, parent, 0) }
                     ).aggregateMessages[Neighbor](
                         sendMsg = ctx => ctx.sendToDst(ctx.srcAttr.neighbor),
                         mergeMsg = {
@@ -49,14 +48,14 @@ object AffinityClusteringTest extends LocalSparkJob {
                         }
                     ).map { case (vid, n) => Edge(vid, n.vertexId, 0) })
 
-                val new_graph = graph.joinVertices(
-                    Graph(vertices = graph.vertices, edges = mst)
-                      .connectedComponents.vertices)((_, attr1, attr2) => VertexAttr(attr2, attr1.neighbor)).cache()
 
-                val count = graph.vertices.map{ case(vid, attr) => (attr.parent, 1) }.reduceByKey(_ + _).collect().map(_._2)
+                graph = graph.joinVertices(
+                    Graph(
+                        vertices = graph.vertices,
+                        edges = mst
+                    ).connectedComponents.vertices)((_, attr1, attr2) => VertexAttr(attr2, attr1.neighbor))
+                val count = graph.vertices.map{ case(_, attr) => (attr.parent, 1) }.reduceByKey(_ + _).collect().map(_._2)
                 if (count.exists(_ > 10)) Breaks.break()
-                graph = new_graph
-                new_graph.unpersist()
             }
         }
 

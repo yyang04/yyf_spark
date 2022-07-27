@@ -1,8 +1,11 @@
 package utils.SparkJobs
 
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.hadoop.fs.{FileSystem, Path}
+import org.apache.spark.SparkContext
 
-object HiveOperations {
+object FileOperations {
     def saveAsTable(spark:SparkSession,
                     df: DataFrame,
                     tableName: String,
@@ -40,4 +43,17 @@ object HiveOperations {
               )""".stripMargin)
     }
 
+    def persistRDD[T](sc: SparkContext,
+                      hdfs: FileSystem,
+                      rdd: RDD[T],
+                      path: String
+                     ): RDD[T] = {
+        val full_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/resys/${sc.applicationId}/$path"
+        val p = new Path(full_path)
+        if (hdfs.exists(p)) {
+            hdfs.delete(p, true)
+        }
+        rdd.saveAsObjectFile(full_path)
+        sc.objectFile[T](full_path)
+    }
 }
