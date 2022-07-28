@@ -1,20 +1,13 @@
 package job.remote.privacy
 
 import utils.SparkJobs.RemoteSparkJob
-import utils.PrivacyClustering.{PrefixLshClustering, SimHashClustering}
+import utils.PrivacyClustering.SimHashClustering
 import utils.FileOperations.saveAsTable
 
 object SimHashJob extends RemoteSparkJob {
-
     // simhash
     // (cosine similarity,0.6773179399884419)
     // (minkowski distance,3.750147692362917)
-
-    // prefixlsh
-    // (cosine similarity,0.7571927584345486)
-    // (minkowski distance,3.562684651420528)
-
-
 
     override def run(): Unit = {
         val threshold = params.threshold
@@ -29,8 +22,9 @@ object SimHashJob extends RemoteSparkJob {
             val user_emb = row.getAs[Seq[Double]](1).toArray
             (uuid, user_emb)
         })
+
         val model = new SimHashClustering(18, 1, threshold)
         val result = model.fit(data).toDF("uuid", "user_emb", "cluster_center")
-        saveAsTable(spark, result, "clustering_test", Map("dt" -> dt, "algorithm" -> "simhash", "threshold" -> threshold))
+        saveAsTable(spark, result, "privacy_clustering_test", Map("dt" -> dt, "algorithm" -> "simhash", "threshold" -> threshold))
     }
 }

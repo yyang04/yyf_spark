@@ -1,6 +1,5 @@
 package job.remote.privacy
 
-
 import utils.SparkJobs.RemoteSparkJob
 import utils.PrivacyClustering.AffinityClustering
 import utils.FileOperations.saveAsTable
