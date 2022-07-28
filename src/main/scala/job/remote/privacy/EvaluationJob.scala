@@ -8,7 +8,7 @@ object EvaluationJob extends RemoteSparkJob {
         val algorithm = params.algorithm
         val data = spark.sql(
             s"""select uuid, user_emb, cluster_center
-               |from mart_waimaiad.privacy_clustering_user_cluster_test
+               |from mart_waimaiad.yyf04_clustering_test
                |where dt = 20211125
                |and threshold = 2000
                |and algorithm = '$algorithm'
