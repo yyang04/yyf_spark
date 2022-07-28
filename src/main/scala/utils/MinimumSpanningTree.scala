@@ -6,7 +6,7 @@ import scala.collection.mutable
 import scala.util.control.Breaks
 import scala.util.Random
 
-object MST {
+object MinimumSpanningTree {
     // Kruskal Local Minimum Spanning Tree
     def MSTKLocal(ed: RDD[(Int, Int, Double)]): Array[(Int, Int, Double)] = {
         var E = ed.collect()

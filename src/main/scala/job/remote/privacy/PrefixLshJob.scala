@@ -2,7 +2,7 @@ package job.remote.privacy
 
 import utils.SparkJobs.RemoteSparkJob
 import utils.PrivacyClustering.PrefixLshClustering
-import utils.SparkJobs.FileOperations.saveAsTable
+import utils.FileOperations.saveAsTable
 
 object PrefixLshJob extends RemoteSparkJob {
     override def run(): Unit = {

@@ -1,7 +1,7 @@
 package job.remote.privacy
 
 import utils.PrivacyClustering.{AffinityClusteringLocal, PrefixLshClustering}
-import utils.SparkJobs.FileOperations.saveAsTable
+import utils.FileOperations.saveAsTable
 import utils.SparkJobs.RemoteSparkJob
 
 object AffinityClusteringSampleJob extends RemoteSparkJob{

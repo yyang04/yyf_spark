@@ -1,8 +1,7 @@
 package job.remote.privacy
 
 import utils.SparkJobs.RemoteSparkJob
-import utils.TimeOperations
-import utils.SparkJobs.FileOperations
+import utils.{FileOperations, TimeOperations}
 
 object DistinctUserEmbeddingJob extends RemoteSparkJob {
     override def run(): Unit = {

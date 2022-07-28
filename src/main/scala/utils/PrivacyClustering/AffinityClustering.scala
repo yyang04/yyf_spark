@@ -8,7 +8,7 @@ import org.apache.spark.ml.linalg.Vectors
 import org.apache.spark.graphx._
 import PrivacyClustering.{cluster_centers, privacy_filter}
 import org.apache.spark.sql.SparkSession
-import utils.SparkJobs.FileOperations.{saveAsTable, persistRDD}
+import utils.FileOperations.{saveAsTable, persistRDD}
 import org.apache.hadoop.fs.FileSystem
 
 import scala.util.control.Breaks

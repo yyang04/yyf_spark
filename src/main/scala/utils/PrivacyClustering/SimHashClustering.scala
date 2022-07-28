@@ -16,8 +16,7 @@ class SimHashClustering(val p: Int,
 
     def fit(x: RDD[(String, Array[Double])]): RDD[(String, Array[Double], Array[Double])] = {
         val numericIDtoStringID = x.zipWithIndex().map(_.swap).persist(StorageLevel.MEMORY_AND_DISK)
-
-
+        
         val data = numericIDtoStringID.map{ case(id, (_, emb)) => (id, emb) }
 
         // get dimension
