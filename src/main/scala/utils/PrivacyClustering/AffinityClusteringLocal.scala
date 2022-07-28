@@ -101,7 +101,7 @@ class AffinityClusteringLocal (val upperBound: Int,
     def predict(x: RDD[(Long, Array[Double])], centers: RDD[(Long, Array[Double])]): RDD[(Long, Int)] = {
         val items = x.map{ case(id, embedding) => (id, Vectors.dense(embedding)) }
 
-        val candidatePool = centers.map{ case (id, embedding) => (id, Vectors.dense(embedding)) }
+        val candidatePool = centers.map{ case(_, embedding) => Vectors.dense(embedding) }.zipWithIndex.map(_.swap)
 
         val numFeatures = items.first._2.size
         val numCandidates = 1
