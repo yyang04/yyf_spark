@@ -20,7 +20,7 @@ object AffinityClusteringSampleJob extends RemoteSparkJob{
 
         val model = new AffinityClusteringLocal(
             upperBound = 2000,
-            lowerBound = 10,
+            lowerBound = 40,
             threshold = 2000,
             numHashes = 300,
             signatureLength = 15,
