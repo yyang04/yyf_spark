@@ -32,12 +32,12 @@ object AffinityClusteringJob extends RemoteSparkJob {
             num_neighbors = 5,
             num_steps = 5
         )
-        val result = model.fit(sc, spark, hdfs, data)
-        val df = result.toDF("uuid", "user_emb", "cluster_center")
-
-        saveAsTable(
-            spark, df,
-            tableName="privacy_clustering_user_cluster_test",
-            partition=Map("dt"-> "20211125", "threshold"-> 2000, "algorithm"-> "affinityclustering"))
+//        val result = model.fit(sc, spark, hdfs, data)
+//        val df = result.toDF("uuid", "user_emb", "cluster_center")
+//
+//        saveAsTable(
+//            spark, df,
+//            tableName="privacy_clustering_user_cluster_test",
+//            partition=Map("dt"-> "20211125", "threshold"-> 2000, "algorithm"-> "affinityclustering"))
     }
 }
