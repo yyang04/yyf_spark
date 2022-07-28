@@ -1,9 +1,9 @@
-package utils.privacy_clustering
+package utils.PrivacyClustering
 import org.apache.spark.rdd.RDD
 import utils.ArrayOperations.{distance, cosineSimilarity}
 
 
-object Metrics {
+object ClusteringMetrics {
 
     def evaluate_minkowski(x: RDD[(Array[Double], Array[Double])]): Double = {
         val r = x.map {

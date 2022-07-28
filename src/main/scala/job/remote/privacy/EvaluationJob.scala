@@ -1,7 +1,7 @@
 package job.remote.privacy
 
 import utils.SparkJobs.RemoteSparkJob
-import utils.privacy_clustering.Metrics
+import utils.PrivacyClustering.ClusteringMetrics
 
 object EvaluationJob extends RemoteSparkJob {
     override def run(): Unit = {
@@ -17,7 +17,7 @@ object EvaluationJob extends RemoteSparkJob {
             val cluster_center = row.getAs[Seq[Double]](2).toArray
             (user_emb, cluster_center)
         })
-        println("cosine similarity", Metrics.evaluate_cosine(data))
-        println("minkowski distance", Metrics.evaluate_minkowski(data))
+        println("cosine similarity", ClusteringMetrics.evaluate_cosine(data))
+        println("minkowski distance", ClusteringMetrics.evaluate_minkowski(data))
     }
 }

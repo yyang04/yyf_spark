@@ -3,7 +3,7 @@ package job.local
 
 import utils.SparkJobs.LocalSparkJob
 import org.apache.spark.graphx._
-import utils.privacy_clustering.{Neighbor, VertexAttr}
+import utils.PrivacyClustering.{Neighbor, VertexAttr}
 
 import scala.util.control.Breaks
 case class Neighbor (vertexId: Long, weight: Double)

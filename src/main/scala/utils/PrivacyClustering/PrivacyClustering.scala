@@ -1,4 +1,4 @@
-package utils.privacy_clustering
+package utils.PrivacyClustering
 
 import utils.ArrayOperations
 import org.apache.spark.rdd.RDD

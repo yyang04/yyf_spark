@@ -6,7 +6,8 @@ case class Config(beginDt: String = "",
                   tableName: String = "",
                   sql: String = "",
                   threshold: Int = 2000,
-                  algorithm: String = "simhash")
+                  algorithm: String = "simhash",
+                  timestamp: String = "")
 
 class ArgsParser {
     val parser: OptionParser[Config] = new scopt.OptionParser[Config]("scopt") {
@@ -17,6 +18,7 @@ class ArgsParser {
         opt[String]("sql").action((x, c) => c.copy(sql = x))
         opt[String]("algorithm").action((x, c) => c.copy(algorithm = x))
         opt[Int]("threshold").action((x, c) => c.copy(threshold = x))
+        opt[String]("timestamp").action((x, c) => c.copy(timestamp = x))
     }
 
     def initParams(args: Array[String]):Config = {

@@ -18,7 +18,6 @@ object FileOperations {
         val schema = df.schema.map(x => x.name + " " + x.dataType.simpleString).mkString(",\n")
         val partitionString = partition.map{ case (k,v) => k + " " + typeMap(v.getClass.getSimpleName)}.mkString(", ")
 
-        // insert sql
         spark.sql(s"""
                 create table if not exists $full_table_name (
                     $schema
@@ -28,7 +27,6 @@ object FileOperations {
 
         val temp_input_data = "temp_input_data"
         df.createOrReplaceTempView(temp_input_data)
-
         val insertPartitionString = partition.map{ case (k,v) => k + "=" + {
             if (v.getClass.getSimpleName == "Integer") {
                 s"${v.toString}"
@@ -45,16 +43,15 @@ object FileOperations {
               )""".stripMargin)
     }
 
+
     def persistRDD[T:ClassTag](sc: SparkContext,
                       hdfs: FileSystem,
                       rdd: RDD[T],
-                      path: String
-                     ): RDD[T] = {
+                      path: String): RDD[T] = {
+
         val full_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/resys/${sc.applicationId}/$path"
         val p = new Path(full_path)
-        if (hdfs.exists(p)) {
-            hdfs.delete(p, true)
-        }
+        if (hdfs.exists(p)) hdfs.delete(p, true)
         rdd.saveAsObjectFile(full_path)
         sc.objectFile[T](full_path)
     }

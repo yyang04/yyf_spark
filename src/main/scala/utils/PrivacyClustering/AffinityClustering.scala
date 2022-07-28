@@ -1,4 +1,4 @@
-package utils.privacy_clustering
+package utils.PrivacyClustering
 
 import com.linkedin.nn.algorithm.L2ScalarRandomProjectionNNS
 import org.apache.spark.SparkContext

@@ -2,7 +2,7 @@ package job.remote.privacy
 
 
 import utils.SparkJobs.RemoteSparkJob
-import utils.privacy_clustering.AffinityClustering
+import utils.PrivacyClustering.AffinityClustering
 import utils.SparkJobs.FileOperations.saveAsTable
 
 

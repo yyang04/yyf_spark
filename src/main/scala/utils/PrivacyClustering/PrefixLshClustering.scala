@@ -1,10 +1,10 @@
-package utils.privacy_clustering
+package utils.PrivacyClustering
 
 import breeze.linalg.{*, Axis, norm, DenseMatrix => BDM, DenseVector => BDV}
 import org.apache.spark.ml.linalg.DenseMatrix
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
-import utils.privacy_clustering.PrivacyClustering.{cluster_centers, privacy_filter}
+import utils.PrivacyClustering.PrivacyClustering.{cluster_centers, privacy_filter}
 
 import java.util.{Random => JR}
 import scala.collection.mutable

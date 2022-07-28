@@ -33,8 +33,4 @@ object ArrayOperations {
         require(x.length == y.length)
         norm((x, y).zipped.map(_ - _))
     }
-
-    // element divide
-
-
 }

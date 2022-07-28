@@ -1,4 +1,4 @@
-package utils.privacy_clustering
+package utils.PrivacyClustering
 
 import org.apache.spark.rdd.RDD
 import breeze.linalg.{*, Axis, norm, DenseMatrix => BDM, DenseVector => BDV}
