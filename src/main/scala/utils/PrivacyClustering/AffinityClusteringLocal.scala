@@ -9,10 +9,6 @@ import org.apache.spark.sql.SparkSession
 import org.apache.hadoop.fs.FileSystem
 import utils.AF.ArrayUnionFind
 
-case class Neighbor (vertexId: Long, weight: Double)
-case class VertexAttr (parent: Long, neighbor: Neighbor)
-case class EdgeAttr (weight: Double)
-
 
 class AffinityClusteringLocal (val upperBound: Int,
                                val lowerBound: Int,

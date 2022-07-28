@@ -14,6 +14,8 @@ object SimHashJob extends RemoteSparkJob {
     // (cosine similarity,0.7571927584345486)
     // (minkowski distance,3.562684651420528)
 
+
+
     override def run(): Unit = {
         val threshold = params.threshold
         val dt = params.beginDt
