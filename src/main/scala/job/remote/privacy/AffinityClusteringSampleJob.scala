@@ -19,13 +19,12 @@ object AffinityClusteringSampleJob extends RemoteSparkJob{
         })
 
         val model = new AffinityClusteringLocal(
-            upperBound = 2000,
-            lowerBound = 40,
+            upperBound = 4000,
             threshold = 2000,
             numHashes = 300,
             signatureLength = 15,
             joinParallelism = 4000,
-            bucketLimit = 1000,
+            bucketLimit = 2000,
             bucketWidth = 20,
             outputPartitions = 4000,
             num_neighbors = 1,

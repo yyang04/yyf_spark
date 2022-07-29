@@ -9,7 +9,6 @@ import utils.AF.ArrayUnionFind
 
 
 class AffinityClusteringLocal (val upperBound: Int,
-                               val lowerBound: Int,
                                val threshold: Int,
                                val numHashes: Int,
                                val signatureLength: Int,
@@ -33,7 +32,12 @@ class AffinityClusteringLocal (val upperBound: Int,
         // 把图的edges提取到driver侧
         val local_edges = edges.collect
         // 聚类 + 过滤掉超低频节点
-        val UF = MSTBCompressed(local_edges).drop_lower_bounds(lowerBound)
+
+        var UF = MSTBCompressed(local_edges)
+        val tmp = UF.items.map(_._2.size).toList.sortBy(x=>x)
+        val lowerBound = tmp(tmp.size - 50000)
+        UF = UF.drop_lower_bounds(lowerBound)
+
         // 取出每个分片的节点，然后给sample节点打上标签label，分配给executor端
         var labels = sc.parallelize(UF.get_partitions.zipWithIndex.flatMap{ case( nodeList, id ) => nodeList.map(node => (node.toLong, id)) }, 2000)
         // 根据采样节点生成中心向量
