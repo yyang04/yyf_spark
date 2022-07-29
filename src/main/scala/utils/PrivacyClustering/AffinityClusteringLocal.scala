@@ -28,14 +28,14 @@ class AffinityClusteringLocal (val upperBound: Int,
         // 采样过后的data
         val sampleData = data.sample(withReplacement=false, fraction=sample_fraction).cache()
         // 利用采样过后的data生成最近邻图
-        val edges = create_l2_similarity_graph(sampleData, num_neighbors).map{ case(src, dst, _) => (src.toInt, dst.toInt) }
+        val edges = create_l2_similarity_graph(sampleData, num_neighbors).map{ case(src, dst, weight) => (src.toInt, dst.toInt, weight.toFloat) }
         // 把图的edges提取到driver侧
         val local_edges = edges.collect
         // 聚类 + 过滤掉超低频节点
 
         var UF = MSTBCompressed(local_edges)
         val tmp = UF.items.map(_._2.size).toList.sortBy(x=>x)
-        val lowerBound = tmp(tmp.size - 50000)
+        val lowerBound = tmp(tmp.size - 20000)
         UF = UF.drop_lower_bounds(lowerBound)
 
         // 取出每个分片的节点，然后给sample节点打上标签label，分配给executor端
@@ -63,12 +63,14 @@ class AffinityClusteringLocal (val upperBound: Int,
         result
     }
 
-    def MSTBCompressed(ed: Array[(Int, Int)]): ArrayUnionFind = {
+    def MSTBCompressed(ed: Array[(Int, Int, Float)]): ArrayUnionFind = {
 
-        val edges = ed.toSet
+        val edges = ed.sortBy(_._3)
         val V = edges.toList.flatMap(x => List(x._1, x._2)).toSet
         val UF = new ArrayUnionFind(V)
-        for ((u, v) <- edges) {
+
+
+        for ((u, v, _) <- edges) {
             val u_parent = UF.find(u)
             val v_parent = UF.find(v)
             if (u_parent != v_parent) {
