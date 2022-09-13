@@ -17,7 +17,6 @@ object AffinityClusteringJob extends RemoteSparkJob {
             val user_emb = row.getAs[Seq[Double]](1).toArray
             (uuid, user_emb)
         })
-
         val model = new AffinityClustering(
             upperBound = 3000,
             lowerBound = 500,

@@ -19,23 +19,22 @@ import scala.collection.mutable
   */
 class TopNQueue(maxCapacity: Int) extends Serializable {
 
-  val priorityQ: mutable.PriorityQueue[ItemIdDistancePair] =
-    mutable.PriorityQueue[ItemIdDistancePair]()(Ordering.by[ItemIdDistancePair, Double](_._2))
+  val priorityQ: mutable.PriorityQueue[ItemIdDistancePair] = mutable.PriorityQueue[ItemIdDistancePair]()(Ordering.by[ItemIdDistancePair, Double](_._2))
   val elements: mutable.HashSet[ItemId] = mutable.HashSet[ItemId]() // for deduplication
 
   /**
     * Enqueue elements in the queue
     * @param elems The elements to enqueue
     */
-  def enqueue(elems: ItemIdDistancePair*): Unit = {
+  def enqueue(elems: ItemIdDistancePair*): Unit = {  // 可能不止一个(Long, Double)
     elems.foreach { x =>
-      if (!elements.contains(x._1)) {
-        if (priorityQ.size < maxCapacity) {
-          priorityQ.enqueue(x)
-          elements.add(x._1)
+      if (!elements.contains(x._1)) {                // 如果不存在这个Long
+        if (priorityQ.size < maxCapacity) {          // 并且队列长度小于maxCapacity
+          priorityQ.enqueue(x)                       // 入队
+          elements.add(x._1)                         // 添加到哈希中
         } else {
-          if (priorityQ.head._2 > x._2) {
-            elements.remove(priorityQ.dequeue()._1)
+          if (priorityQ.head._2 > x._2) {            //
+            elements.remove(priorityQ.dequeue()._1)  // dequeue() 把最大元素除去
             priorityQ.enqueue(x)
             elements.add(x._1)
           }

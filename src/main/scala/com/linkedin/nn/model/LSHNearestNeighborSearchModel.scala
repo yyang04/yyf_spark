@@ -252,8 +252,8 @@ abstract class LSHNearestNeighborSearchModel[T <: LSHNearestNeighborSearchModel[
     * @param k number of nearest neighbors needed
     * @return nearest neighbors in the form (srcItemId, candidateItemId, distance)
     */
-  override def getAllNearestNeighbors(srcItems: RDD[Item], candidatePool: RDD[Item], k: Int):
-  RDD[(ItemId, ItemId, Double)] = {
+  override def getAllNearestNeighbors(srcItems: RDD[Item], candidatePool: RDD[Item], k: Int): RDD[(ItemId, ItemId, Double)] = {
+
     val hashPartitioner = new HashPartitioner($(joinParallelism))
     val srcItemsExploded = explodeData(transform(srcItems)).partitionBy(hashPartitioner)
     val candidatePoolExploded = if (srcItems.id == candidatePool.id) {

@@ -14,8 +14,7 @@ trait LSHNNSParams extends Params {
    * reduced false negative rate, at the expense of added computational complexity. Should ideally be set to be a
    * multiple of [[signatureLength]]
    */
-  private[nn] val numHashes:  IntParam =
-    new IntParam(this, "numHashes", "Number of hashes to use for estimation", ParamValidators.gt(0))
+  private[nn] val numHashes:  IntParam = new IntParam(this, "numHashes", "Number of hashes to use for estimation", ParamValidators.gt(0))
 
   final def getNumHashes: Int = $(numHashes)
 
