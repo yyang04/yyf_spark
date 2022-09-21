@@ -2,6 +2,7 @@ package job.remote.privacy
 
 import utils.SparkJobs.RemoteSparkJob
 import utils.PrivacyClustering.ClusteringMetrics
+import scala.collection.mutable
 
 object EvaluationJob extends RemoteSparkJob {
     override def run(): Unit = {
@@ -19,5 +20,20 @@ object EvaluationJob extends RemoteSparkJob {
         })
         println("cosine similarity", ClusteringMetrics.evaluate_cosine(data))
         println("minkowski distance", ClusteringMetrics.evaluate_minkowski(data))
+
+        val nodeRelation = spark.sql("""""").rdd.map(row => {
+            val poi_id: String = row.getAs[String]("poi_id")
+            val geohash_code: String = row.getAs[String]("geohash_code")
+            val spu_id: String = row.getAs[String]("spu_id")
+            val spu_name: String = row.getAs[String]("spu_name")
+            val bidWordsFilter: mutable.Map[String, Float] = mutable.Map()
+            row.getAs[Map[String, Float]]("bidwords").filter(input => input._2 > 0.9).foreach(
+                input => {
+                    bidWordsFilter += input._1 -> input._2
+                }
+            );bidWordsFilter
+        })
+
     }
+
 }

@@ -1,13 +1,12 @@
 package job.local
 
+import org.apache.spark.mllib.rdd.MLPairRDDFunctions.fromPairRDD
 import utils.SparkJobs.LocalSparkJob
 
-import scala.util.parsing.json._
+import scala.collection.mutable
 
-object MyTest5 extends LocalSparkJob {
-    override def run(): Unit = {
-        val m = Map(1->2, 2->3)
-        val a = Array.tabulate(10)(x => x)
-        a.flatMap(x=> m.get(x)).foreach(println(_))
-    }
+
+
+object MyTest5 {
+
 }
