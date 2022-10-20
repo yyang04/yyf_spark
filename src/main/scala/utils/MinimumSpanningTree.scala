@@ -38,6 +38,7 @@ object MinimumSpanningTree {
             c = math.ceil(math.log(m)) / math.ceil(math.log(n)) - 1
             val keyedEdges = edges.map(x => (x._1, x))
             val half_partitioning = keyedEdges.groupByKey().flatMap(x => {
+                x._2.toList(1)
                 val edges = x._2
                 val out = new mutable.ListBuffer[(Int, (Int, (Int, Int, Float)))]
                 val partitionKey = Random.nextInt(k)
