@@ -19,11 +19,11 @@ object Cid2Item extends RemoteSparkJob {
                |                      third_category_id as cid3
                |                      from mart_lingshou.dim_prod_product_sku_s_snapshot where dt=$date ) b
                |        on a.sku_id=b.sku_id
-               |      where dt between ${getDateDelta(date,-7)} and $date
+               |      where dt between ${getDateDelta(date,-30)} and $date
                |        and third_category_id is not null
                |        and poi_geohash is not null
                |        and a.sku_id is not null
-               |        and event_type='click'
+               |        and event_type='click' or 'order' or 'cart'
                |      group by 1,2,3 )
                |where cnt >= 2
                |""".stripMargin).rdd.map(row => {
