@@ -23,7 +23,7 @@ object Cid2Item extends RemoteSparkJob {
                |        and third_category_id is not null
                |        and poi_geohash is not null
                |        and a.sku_id is not null
-               |        and event_type in ('click' or 'order' or 'cart')
+               |        and event_type in ('click', 'order' , 'cart')
                |      group by 1,2,3 )
                |where cnt >= 2
                |""".stripMargin).rdd.map(row => {
