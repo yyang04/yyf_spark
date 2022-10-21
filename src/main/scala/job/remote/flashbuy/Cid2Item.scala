@@ -34,7 +34,7 @@ object Cid2Item extends RemoteSparkJob {
         }).groupByKey.mapValues(iter => {
             val entities = iter.toArray.sortBy(_._2).takeRight(100)
             val factors = softmax(entities.map(_._2.toDouble))
-            val results = entities.map(_._1).zip(factors).map(x=>s"$x._1:$x._2")
+            val results = entities.map(_._1).zip(factors).map(x=>s"${x._1}:${x._2}")
             results
         }).toDF("key", "value")
         val partition = Map("date" -> date, "branch" -> "cid", "method" -> "softmax")
