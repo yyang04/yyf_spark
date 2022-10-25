@@ -4,7 +4,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
     <groupId>com.mt</groupId>
     <artifactId>wmad</artifactId>
     <version>0.0.1</version>
@@ -12,9 +11,9 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <scala.version>2.11.12</scala.version>
-        <spark.scala.version>2.11</spark.scala.version>
-        <spark.version>2.4.0</spark.version>
+        <scala.version>2.12.10</scala.version>
+        <spark.scala.version>2.12</spark.scala.version>
+        <spark.version>3.0.2-mt-1.0.0</spark.version>
         <hadoop.version>2.7.7</hadoop.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kafka.version>1.0.0</kafka.version>
@@ -49,7 +48,7 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-mllib_${spark.scala.version}</artifactId>
-            <version>2.3.0</version>
+            <version>${spark.version}</version>
             <scope>${spark.run}</scope>
         </dependency>
 
