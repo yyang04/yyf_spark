@@ -66,6 +66,15 @@ object FileOperations {
         sc.objectFile[T](full_path)
     }
 
+    def saveAsTextFile(hdfs: FileSystem,
+                       rdd:RDD[_],
+                       path: String): Unit ={
+        val p = new Path(path)
+        if (hdfs.exists(p)) hdfs.delete(p, true)
+        rdd.saveAsTextFile(path)
+    }
+
+
     def parseSchema(schema: String): StructType = {
         val type_map = Map("int" -> IntegerType, "string" -> StringType, "bigint" -> LongType, "double" -> DoubleType)
         val finalSchema = StructType(
