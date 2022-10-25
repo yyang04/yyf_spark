@@ -10,8 +10,8 @@ object I2IMerge extends RemoteSparkJob {
         val result = spark.sql(
             s"""
                |select method, key, value
-               |  from mart_waimaiad.recsys_linshou_multi_recall_results_v2
-               | where dt = '$date'
+                   |  from mart_waimaiad.recsys_linshou_multi_recall_results_v2
+               | where date = '$date'
                |   and branch='cid'
                |""".stripMargin).rdd.map{ row =>
             val method = row.getString(0)
