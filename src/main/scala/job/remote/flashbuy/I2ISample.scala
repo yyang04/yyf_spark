@@ -15,9 +15,5 @@ object I2ISample extends RemoteSparkJob{
         val scGeo = sc.broadcast(geoWithCity)
 
 
-
-
-
-
     }
 }
