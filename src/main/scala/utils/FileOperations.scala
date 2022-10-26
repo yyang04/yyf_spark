@@ -74,6 +74,12 @@ object FileOperations {
         rdd.saveAsTextFile(path)
     }
 
+    def deleteTextFile(hdfs: FileSystem,
+                       path: String) : Unit ={
+        val p = new Path(path)
+        if (hdfs.exists(p)) hdfs.delete(p, true)
+    }
+
 
     def parseSchema(schema: String): StructType = {
         val type_map = Map("int" -> IntegerType, "string" -> StringType, "bigint" -> LongType, "double" -> DoubleType)

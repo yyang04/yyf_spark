@@ -4,7 +4,6 @@ import play.api.libs.json._
 import utils.FileOperations
 import utils.SparkJobs.RemoteSparkJob
 import utils.TimeOperations.getDateDelta
-import scala.collection.mutable.ArrayBuffer
 
 object I2IMerge extends RemoteSparkJob {
     override def run(): Unit = {
@@ -53,6 +52,7 @@ object I2IMerge extends RemoteSparkJob {
         } else {
             FileOperations.saveAsTextFile(hdfs, sc.makeRDD(Seq(s"$dt/pt_cid2sku")), path)
         }
+        FileOperations.deleteTextFile(hdfs, s"/user/hadoop-hmart-waimaiad/ad/admultirecall/online_dict/${getDateDelta(dt, -30)}/pt_cid2sku")
     }
 
 }

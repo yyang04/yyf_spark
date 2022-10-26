@@ -44,5 +44,11 @@ object Cid2Item extends RemoteSparkJob {
         }).toDF("key", "value")
         val partition = Map("date" -> dt, "branch" -> "cid", "method" -> "pt_cid_sales_sku_base")
         saveAsTable(spark, df, "recsys_linshou_multi_recall_results_v2", partition=partition)
+
+
+
+
     }
+
+
 }
