@@ -1,4 +1,5 @@
 package utils
+import scala.math.exp
 
 object ArrayOperations {
     // element-wise addition
@@ -32,5 +33,10 @@ object ArrayOperations {
     def distance(x: Array[Double], y: Array[Double]): Double = {
         require(x.length == y.length)
         norm((x, y).zipped.map(_ - _))
+    }
+
+    def softmax(x: Array[Double]): Array[Double] = {
+        val tmp = x.map(e => exp(e - x.max))
+        tmp.map(e => e / (tmp.sum + 1e-16))
     }
 }

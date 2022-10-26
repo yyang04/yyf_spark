@@ -1,10 +1,10 @@
 package job.remote.flashbuy
 
+import utils.ArrayOperations
 import utils.SparkJobs.RemoteSparkJob
 import utils.TimeOperations.getDateDelta
 import utils.FileOperations.saveAsTable
 
-import scala.math.exp
 
 object Cid2Item extends RemoteSparkJob {
     override def run(): Unit = {
@@ -38,16 +38,11 @@ object Cid2Item extends RemoteSparkJob {
             (cate3Id_geohash, (sku_id, cnt))
         }).groupByKey.mapValues(iter => {
             val entities = iter.toArray.sortBy(_._2).takeRight(100)
-            val factors = softmax(entities.map(_._2.toDouble))
+            val factors = ArrayOperations.softmax(entities.map(_._2.toDouble))
             val results = entities.map(_._1).zip(factors).map(x=>s"${x._1}:${x._2}")
             results
         }).toDF("key", "value")
         val partition = Map("date" -> dt, "branch" -> "cid", "method" -> "pt_cid_sales_sku_base")
         saveAsTable(spark, df, "recsys_linshou_multi_recall_results_v2", partition=partition)
-    }
-
-    def softmax(x: Array[Double]): Array[Double] = {
-        val tmp = x.map(e => exp(e - x.max))
-        tmp.map(e => e / (tmp.sum + 1e-16))
     }
 }
