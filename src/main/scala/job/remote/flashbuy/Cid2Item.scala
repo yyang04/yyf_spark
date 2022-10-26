@@ -13,10 +13,10 @@ object Cid2Item extends RemoteSparkJob {
             s"""
                |select concat_ws('_', cid3, poi_geohash) as cate3Id_geohash,
                |       sku_id,
-               |       case when event_type='click' then 1.0 * cnt
-               |            when event_type='order' then 0.5 * cnt
-               |            when event_type='cart'  then 0.5 * cnt
-               |            else 0 end as weight_cnt
+               |       cast(  case when event_type='click' then 1.0 * cnt
+               |                   when event_type='order' then 0.5 * cnt
+               |                   when event_type='cart'  then 0.5 * cnt
+               |                   else 0.0 end as weight_cnt) as double )
                |from (
                |      select a.sku_id, poi_geohash, b.cid3, event_type, count(*) as cnt
                |        from mart_waimaiad.recsys_linshou_user_explicit_acts a
