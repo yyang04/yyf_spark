@@ -13,7 +13,7 @@ object Cid2Item extends RemoteSparkJob {
             s"""
                |select concat_ws('_', cid3, poi_geohash) as cate3Id_geohash,
                |       sku_id,
-               |       case when event_type='click' then cnt
+               |       case when event_type='click' then 1.0 * cnt
                |            when event_type='order' then 0.5 * cnt
                |            when event_type='cart'  then 0.5 * cnt
                |            else 0 end as weight_cnt
