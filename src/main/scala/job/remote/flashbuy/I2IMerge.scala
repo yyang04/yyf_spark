@@ -48,9 +48,9 @@ object I2IMerge extends RemoteSparkJob {
         if (hdfs.exists(p)) {
             val originFiles = sc.textFile(path).collect().toBuffer
             originFiles.append(s"$dt/pt_cid2sku")
-            FileOperations.saveAsTextFile(hdfs, sc.makeRDD(originFiles), path)
+            FileOperations.saveTextFile(hdfs, originFiles, path)
         } else {
-            FileOperations.saveAsTextFile(hdfs, sc.makeRDD(Seq(s"$dt/pt_cid2sku")), path)
+            FileOperations.saveTextFile(hdfs, Seq(s"$dt/pt_cid2sku"), path)
         }
         FileOperations.deleteTextFile(hdfs, s"/user/hadoop-hmart-waimaiad/ad/admultirecall/online_dict/${getDateDelta(dt, -30)}/pt_cid2sku")
     }

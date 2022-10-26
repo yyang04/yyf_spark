@@ -74,6 +74,20 @@ object FileOperations {
         rdd.saveAsTextFile(path)
     }
 
+    def saveTextFile(hdfs: FileSystem,
+                     data: Seq[String],
+                     path: String
+                     ): Unit ={
+        val p = new Path(path)
+        if (hdfs.exists(p)) hdfs.delete(p, true)
+        val writer = HdfsOp.openHdfsFile(path, hdfs)
+        for (line <- data) {
+            HdfsOp.write[String](writer, line)
+        }
+        HdfsOp.closeHdfsFile(writer)
+
+    }
+
     def deleteTextFile(hdfs: FileSystem,
                        path: String) : Unit ={
         val p = new Path(path)
