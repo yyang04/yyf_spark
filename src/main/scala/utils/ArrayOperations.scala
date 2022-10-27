@@ -39,4 +39,11 @@ object ArrayOperations {
         val tmp = x.map(e => exp(e - x.max))
         tmp.map(e => e / (tmp.sum + 1e-16))
     }
+
+    def maxScale(x: Array[Double]): Array[Double] ={
+        val maxValue = x.max
+        x.map(_/maxValue)
+    }
+
+
 }

@@ -35,7 +35,7 @@ object Cid2Item extends RemoteSparkJob {
             (cate3Id_geohash, (sku_id, cnt))
         }).groupByKey.mapValues(iter => {
             val entities = iter.toArray.sortBy(_._2).takeRight(100)
-            val factors = ArrayOperations.softmax(entities.map(_._2.toDouble))
+            val factors = ArrayOperations.maxScale(entities.map(_._2.toDouble))
             val results = entities.map(_._1).zip(factors).map(x=>s"${x._1}:${x._2}")
             results
         }).toDF("key", "value")
