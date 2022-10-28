@@ -17,9 +17,8 @@ object Cid2Item extends RemoteSparkJob {
                |from (
                |      select a.sku_id, poi_geohash, b.cid3, count(*) as cnt
                |        from mart_waimaiad.recsys_linshou_user_explicit_acts a
-               |        join ( select product_id as sku_id,
-               |                      third_category_id as cid3
-               |                      from mart_lingshou.dim_prod_product_sku_s_snapshot where dt=$dt ) b
+               |        join ( select sku_id, third_category_id as cid3
+               |                      from mart_waimaiad.recsys_linshou_pt_poi_skus) b
                |        on a.sku_id=b.sku_id
                |      where dt between ${getDateDelta(dt,-30)} and $dt
                |        and third_category_id is not null
