@@ -1,5 +1,5 @@
 package utils
-import scala.math.exp
+import scala.math.{exp, log}
 
 object ArrayOperations {
     // element-wise addition
@@ -45,5 +45,14 @@ object ArrayOperations {
         x.map(_/maxValue)
     }
 
+    def logMaxScale(x: Array[Double]): Array[Double] = {
+        val r = x.map(e => log(e+1))
+        val maxValue = r.max
+        r.map(_/maxValue)
+    }
 
+    def main(args: Array[String]): Unit = {
+        logMaxScale(Array(1.0,2.0,10.0, 100.0)).foreach(println(_))
+
+    }
 }

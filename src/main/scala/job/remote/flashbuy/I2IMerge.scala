@@ -41,6 +41,8 @@ object I2IMerge extends RemoteSparkJob {
             ).toString()
         }.repartition(100)
 
+
+
         FileOperations.saveAsTextFile(hdfs, result, s"/user/hadoop-hmart-waimaiad/ad/admultirecall/online_dict/$dt/pt_cid2sku")
         val path = s"/user/hadoop-hmart-waimaiad/ad/admultirecall/file_list/$dt"
 
