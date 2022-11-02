@@ -49,8 +49,8 @@ object Cid2Item extends RemoteSparkJob {
                |        and poi_geohash is not null
                |        and a.sku_id is not null
                |        and event_type in ('click','order','cart')
-               |      group by 1,2,3)
-               |where cnt >= 1
+               |      group by 1,2,3,4)
+               |where cnt >= 2
                |""".stripMargin).rdd.map(row => {
             val cate2Id_geohash = row.getAs[String](0)
             val sku_id = row.getAs[Long](1)
