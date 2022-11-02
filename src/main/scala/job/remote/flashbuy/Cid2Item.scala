@@ -59,7 +59,7 @@ object Cid2Item extends RemoteSparkJob {
             (cate2Id_geohash, (poi_id, sku_id, cnt))
         })
 
-        val df = base.union(supplement).groupByKey.map { case (k, iter) =>
+        val df = base.union(supplement).groupByKey.mapValues { iter =>
             val entities = iter.toArray
             val factors = ArrayOperations.logMaxScale(entities.map(_._3.toDouble))
             entities
