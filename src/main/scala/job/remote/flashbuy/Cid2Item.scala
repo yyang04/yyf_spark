@@ -67,7 +67,8 @@ object Cid2Item extends RemoteSparkJob {
               .map { case ((poi_id, sku_id, _), cnt) => (poi_id, (sku_id, cnt)) }
               .groupBy(_._1)
               .mapValues(_.map(_._2).maxBy(_._2))
-              .values.toArray
+              .values.map{ case(sku_id, score) => s"$sku_id:$score"}
+              .toArray
         }.toDF("key", "value")
         val partition = Map("date" -> dt, "branch" -> "cid", "method" -> "pt_cid_sales_sku_base")
         saveAsTable(spark, df, "recsys_linshou_multi_recall_results_v2", partition=partition)
