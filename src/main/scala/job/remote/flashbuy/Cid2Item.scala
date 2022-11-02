@@ -11,7 +11,7 @@ object Cid2Item extends RemoteSparkJob {
         val dt = params.beginDt
         val base = spark.sql(
             s"""
-               |select concat_ws('_', second_category_id, geohash5) as cate3Id_geohash,
+               |select concat_ws('_', second_category_id, geohash5) as cate2Id_geohash,
                |       a.poi_id,
                |       sku_id
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus a
@@ -22,45 +22,52 @@ object Cid2Item extends RemoteSparkJob {
                |) b
                |on a.poi_id=b.poi_id
                |""".stripMargin).rdd.map { row =>
-            val cate3Id_geohash = row.getAs[String](0)
+            val cate2Id_geohash = row.getAs[String](0)
             val poi_id = row.getAs[Long](1)
             val sku_id = row.getAs[Long](2)
-            (cate3Id_geohash, (poi_id, sku_id))
-        }.groupByKey.mapValues{ _.groupBy(_._1).mapValues { _.head._2 }.values.toArray.map((_,1L)) }
+            (cate2Id_geohash, (poi_id, sku_id, 1L))
+        }
 
         val supplement = spark.sql(
             s"""
-               |select concat_ws('_', cid3, poi_geohash) as cate3Id_geohash,
+               |select concat_ws('_', cid2, poi_geohash) as cate2Id_geohash,
                |       sku_id,
+               |       poi_id,
                |       cnt
                |from (
                |      select a.sku_id,
+               |             a.poi_id,
                |             poi_geohash,
-               |             b.cid3,
+               |             b.cid2,
                |             count(*) as cnt
                |        from mart_waimaiad.recsys_linshou_user_explicit_acts a
-               |        join ( select sku_id, third_category_id as cid3
+               |        join ( select poi_id, second_category_id as cid2
                |                      from mart_waimaiad.recsys_linshou_pt_poi_skus) b
-               |        on a.sku_id=b.sku_id
+               |        on a.poi_id=b.poi_id
                |      where dt between ${getDateDelta(dt,-30)} and $dt
-               |        and third_category_id is not null
+               |        and second_category_id is not null
                |        and poi_geohash is not null
                |        and a.sku_id is not null
                |        and event_type in ('click','order','cart')
                |      group by 1,2,3)
-               |where cnt >= 3
+               |where cnt >= 1
                |""".stripMargin).rdd.map(row => {
-            val cate3Id_geohash = row.getAs[String](0)
+            val cate2Id_geohash = row.getAs[String](0)
             val sku_id = row.getAs[Long](1)
-            val cnt = row.getAs[Long](2)
-            (cate3Id_geohash, (sku_id, cnt))
-        }).groupByKey.mapValues(_.toArray)
+            val poi_id = row.getAs[Long](2)
+            val cnt = row.getAs[Long](3)
+            (cate2Id_geohash, (poi_id, sku_id, cnt))
+        })
 
-        val df = base.leftOuterJoin(supplement).map{ case (key, (v1, v2)) =>
-            val entities = Array.concat(v1, v2.getOrElse(Array())).sortBy(_._2).takeRight(100)
-            val factors = ArrayOperations.logMaxScale(entities.map(_._2.toDouble))
-            val results = entities.map(_._1).zip(factors).map(x => s"${x._1}:${x._2}")
-            (key, results)
+        val df = base.union(supplement).groupByKey.map { case (k, iter) =>
+            val entities = iter.toArray
+            val factors = ArrayOperations.logMaxScale(entities.map(_._3.toDouble))
+            entities
+              .zip(factors)
+              .map { case ((poi_id, sku_id, _), cnt) => (poi_id, (sku_id, cnt)) }
+              .groupBy(_._1)
+              .mapValues(_.map(_._2).maxBy(_._2))
+              .values.toArray
         }.toDF("key", "value")
         val partition = Map("date" -> dt, "branch" -> "cid", "method" -> "pt_cid_sales_sku_base")
         saveAsTable(spark, df, "recsys_linshou_multi_recall_results_v2", partition=partition)
