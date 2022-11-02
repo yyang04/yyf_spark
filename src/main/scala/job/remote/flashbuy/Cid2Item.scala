@@ -11,7 +11,7 @@ object Cid2Item extends RemoteSparkJob {
         val dt = params.beginDt
         val base = spark.sql(
             s"""
-               |select concat_ws('_', third_category_id, geohash5) as cate3Id_geohash,
+               |select concat_ws('_', second_category_id, geohash5) as cate3Id_geohash,
                |       a.poi_id,
                |       sku_id
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus a
@@ -19,8 +19,8 @@ object Cid2Item extends RemoteSparkJob {
                |        select poi_id, geohash5
                |          from mart_lingshou.aggr_poi_info_dd
                |         where dt=$dt
-               |  ) b
-               |  on a.poi_id=b.poi_id
+               |) b
+               |on a.poi_id=b.poi_id
                |""".stripMargin).rdd.map { row =>
             val cate3Id_geohash = row.getAs[String](0)
             val poi_id = row.getAs[Long](1)
