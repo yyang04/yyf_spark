@@ -25,7 +25,9 @@ object Cid2Item extends RemoteSparkJob {
             val cate2Id_geohash = row.getAs[String](0)
             val poi_id = row.getAs[Long](1)
             val sku_id = row.getAs[Long](2)
-            (cate2Id_geohash, (poi_id, sku_id, 1L))
+            (cate2Id_geohash, (poi_id, sku_id))
+        }.groupByKey.mapValues { iter =>
+            iter.groupBy(_._1).mapValues(x => (x.head._2, 1L)).toArray
         }
 
         val supplement = spark.sql(
@@ -57,19 +59,17 @@ object Cid2Item extends RemoteSparkJob {
             val poi_id = row.getAs[Long](2)
             val cnt = row.getAs[Long](3)
             (cate2Id_geohash, (poi_id, sku_id, cnt))
-        })
+        }).groupByKey.mapValues {iter =>
+            iter.groupBy(_._1).mapValues(x => (x.head._2, x.head._3)).toArray
+        }
 
-        val df = base.union(supplement).groupByKey.mapValues { iter =>
-            val entities = iter.toArray
-            val factors = ArrayOperations.logMaxScale(entities.map(_._3.toDouble))
-            entities
-              .zip(factors)
-              .map { case ((poi_id, sku_id, _), cnt) => (poi_id, (sku_id, cnt)) }
-              .groupBy(_._1)
-              .mapValues(_.map(_._2).maxBy(_._2))
-              .values.map{ case(sku_id, score) => s"$sku_id:$score"}
-              .toArray
+        val df = base.fullOuterJoin(supplement).map{ case (k, (v1, v2)) =>
+            val entities = Array.concat(v1.getOrElse(Array()), v2.getOrElse(Array()))
+            val res = entities.groupBy(_._1).mapValues {_.map(_._2).maxBy(_._2) }.values.toArray
+            val factors = ArrayOperations.logMaxScale(res.map(_._2.toDouble))
+            res.map(_._1).zip(factors).map{ case(sku_id, score) => s"$sku_id:$score" }
         }.toDF("key", "value")
+
         val partition = Map("date" -> dt, "branch" -> "cid", "method" -> "pt_cid_sales_sku_base")
         saveAsTable(spark, df, "recsys_linshou_multi_recall_results_v2", partition=partition)
     }
