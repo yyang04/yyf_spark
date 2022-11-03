@@ -67,7 +67,8 @@ object Cid2Item extends RemoteSparkJob {
             val entities = Array.concat(v1.getOrElse(Array()), v2.getOrElse(Array()))
             val res = entities.groupBy(_._1).mapValues {_.map(_._2).maxBy(_._2) }.values.toArray
             val factors = ArrayOperations.logMaxScale(res.map(_._2.toDouble))
-            res.map(_._1).zip(factors).map{ case(sku_id, score) => s"$sku_id:$score" }
+            val value = res.map(_._1).zip(factors).map{ case(sku_id, score) => s"$sku_id:$score" }
+            (k, value)
         }.toDF("key", "value")
 
         val partition = Map("date" -> dt, "branch" -> "cid", "method" -> "pt_cid_sales_sku_base")
