@@ -9,6 +9,8 @@ import utils.FileOperations.saveAsTable
 object Cid2Item extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.beginDt
+        val threshold = params.threshold
+
         val base = spark.sql(
             s"""
                |select concat_ws('_', second_category_id, geohash5) as cate2Id_geohash,
@@ -67,7 +69,8 @@ object Cid2Item extends RemoteSparkJob {
             val entities = Array.concat(v1.getOrElse(Array()), v2.getOrElse(Array()))
             val res = entities.groupBy(_._1).mapValues {_.map(_._2).maxBy(_._2) }.values.toArray
             val factors = ArrayOperations.logMaxScale(res.map(_._2.toDouble))
-            val value = res.map(_._1).zip(factors).map{ case(sku_id, score) => s"$sku_id:$score" }
+            val value = res.map(_._1).zip(factors).sortBy(_._2).takeRight(threshold)
+              .map{ case(sku_id, score) => s"$sku_id:$score" }
             (k, value)
         }.toDF("key", "value")
 
