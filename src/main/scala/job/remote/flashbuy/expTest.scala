@@ -22,6 +22,7 @@ object expTest extends RemoteSparkJob{
                |                   and primary_first_tag_id in (10000000,11000000,5018,12000000,13000000,40000000,41000000,15000000,42000000,5007,5001,1001,22)) info
                |      on mv.dt=info_dt and mv.poi_id=info.wm_poi_id
                |   where mv.dt = '$dt' and is_valid = 'PASS'
+               |     and split(reserves["spuIdList"], ",") is not null
                |   	 and slot in (191, 201)
                |""".stripMargin).rdd.map{ row =>
             val ad_request_id = row.getAs[String](0)
