@@ -65,6 +65,12 @@
             <version>1.2.83_noneautotype</version>
         </dependency>
 
+        <dependency>
+            <groupId>ch.hsr</groupId>
+            <artifactId>geohash</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+
 
 <!--        <dependency>-->
 <!--            <groupId>org.apache.spark</groupId>-->

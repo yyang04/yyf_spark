@@ -10,15 +10,15 @@ object Cid2Item extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.beginDt
         val threshold = params.threshold
-
+        spark.sql("CREATE TEMPORARY FUNCTION mt_geohash AS 'com.sankuai.meituan.hive.udf.UDFGeoHash'")
         val base = spark.sql(
             s"""
-               |select concat_ws('_', second_category_id, geohash5) as cate2Id_geohash,
+               |select concat_ws('_', second_category_id, mt_geohash(b.latitude /1000000.0, b.longitude /1000000.0, 5)) as cate2Id_geohash,
                |       a.poi_id,
                |       sku_id
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus a
                |  join (
-               |        select poi_id, geohash5
+               |        select poi_id,
                |          from mart_lingshou.aggr_poi_info_dd
                |         where dt=$dt
                |) b
@@ -61,7 +61,7 @@ object Cid2Item extends RemoteSparkJob {
             val poi_id = row.getAs[Long](2)
             val cnt = row.getAs[Long](3)
             (cate2Id_geohash, (poi_id, sku_id, cnt))
-        }).groupByKey.mapValues {iter =>
+        }).groupByKey.mapValues { iter =>
             iter.groupBy(_._1).mapValues(x => (x.head._2, x.head._3)).toArray
         }
 
