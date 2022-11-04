@@ -38,7 +38,13 @@ object expTest extends RemoteSparkJob{
             val pvid = row.getAs[String](0)
             val a = row.getAs[String](1)
             val b = jsonObjectStrToMap[JSONArray](a)
-              .map(x => (x._1, jsonArr2Arr[JSONArray](x._2).map(y => (y.getString(0).toLong, y.getString(1)))))
+              .map(x => (x._1, jsonArr2Arr[JSONArray](x._2).map{ y =>
+                  try {
+                      (y.getString(0).toLong, y.getString(1))
+                  } catch  {
+                      case _: Exception => (0, "")
+                  }
+              }))
             val c = b.values.flatten.toMap
             (pvid, c)
         }
@@ -46,7 +52,7 @@ object expTest extends RemoteSparkJob{
         val res = mv.leftOuterJoin(pv).map{ case (k, (v1, v2)) =>
             val total = v1.length
             val hit = v2 match {
-                case Some(d) => v1.map(x => d.getOrElse(x, "empty")).count(x => x != "salesku" || x != "empty")
+                case Some(d) => v1.map(x => d.getOrElse(x, "empty")).count(x => x != "salesku" && x != "empty")
                 case _ => 0
             }
             (total, hit)
