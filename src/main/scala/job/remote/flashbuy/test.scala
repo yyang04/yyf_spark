@@ -1,12 +1,11 @@
 package job.remote.flashbuy
 import scala.math.exp
 import org.apache.spark.rdd.RDD
+import play.api.libs.json._
 
 
 object test {
-    def main(args: Array[String]): Unit = {
 
-    }
     def a(x:RDD[(String, (String, (String, String, String)))]):
          RDD[(String, Map[String, String], Map[String, String], Map[String, String])] ={
         val res = x.groupByKey.mapValues{ iter =>
