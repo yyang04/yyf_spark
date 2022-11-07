@@ -60,11 +60,13 @@ object CoverRate extends RemoteSparkJob{
                       case _: Exception => (0, "")
                   }
               }))
-            val c = b.values.flatten.toMap.mapValues {
-                case _ contains "sku2sku" => "sku2sku"
-                case _ contains "cid2sku" => "cid2sku"
-                case _ => "salesku"
+            val c = b.values.flatten.toMap
+              .mapValues {
+                  case x if x.contains("sku2sku") =>"sku2sku"
+                  case x if x.contains("cid2sku") => "cid2sku"
+                  case _ => "salesku"
             }
+
 
             (pvid, c)
         }.reduceByKey(_++_)
