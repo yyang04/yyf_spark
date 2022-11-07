@@ -9,26 +9,26 @@ import com.alibaba.fastjson.{JSON, JSONArray}
 
 object CoverRate extends RemoteSparkJob{
     override def run(): Unit = {
+        // 频道页分召回渠道统计覆盖率比例
         val dt = params.dt
-
         val mv = spark.sql(
             s"""
                | select ad_request_id, split(reserves["spuIdList"], ",") as spuIdList
                |   from mart_waimai_dw_ad.fact_flow_ad_entry_mv mv
-               |      join (select dt as info_dt,
+               |      join (select dt,
                |                   wm_poi_id
                |  		      from mart_waimai.aggr_poi_info_dd
                | 	         where dt = '$dt'
                |                   and primary_first_tag_id in
                |         (10000000,11000000,5018,12000000,13000000,40000000,41000000,15000000,42000000,5007,5001,1001,22)) info
-               |      on mv.dt=info_dt and mv.poi_id=info.wm_poi_id
+               |      on mv.dt=info.dt and mv.poi_id=info.wm_poi_id
                |   where mv.dt = '$dt' and is_valid = 'PASS'
                |     and split(reserves["spuIdList"], ",") is not null
                |   	 and slot in (191, 201)
                |""".stripMargin).rdd.flatMap{ row =>
             val ad_request_id = row.getAs[String](0)
             val spuIdList = row.getAs[Seq[String]](1).toArray.map(_.toLong)
-            spuIdList.map(spuId => (ad_request_id, spuId)).map(_.swap)
+            spuIdList.map(spuId => (spuId, ad_request_id))
         }
 
         val spu_sku_map = spark.sql(
@@ -42,7 +42,7 @@ object CoverRate extends RemoteSparkJob{
             (spu_id, sku_id)
         }
 
-        val mv_tmp = mv.join(spu_sku_map).map{ case (k, (v1, v2)) => (v1, v2) }.groupByKey.mapValues{ _.toArray}
+        val mv_tmp = mv.join(spu_sku_map).map{ case (k, (v1, v2)) => (v1, v2) }.groupByKey.mapValues(_.toArray)
 
         val pv = spark.sql(
             s"""select pvid,
@@ -62,19 +62,32 @@ object CoverRate extends RemoteSparkJob{
               }))
             val c = b.values.flatten.toMap
             (pvid, c)
-        }
+        }.reduceByKey(_++_)
 
-
-        val res = mv_tmp.leftOuterJoin(pv).map{ case (k, (v1, v2)) =>
+        val res = mv_tmp.leftOuterJoin(pv)
+          .map{ case (request_id, (v1, v2)) =>
             val total = v1.length
             val hit = v2 match {
-                case Some(d) => v1.map(x => d.getOrElse(x, "empty")).count(x => x != "salesku" && x != "empty")
-                case _ => 0
+                case Some(d) => v1.map(x => d.getOrElse(x, "No")).groupBy(identity).mapValues(_.length)
+                case _ => Map[String, Int]()
             }
             (total, hit)
-        }.reduce((x,y) => (x._1 + y._1, x._2 +y._2))
-
-        println(s"total:${res._1}, hit:${res._2}, ratio: ${res._2/res._1}")
+        }.reduce {
+            case ((total1, hit1), (total2, hit2)) =>
+                val total = total1 + total2
+                val hit = hit1.foldLeft(hit2)(
+                    (mergedMap, kv) => {
+                        mergedMap + (kv._1 -> (mergedMap.getOrElse(kv._1, 0) + kv._2))
+                    }
+                )
+                (total , hit)
+        }
+        println(s"total:${res._1}")
+        res._2.foreach{
+            case (k, v) =>
+                val percentage = (v / res._1).toDouble
+                println(s"key: $k, hit: $v, ratio: ${percentage * 100}%.2f%%")
+        }
     }
 
     def jsonObjectStrToMap[T: ClassTag](json: String): Map[String, T] = {
