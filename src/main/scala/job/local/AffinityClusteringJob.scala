@@ -42,25 +42,11 @@ object AffinityClusteringJob extends LocalSparkJob {
             (id, res)
         }
 
-
-
         val ann = edges.map{ case(src, dst, w) => (src, dst) }.groupByKey.mapValues(iter => iter.toList)
         ann.collect.foreach(println(_))
 
         val res = bf.join(ann).map{ case(id, (list1, list2)) => (list1.intersect(list2).length / 5.0, 1)}.reduce((x,y) => (x._1 + y._1, x._2 + y._2))
         println(res._1 / res._2)
-
-
-
-
-
-
-
-
-
-
-
-
 
 
     }

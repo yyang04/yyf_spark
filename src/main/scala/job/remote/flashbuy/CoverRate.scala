@@ -7,10 +7,10 @@ import scala.collection.mutable
 import scala.reflect.ClassTag
 import com.alibaba.fastjson.{JSON, JSONArray}
 
-
-object expTest extends RemoteSparkJob{
+object CoverRate extends RemoteSparkJob{
     override def run(): Unit = {
         val dt = params.dt
+
         val mv = spark.sql(
             s"""
                | select ad_request_id, split(reserves["spuIdList"], ",") as spuIdList
@@ -19,22 +19,36 @@ object expTest extends RemoteSparkJob{
                |                   wm_poi_id
                |  		      from mart_waimai.aggr_poi_info_dd
                | 	         where dt = '$dt'
-               |                   and primary_first_tag_id in (10000000,11000000,5018,12000000,13000000,40000000,41000000,15000000,42000000,5007,5001,1001,22)) info
+               |                   and primary_first_tag_id in
+               |         (10000000,11000000,5018,12000000,13000000,40000000,41000000,15000000,42000000,5007,5001,1001,22)) info
                |      on mv.dt=info_dt and mv.poi_id=info.wm_poi_id
                |   where mv.dt = '$dt' and is_valid = 'PASS'
                |     and split(reserves["spuIdList"], ",") is not null
                |   	 and slot in (191, 201)
-               |""".stripMargin).rdd.map{ row =>
+               |""".stripMargin).rdd.flatMap{ row =>
             val ad_request_id = row.getAs[String](0)
             val spuIdList = row.getAs[Seq[String]](1).toArray.map(_.toLong)
-            (ad_request_id, spuIdList)
+            spuIdList.map(spuId => (ad_request_id, spuId)).map(_.swap)
         }
 
+        val spu_sku_map = spark.sql(
+            s"""
+               |select distinct sku_id, product_spu_id
+               |from mart_waimaiad.recsys_linshou_pt_poi_skus where dt='$dt'
+               |""".stripMargin
+        ).rdd.map { row =>
+            val sku_id = row.getAs[Long](0)
+            val spu_id = row.getAs[Long](1)
+            (spu_id, sku_id)
+        }
+
+        val mv_tmp = mv.join(spu_sku_map).map{ case (k, (v1, v2)) => (v1, v2) }.groupByKey.mapValues{ _.toArray}
+
         val pv = spark.sql(
-            s"""select pvid, recallresults
+            s"""select pvid,
+               |       recallresults
                |  from log.adt_multirecall_pv
-               |where dt='$dt'
-               |  and scenetype='2'
+               | where dt='$dt' and scenetype='2'
                |""".stripMargin).rdd.map{ row =>
             val pvid = row.getAs[String](0)
             val a = row.getAs[String](1)
@@ -50,7 +64,8 @@ object expTest extends RemoteSparkJob{
             (pvid, c)
         }
 
-        val res = mv.leftOuterJoin(pv).map{ case (k, (v1, v2)) =>
+
+        val res = mv_tmp.leftOuterJoin(pv).map{ case (k, (v1, v2)) =>
             val total = v1.length
             val hit = v2 match {
                 case Some(d) => v1.map(x => d.getOrElse(x, "empty")).count(x => x != "salesku" && x != "empty")

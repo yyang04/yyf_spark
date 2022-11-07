@@ -19,7 +19,7 @@
         <kafka.version>1.0.0</kafka.version>
         <slf4j.version>1.7.7</slf4j.version>
         <log4j.version>1.2.17</log4j.version>
-        <spark.run>provided</spark.run>
+        <spark.run>compile</spark.run>
     </properties>
 
     <dependencies>
@@ -37,6 +37,11 @@
             <scope>${spark.run}</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-hive_${spark.scala.version}</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -70,13 +75,6 @@
             <artifactId>geohash</artifactId>
             <version>1.2.0</version>
         </dependency>
-
-
-<!--        <dependency>-->
-<!--            <groupId>org.apache.spark</groupId>-->
-<!--            <artifactId>spark-hive_${spark.scala.version}</artifactId>-->
-<!--            <version>${spark.version}</version>-->
-<!--        </dependency>-->
 
         <dependency>
             <groupId>org.apache.commons</groupId>

@@ -16,7 +16,7 @@ object test {
         val lon =  11646669*1.0/1000000
         val hash = GeoHash.withCharacterPrecision(lat, lon, 5)
         val base32 = hash.toBase32
-        println(base32)
+        println("srO79")
 
 
     }

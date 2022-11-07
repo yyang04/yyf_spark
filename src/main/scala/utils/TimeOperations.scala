@@ -5,8 +5,6 @@ import org.joda.time.format.DateTimeFormat
 import org.joda.time.{DateTime, Days}
 
 
-
-
 object TimeOperations {
     // example
     // val date_string = getDateRange("20211019", 38)
@@ -29,4 +27,5 @@ object TimeOperations {
         val format = DateTimeFormat.forPattern(formatPattern)
         DateTime.parse(date, format).plusDays(delta).toString(formatPattern)
     }
+
 }
