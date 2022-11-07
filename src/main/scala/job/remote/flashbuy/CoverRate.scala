@@ -82,6 +82,7 @@ object CoverRate extends RemoteSparkJob{
                 )
                 (total , hit)
         }
+        println(s"date:$dt")
         println(s"total:${res._1}")
         res._2.foreach{
             case (k, v) =>
