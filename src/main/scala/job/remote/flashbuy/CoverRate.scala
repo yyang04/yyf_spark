@@ -60,7 +60,12 @@ object CoverRate extends RemoteSparkJob{
                       case _: Exception => (0, "")
                   }
               }))
-            val c = b.values.flatten.toMap
+            val c = b.values.flatten.toMap.mapValues {
+                case _ contains "sku2sku" => "sku2sku"
+                case _ contains "cid2sku" => "cid2sku"
+                case _ => "salesku"
+            }
+
             (pvid, c)
         }.reduceByKey(_++_)
 
@@ -86,8 +91,8 @@ object CoverRate extends RemoteSparkJob{
         println(s"total:${res._1}")
         res._2.foreach{
             case (k, v) =>
-                val percentage = (v / res._1).toDouble
-                println(s"key: $k, hit: $v, ratio: ${percentage * 100}%.2f%%")
+                val percentage = v.toDouble / res._1
+                println(f"key: $k, hit: $v, ratio: ${percentage * 100}%.2f%%")
         }
     }
 
