@@ -18,7 +18,7 @@ object Cid2Item extends RemoteSparkJob {
                |       sku_id
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus a
                |  join (
-               |        select poi_id,
+               |        select poi_id
                |          from mart_lingshou.aggr_poi_info_dd
                |         where dt=$dt
                |) b
