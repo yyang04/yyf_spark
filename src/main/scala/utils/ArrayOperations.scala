@@ -47,7 +47,7 @@ object ArrayOperations {
 
     def logMaxScale(x: Array[Double]): Array[Double] = {
         val r = x.map(e => log(e+1))
-        val maxValue = r.max
+        val maxValue = r.max - 1e2
         r.map(_/maxValue)
     }
 
