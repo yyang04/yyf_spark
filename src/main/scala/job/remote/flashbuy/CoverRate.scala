@@ -11,6 +11,7 @@ object CoverRate extends RemoteSparkJob{
     override def run(): Unit = {
         // 频道页分召回渠道统计覆盖率比例
         val dt = params.dt
+        val hour = params.hour
         val mv = spark.sql(
             s"""
                | select ad_request_id, split(reserves["spuIdList"], ",") as spuIdList
@@ -49,6 +50,7 @@ object CoverRate extends RemoteSparkJob{
                |       recallresults
                |  from log.adt_multirecall_pv
                | where dt='$dt' and scenetype='2'
+               |   and cast(hour as int) >= $hour
                |""".stripMargin).rdd.map{ row =>
             val pvid = row.getAs[String](0)
             val a = row.getAs[String](1)

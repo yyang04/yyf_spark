@@ -8,7 +8,8 @@ case class Config(beginDt: String = "",
                   threshold: Int = 2000,
                   algorithm: String = "simhash",
                   timestamp: String = "",
-                  dt:String = "")
+                  dt:String = "",
+                  hour:Int = 0)
 
 class ArgsParser {
     val parser: OptionParser[Config] = new scopt.OptionParser[Config]("scopt") {
@@ -21,6 +22,7 @@ class ArgsParser {
         opt[Int]("threshold").action((x, c) => c.copy(threshold = x))
         opt[String]("timestamp").action((x, c) => c.copy(timestamp = x))
         opt[String]("dt").action((x, c) => c.copy(dt = x))
+        opt[Int]("hour").action((x, c) => c.copy(hour = x))
     }
 
     def initParams(args: Array[String]):Config = {

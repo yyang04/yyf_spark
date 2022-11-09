@@ -52,7 +52,7 @@ object ArrayOperations {
     }
 
     def main(args: Array[String]): Unit = {
-        logMaxScale(Array(1.0,2.0,10.0, 100.0)).foreach(println(_))
+        logMaxScale(Array(1.0,1.0,1.0)).foreach(println(_))
 
     }
 }
