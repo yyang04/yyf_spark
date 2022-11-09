@@ -1,6 +1,7 @@
 package job.remote.flashbuy
 
 import utils.SparkJobs.RemoteSparkJob
+import utils.TimeOperations.getTimestamp
 import play.api.libs.json._
 
 import scala.collection.mutable
@@ -26,6 +27,7 @@ object CoverRate extends RemoteSparkJob{
                |   where mv.dt = '$dt' and is_valid = 'PASS'
                |     and split(reserves["spuIdList"], ",") is not null
                |   	 and slot in (191, 201)
+               |     and cast(hour as int) >= $hour
                |""".stripMargin).rdd.flatMap{ row =>
             val ad_request_id = row.getAs[String](0)
             val spuIdList = row.getAs[Seq[String]](1).toArray.map(_.toLong)

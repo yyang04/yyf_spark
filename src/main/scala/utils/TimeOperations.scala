@@ -10,8 +10,8 @@ object TimeOperations {
     // val date_string = getDateRange("20211019", 38)
     // val date = getDateDelta("20211020", 1)
 
-    def getTimestamp(x: String) : Long = {
-        val format = new SimpleDateFormat("yyyyMMdd")
+    def getTimestamp(x: String, pattern: String= "yyyyMMdd") : Long = {
+        val format = new SimpleDateFormat(pattern)
         val d = format.parse(x)
         d.getTime
     }
