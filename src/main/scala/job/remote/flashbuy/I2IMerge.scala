@@ -48,7 +48,7 @@ object I2IMerge extends RemoteSparkJob {
 
         val p = new Path(path)
         if (hdfs.exists(p)) {
-            val originFiles = sc.textFile(path).collect().toBuffer.filter(_ != s"$dt/pt_cid2sku")
+            val originFiles = sc.textFile(path).collect().toBuffer.filterNot(_ contains s"pt_cid2sku")
             originFiles.append(s"$dt/pt_cid2sku")
             FileOperations.saveTextFile(hdfs, originFiles, path)
         } else {
