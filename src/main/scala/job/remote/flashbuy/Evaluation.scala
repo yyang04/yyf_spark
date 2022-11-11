@@ -14,8 +14,8 @@ object Evaluation extends RemoteSparkJob{
             s"""
                | select ad_request_id,
                |        split(reserves["spuIdList"], ",") as spuIdList,
-               |        if(act = 3,1,0) as pv_num,
-               |        if(act = 2,1,0) as click_num
+               |        cast(if(act = 3,1,0) as double) as pv_num,
+               |        cast(if(act = 2,1,0) as double) as click_num
                |   from mart_waimai_dw_ad.fact_flow_ad_entry_mv mv
                |   join (select dt,
                |                wm_poi_id
