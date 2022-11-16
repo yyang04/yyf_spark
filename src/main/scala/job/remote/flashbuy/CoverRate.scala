@@ -120,8 +120,8 @@ object CoverRate extends RemoteSparkJob{
         res.foreach{
             case (exp_id, (result_sku, result_pv)) =>
                 println(s"""exp_id: $exp_id""")
-                println(s"""sku: ${result_sku.mkString(",")}""")
-                println(s"""pv: ${result_pv.mkString(",")}""")
+                println(s"""sku粒度: ${handleMap(result_sku).mkString(",")}""")
+                println(s"""pv粒度: ${handleMap(result_pv).mkString(",")}""")
         }
     }
 
@@ -129,5 +129,11 @@ object CoverRate extends RemoteSparkJob{
         x.foldLeft(y)(
             (mergedMap, kv) => mergedMap + (kv._1 -> (mergedMap.getOrElse(kv._1, 0) + kv._2))
         )
+    }
+
+    def handleMap(x: Map[String, Int]): Array[(String, String)] = {
+        val total = x("total")
+        val result = x.toArray.sortBy(_._2).reverse.map{ case (k, v) => (k, f"${v.toDouble/total*100}%.2f%%")}
+        Array(("total", f"$total")) ++ result
     }
 }
