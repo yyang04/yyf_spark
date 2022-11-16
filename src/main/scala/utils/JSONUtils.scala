@@ -36,7 +36,7 @@ object JSONUtils {
           .mapValues { x =>
               jsonArr2Arr[JSONArray](x).map{ y =>
                   try { (y.getString(0).toLong, y.getString(1)) }
-                  catch { case _: Exception => (0, "")}
+                  catch { case _: Exception => (0L, "")}
               }
           }
     }
