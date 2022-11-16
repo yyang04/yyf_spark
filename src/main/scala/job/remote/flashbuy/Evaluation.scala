@@ -1,8 +1,8 @@
 package job.remote.flashbuy
 
-import com.alibaba.fastjson.JSONArray
-import job.remote.flashbuy.CoverRate.{jsonArr2Arr, jsonObjectStrToMap, spark}
+import utils.JSONUtils.{jsonArr2Arr, jsonObjectStrToMap, jsonPv}
 import utils.SparkJobs.RemoteSparkJob
+import com.alibaba.fastjson.JSONArray
 
 
 object Evaluation extends RemoteSparkJob{
@@ -59,14 +59,7 @@ object Evaluation extends RemoteSparkJob{
                |""".stripMargin).rdd.map { row =>
             val pvid = row.getAs[String](0)
             val a = row.getAs[String](1)
-            val b = jsonObjectStrToMap[JSONArray](a)
-              .map(x => (x._1, jsonArr2Arr[JSONArray](x._2).map { y =>
-                  try {
-                      (y.getString(0).toLong, y.getString(1))
-                  } catch {
-                      case _: Exception => (0, "")
-                  }
-              }))
+            val b = jsonPv(a)
             val c = b.values.flatten.toMap
               .mapValues (x => x.split(",").toSet)
             (pvid, c)

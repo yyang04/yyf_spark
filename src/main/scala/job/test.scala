@@ -12,13 +12,13 @@ object test {
 //        val b = jsonObjectStrToMap[JSONArray](a).map(x => (x._1, jsonArr2Arr[JSONArray](x._2).map(y => (y.getString(0).toLong, y.getString(1)))))
 //        val c = b.values.flatten.toMap
 //        c.foreach(k => println(k))
-        val lat = 40020147*1.0/1000000
-        val lon =  11646669*1.0/1000000
-        val hash = GeoHash.withCharacterPrecision(lat, lon, 5)
-        val base32 = hash.toBase32
-        println("srO79")
 
-
+        val lon = 116.4800673
+        val lat = 40.0254390
+        (lon-0.1 to lon+0.1 by 0.005).foreach { long =>
+            val geohash = GeoHash.withCharacterPrecision(lat, long, 5).toBase32
+            println(long, geohash)
+        }
     }
 
     def geoHash(latitude: Int, longitude: Int): String = {
@@ -28,36 +28,4 @@ object test {
         val base32 = hash.toBase32
         base32
     }
-
-
-
-    def jsonObjectStrToMap[T: ClassTag](json: String): Map[String, T] = {
-        val arr = new mutable.HashMap[String, T]()
-        try {
-            val jb = JSON.parseObject(json)
-            val kSet = jb.entrySet().iterator()
-            while (kSet.hasNext) {
-                val kv = kSet.next()
-                val k = kv.getKey
-                val v = kv.getValue.asInstanceOf[T]
-                arr.put(k, v)
-            }
-        } catch {
-            case e: Exception => println("parse jsonobject error")
-        }
-        arr.toMap
-    }
-
-    def jsonArr2Arr[T: ClassTag](ja: JSONArray): Array[T] = {
-        val n = ja.size()
-        val rs = new Array[T](n)
-        for (i <- 0 until n) {
-            rs(i) = ja.get(i).asInstanceOf[T]
-        }
-        rs
-    }
-
-
-
-
 }
