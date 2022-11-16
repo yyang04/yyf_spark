@@ -87,12 +87,11 @@ object CoverRate extends RemoteSparkJob{
                |        recallresults
                |   from (
                |      select pvid,
-               |             get_json_object(expids, '$$.frame_exp_list') exp_id,
+               |             split(get_json_object(expids, '$$.frame_exp_list'), ",") exp_id,
                |             recallresults
                |        from log.adt_multirecall_pv
                |       where dt='$dt' and scenetype='2'
                |         and cast(hour as int) >= $hour) pv
-               | )
                |""".stripMargin).rdd.map{ row =>
             val pvId = row.getAs[String](0)
             val exp_id = row.getAs[String](1)
