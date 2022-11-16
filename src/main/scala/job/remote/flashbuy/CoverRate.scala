@@ -61,7 +61,7 @@ object CoverRate extends RemoteSparkJob{
                |          from origindb_ss.waimaibizadmateriel_bizad_materiel__wm_ad_muses_creative_library a
                |          lateral view explode(get_json_array(content, "$$.product")) b as item
                |          where dt=$dt)
-               |where spuId is not null and skuId is not null
+               |where skuId is not null
                |""".stripMargin).rdd.map{ row =>
             val poi = row.getAs[Long](0)
             val skuId = row.getAs[String](1).toLong
