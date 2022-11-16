@@ -75,23 +75,22 @@ object CoverRate extends RemoteSparkJob{
         }
 
         val pv = spark.sql(
-            s"""
-               |select pvid,
-               |       case when (array_contains(pv.exp_id, '184594') and array_contains(pv.exp_id, '185967')) then 'base'
-               |           	when (array_contains(pv.exp_id, '184594') and array_contains(pv.exp_id, '185966')) then 'uuid'
-               |           	when (array_contains(pv.exp_id, '184462') and array_contains(pv.exp_id, '185967')) then 'cid'
-               |           	when (array_contains(pv.exp_id, '184462') and array_contains(pv.exp_id, '185966')) then 'cid_uuid'
-               |           	when (array_contains(pv.exp_id, '144570') and array_contains(pv.exp_id, '185967')) then 'cid_sku'
-               |           	when (array_contains(pv.exp_id, '144570') and array_contains(pv.exp_id, '185966')) then 'cid_sku_uuid'
+            s"""select pvid,
+               |       case when exp_id like '%184594%' and exp_id like '%185967%' then 'base'
+               |            when exp_id like '%184594%' and exp_id like '%185966%' then 'uuid'
+               |            when exp_id like '%184462%' and exp_id like '%185967%' then 'cid'
+               |            when exp_id like '%184462%' and exp_id like '%185966%' then 'cid_uuid'
+               |            when exp_id like '%144570%' and exp_id like '%185967%' then 'cid_sku'
+               |            when exp_id like '%144570%' and exp_id like '%185966%' then 'cid_sku_uuid'
                |            else 'other' end as exp_id,
                |        recallresults
                |   from (
                |      select pvid,
-               |             split(get_json_object(expids, '$$.frame_exp_list'), ",") exp_id,
+               |             get_json_object(expids, '$$.frame_exp_list') exp_id,
                |             recallresults
                |        from log.adt_multirecall_pv
                |       where dt='$dt' and scenetype='2'
-               |         and cast(hour as int) >= $hour) pv
+               |         and cast(hour as int) >= $hour)
                |""".stripMargin).rdd.map{ row =>
             val pvId = row.getAs[String](0)
             val exp_id = row.getAs[String](1)
