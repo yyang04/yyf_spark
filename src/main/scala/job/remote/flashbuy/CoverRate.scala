@@ -28,6 +28,7 @@ object CoverRate extends RemoteSparkJob{
                |          and split(reserves["spuIdList"], ",") is not null
                |   	      and slot in (191, 201)
                |          and cast(hour as int) >= $hour
+               |          and city_id in (410100,110100,310100,440100)
                |""".stripMargin).rdd.flatMap{ row =>
             val ad_request_id = row.getAs[String](0)
             val poi_id = row.getAs[Long](1)
