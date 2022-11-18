@@ -9,8 +9,15 @@ object CoverRate extends RemoteSparkJob{
         // 频道页分召回渠道统计覆盖率比例
         val dt = params.dt
         val hour = params.hour
+        val city = params.city
+
         spark.sql("""CREATE TEMPORARY FUNCTION get_json_array as 'com.meituan.hive.udf.UDFJsonArray';""")
         // ADD jar viewfs://hadoop-meituan/user/hadoop-hotel/user_upload/hanyecong02_hive-udf.jar;
+
+        val city_id = city match {
+                case "" => ""
+                case x => s"and city_id in ($x)"
+            }
 
         val mv = spark.sql(
             s"""
@@ -28,7 +35,7 @@ object CoverRate extends RemoteSparkJob{
                |          and split(reserves["spuIdList"], ",") is not null
                |   	      and slot in (191, 201)
                |          and cast(hour as int) >= $hour
-               |          and city_id in (410100,110100,310100,440100)
+               |          $city_id
                |""".stripMargin).rdd.flatMap{ row =>
             val ad_request_id = row.getAs[String](0)
             val poi_id = row.getAs[Long](1)
@@ -110,7 +117,7 @@ object CoverRate extends RemoteSparkJob{
                     (mergedMap, kv) => mergedMap + (kv._1 -> (mergedMap.getOrElse(kv._1, Set()) ++ kv._2))
                 ).mapValues(_.toArray.sorted.mkString(","))
                 val result_sku = sku_id_list.map (fullPool.getOrElse(_, "nomatch")).groupBy(identity).mapValues(_.length) + ("total" -> sku_id_list.length)
-                val result_pv = sku_id_list.map (fullPool.getOrElse(_, "nomatch")).groupBy(identity).mapValues(_ => 1) + ("total" -> 1)
+                val result_pv = Map(sku_id_list.map (fullPool.getOrElse(_, "nomatch")).distinct.sorted.mkString(",") -> 1) + ("total" -> 1)
                 (exp_id, (result_sku, result_pv))
         }.reduceByKey{
             case ((rs_x, rp_x), (rs_y, rp_y)) =>
@@ -123,6 +130,7 @@ object CoverRate extends RemoteSparkJob{
                 println(s"""exp_id: $exp_id""")
                 println(s"""sku粒度: ${handleMap(result_sku).mkString(",")}""")
                 println(s"""pv粒度: ${handleMap(result_pv).mkString(",")}""")
+                println()
         }
     }
 
