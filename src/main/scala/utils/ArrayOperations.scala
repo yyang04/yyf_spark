@@ -46,9 +46,16 @@ object ArrayOperations {
     }
 
     def logMaxScale(x: Array[Double]): Array[Double] = {
-        val r = x.map(e => log(e+1))
-        val maxValue = r.max + 1e-4
-        r.map(_/maxValue)
+        x.max match {
+            case 1.0 => div(x, 4.0)
+            case _ =>
+                val r = x.map(e => log(e+1))
+                r.map(_/r.max)
+        }
+    }
+
+    def main(args: Array[String]): Unit = {
+        println(logMaxScale(Array(29.0,2.0)).mkString(","))
     }
 
 }
