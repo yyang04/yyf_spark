@@ -18,9 +18,9 @@ object U2IInfer extends RemoteSparkJob {
         val dt = params.dt
         val model_path = params.model_path
 
-        HdfsOp.copyToLocal(hdfs, model_path, "/yangyufeng/")
+        HdfsOp.copyToLocal(hdfs, model_path, "yangyufeng/")
 
-        val bundle = tf.SavedModelBundle.load("/yangyufeng/tfModel", "serve")
+        val bundle = tf.SavedModelBundle.load("yangyufeng/tfModel", "serve")
 
 
         val broads = sc.broadcast(bundle)
