@@ -44,7 +44,7 @@ object I2IMerge extends RemoteSparkJob {
 
 
         FileOperations.saveAsTextFile(hdfs, result, s"/user/hadoop-hmart-waimaiad/ad/admultirecall/online_dict/$dt/pt_cid2sku")
-        val path = s"/user/hadoop-hmart-waimaiad/ad/admultirecall/file_list/$dt"
+        val path = s"/user/hadoop-hmart-waimaiad/ad/admultirecall/file_list/${getDateDelta(dt, 1)}"
 
         val p = new Path(path)
         if (hdfs.exists(p)) {
