@@ -1,0 +1,35 @@
+{
+  "features": [
+    {
+      "name": "pt_sg_sku_first_tag_id",
+      "desc": "铂金闪购商品第一标签",
+      "type": 1,
+      "extract": "first_category_id",
+      "condition": "dt=$.dt()",
+      "groupBy": ""
+    },
+    {
+      "name": "pt_sg_sku_second_tag_id",
+      "desc": "铂金闪购商品第一标签",
+      "type": 1,
+      "extract": "second_category_id",
+      "condition": "dt=$.dt()",
+      "groupBy": ""
+    },
+    {
+      "name": "pt_sg_sku_third_tag_id",
+      "desc": "铂金闪购商品第一标签",
+      "type": 1,
+      "extract": "third_category_id",
+      "condition": "dt=$.dt()",
+      "groupBy": ""
+    }
+  ],
+  "dim": "sku_id",
+  "categoryId": 1,
+  "hiveSrc": "mart_waimaiad.recsys_linshou_pt_poi_skus",
+  "hiveJob": "",
+  "hiveKey": "sku_id",
+  "isAdFeature": 1,
+  "createUser": "yangyufeng04"
+}

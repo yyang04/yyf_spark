@@ -11,7 +11,9 @@ case class Config(beginDt: String = "",
                   algorithm: String = "simhash",
                   timestamp: String = "",
                   hour:Int = 0,
-                  city:String = ""
+                  city:String = "",
+                  mode:String = "",
+                  model_path:String = ""
                  )
 
 class ArgsParser {
@@ -28,6 +30,8 @@ class ArgsParser {
         opt[String]("timestamp").action((x, c) => c.copy(timestamp = x))
         opt[Int]("hour").action((x, c) => c.copy(hour = x))
         opt[String]("city").action((x, c) => c.copy(city = x))
+        opt[String]("mode").action((x, c) => c.copy(mode = x))
+        opt[String]("model_path").action((x, c) => c.copy(model_path = x))
     }
 
     def initParams(args: Array[String]):Config = {
