@@ -28,4 +28,10 @@ object HdfsOp {
             case NonFatal(e) => println("error")
         }
     }
+
+    def copyToLocal(fs: FileSystem, src: String, dst: String): Unit = {
+        val s = new Path(src)
+        val d = new Path(dst)
+        fs.copyToLocalFile(s, d)
+    }
 }

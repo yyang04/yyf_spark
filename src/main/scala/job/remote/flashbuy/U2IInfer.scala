@@ -2,6 +2,7 @@ package job.remote.flashbuy
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import org.tensorflow.SavedModelBundle
+import utils.HdfsOp
 
 import org.{tensorflow => tf}
 import utils.FileOperations.saveAsTable
@@ -17,7 +18,11 @@ object U2IInfer extends RemoteSparkJob {
         val dt = params.dt
         val model_path = params.model_path
 
-        val bundle = tf.SavedModelBundle.load(model_path, "serve")
+        HdfsOp.copyToLocal(hdfs, model_path, "/yangyufeng/")
+
+        val bundle = tf.SavedModelBundle.load("/yangyufeng/tfModel", "serve")
+
+
         val broads = sc.broadcast(bundle)
         if (mode.split(",") contains "uuid" ){
             val df = fetch_user_embedding(dt, broads).toDF("key", "embedding")
