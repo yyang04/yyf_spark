@@ -13,14 +13,14 @@ object I2IMerge extends RemoteSparkJob {
             s"""
                |select method, key, value
                |  from mart_waimaiad.recsys_linshou_multi_recall_results_v2
-               | where date = '${getDateDelta(dt,-1)}'
+               | where date = '$dt'
                |   and branch='cid'
                |""".stripMargin).rdd.map{ row =>
             val method = row.getString(0)
             val key = row.getString(1)
             val value = row.getAs[Seq[String]](2).map{ x =>
                 val arr = x.split(":")
-                (arr(0).toLong, arr(1).toFloat)
+                (arr(0).toLong, arr(1))
             }
             (key, (method, value))
         }.groupByKey.map { case (key, iter) =>
