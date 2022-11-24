@@ -24,7 +24,7 @@ object U2IInfer extends RemoteSparkJob {
             saveAsTable(spark, df, "pt_multirecall_u2i_embedding", Map("dt"->dt, "part"->"uuid"))
         }
 
-        if (mode.split(",") contains "sku_id") {
+        if (mode.split(",") contains "sku") {
             val df = fetch_sku_embedding(dt, broads).toDF("key", "embedding")
             saveAsTable(spark, df, "pt_multirecall_u2i_embedding", Map("dt" -> dt, "part" -> "sku_id"))
         }
