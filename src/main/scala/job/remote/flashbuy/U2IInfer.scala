@@ -1,9 +1,9 @@
 package job.remote.flashbuy
+import org.apache.spark.SparkFiles
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
 import org.tensorflow.SavedModelBundle
 import utils.HdfsOp
-
 import org.{tensorflow => tf}
 import utils.FileOperations.saveAsTable
 import utils.Murmurhash.hashString
@@ -14,16 +14,17 @@ import utils.TimeOperations.getDateDelta
 object U2IInfer extends RemoteSparkJob {
 
     override def run(): Unit = {
+        // get params
         val mode = params.mode
         val dt = params.dt
         val model_path = params.model_path
 
-        HdfsOp.copyToLocal(hdfs, model_path, "yangyufeng/")
 
-        val bundle = tf.SavedModelBundle.load("yangyufeng/tfModel", "serve")
-
-
+        sc.addFile(model_path, true)
+        val path = SparkFiles.get("tfModel")
+        val bundle = tf.SavedModelBundle.load(path, "serve")
         val broads = sc.broadcast(bundle)
+
         if (mode.split(",") contains "uuid" ){
             val df = fetch_user_embedding(dt, broads).toDF("key", "embedding")
             saveAsTable(spark, df, "pt_multirecall_u2i_embedding", Map("dt"->dt, "part"->"uuid"))
