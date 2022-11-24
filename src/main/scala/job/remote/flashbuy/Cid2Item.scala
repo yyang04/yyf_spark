@@ -13,11 +13,11 @@ object Cid2Item extends RemoteSparkJob {
 
         val base = spark.sql(
             s"""
-               |select concat_ws('_', poi_id, second_category_id) as poi_cate,
+               |select distinct concat_ws('_', poi_id, second_category_id) as poi_cate,
                |       sku_id,
                |       price
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus
-               |where dt=$dt
+               |where dt between ${ getDateDelta(dt,-30) } and $dt
                |""".stripMargin).rdd.map { row =>
             val poi_cate = row.getAs[String](0)
             val sku_id = row.getAs[Long](1)
