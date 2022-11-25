@@ -20,7 +20,7 @@ object I2IMerge extends RemoteSparkJob {
             val key = row.getString(1)
             val value = row.getAs[Seq[String]](2).map{ x =>
                 val arr = x.split(":")
-                (arr(0).toLong, arr(1))
+                (arr(0).toLong, arr(1).toFloat)
             }
             (key, (method, value))
         }.groupByKey.map { case (key, iter) =>
