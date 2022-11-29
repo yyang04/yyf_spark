@@ -17,7 +17,7 @@ object Cid2Item extends RemoteSparkJob {
                |       sku_id,
                |       price
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus
-               |where dt between ${ getDateDelta(dt,-30) } and $dt
+               |where dt=$dt
                |""".stripMargin).rdd.map { row =>
             val poi_cate = row.getAs[String](0)
             val sku_id = row.getAs[Long](1)
@@ -40,7 +40,8 @@ object Cid2Item extends RemoteSparkJob {
                |        from mart_waimaiad.recsys_linshou_user_explicit_acts a
                |        join ( select sku_id,
                |                      second_category_id as cid2
-               |                      from mart_waimaiad.recsys_linshou_pt_poi_skus) b
+               |                      from mart_waimaiad.recsys_linshou_pt_poi_skus
+               |                where dt=$dt) b
                |        on a.sku_id=b.sku_id
                |      where dt between ${ getDateDelta(dt,-60) } and $dt
                |        and a.sku_id is not null
