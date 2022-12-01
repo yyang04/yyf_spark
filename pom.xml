@@ -23,40 +23,34 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${spark.scala.version}</artifactId>
             <version>${spark.version}</version>
             <scope>${spark.run}</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-hive_${spark.scala.version}</artifactId>
             <version>${spark.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_${spark.scala.version}</artifactId>
             <version>${spark.version}</version>
             <scope>${spark.run}</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-mllib_${spark.scala.version}</artifactId>
             <version>${spark.version}</version>
             <scope>${spark.run}</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-graphx_${spark.scala.version}</artifactId>
@@ -123,17 +117,6 @@
             <groupId>org.tensorflow</groupId>
             <artifactId>tensorflow</artifactId>
             <version>1.12.0</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>libtensorflow_jni</artifactId>
-                    <groupId>org.tensorflow</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.sankuai.meituan.waimai</groupId>
-            <artifactId>libtensorflow_jni</artifactId>
-            <version>1.0.3-tensor-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -147,8 +130,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-
     </dependencies>
 
     <build>
