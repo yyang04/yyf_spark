@@ -47,7 +47,7 @@ object RecallCoverRate extends RemoteSparkJob{
                |             get_json_object(expids, '$$.frame_exp_list') exp_id,
                |             recallresults
                |        from log.adt_multirecall_pv
-               |       where dt='$dt' and scenetype='2'
+               |       where dt='$dt' and scenetype='2')
                |""".stripMargin).rdd.mapPartitions{ iter =>
                  val poi = broad_poi.value
                  iter.map{ row =>
