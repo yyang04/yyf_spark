@@ -117,16 +117,6 @@
             <artifactId>hnswlib-scala_2.12</artifactId>
             <version>1.0.1</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.jelmerk</groupId>
-            <artifactId>hnswlib-core</artifactId>
-            <version>1.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.jelmerk</groupId>
-            <artifactId>hnswlib-metrics-dropwizard</artifactId>
-            <version>1.0.1</version>
-        </dependency>
 
 
         <dependency>
