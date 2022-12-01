@@ -59,7 +59,7 @@ object RecallCoverRate extends RemoteSparkJob{
                          x => x.take(4)
                            .flatMap{x => x._2.split(",")}
                            .groupBy(identity).mapValues(_.length) ++ Map("total" -> 4)
-                     }.reduce((x,y) => mergedMap(x,y))
+                     }.foldLeft(Map[String,Int]())((x,y) => mergedMap(x,y))
                      (exp_id, res)
                  }
         }.reduceByKey((x,y) => mergedMap(x,y)).collect
