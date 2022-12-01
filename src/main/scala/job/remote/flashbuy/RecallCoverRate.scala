@@ -24,7 +24,7 @@ object RecallCoverRate extends RemoteSparkJob{
                |select dt,
                |       wm_poi_id
                |  from mart_waimai.aggr_poi_info_dd
-               | where dt='$dt' and primary_first_tag_id in 13000000
+               | where dt='$dt' and primary_first_tag_id = 13000000
                |""".stripMargin).rdd.map{ row=>
             val wm_poi_id = row.getAs[Long](0)
             wm_poi_id.toString
