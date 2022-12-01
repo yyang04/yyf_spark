@@ -22,7 +22,7 @@ object RecallCoverRate extends RemoteSparkJob{
         val poi = spark.sql(
             s"""
                |select mv.poi_id
-               |  from mart_waimai.recsys_linshou_pt_poi_skus mv
+               |  from mart_waimaiad.recsys_linshou_pt_poi_skus mv
                |  JOIN (
                |       SELECT DISTINCT wm_poi_id
                |         FROM mart_waimai.aggr_poi_info_dd
