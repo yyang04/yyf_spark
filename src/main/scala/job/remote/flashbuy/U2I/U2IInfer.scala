@@ -6,7 +6,6 @@ import org.apache.spark.{SparkContext, SparkFiles}
 import org.apache.spark.rdd.RDD
 import utils.SparkJobs.RemoteSparkJob
 import utils.{ArrayOperations, FileOperations}
-import utils.Murmurhash.hashString
 
 
 case class SkuInfo(id: String, vector: Array[Float]) extends Item[String, Array[Float]] {
