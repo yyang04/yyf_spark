@@ -14,20 +14,22 @@
         <scala.version>2.12.10</scala.version>
         <spark.scala.version>2.12</spark.scala.version>
         <spark.version>3.0.2-mt-1.0.0</spark.version>
-        <hadoop.version>2.7.7</hadoop.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kafka.version>1.0.0</kafka.version>
-        <slf4j.version>1.7.7</slf4j.version>
-        <log4j.version>1.2.17</log4j.version>
         <spark.run>provided</spark.run>
+<!--        <hadoop.version>2.7.7</hadoop.version>-->
+<!--        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
+<!--        <kafka.version>1.0.0</kafka.version>-->
+<!--        <slf4j.version>1.7.7</slf4j.version>-->
+<!--        <log4j.version>1.2.17</log4j.version>-->
     </properties>
 
     <dependencies>
+        <!--scala library-->
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
         </dependency>
+        <!--spark library-->
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${spark.scala.version}</artifactId>
@@ -45,6 +47,18 @@
             <version>${spark.version}</version>
             <scope>${spark.run}</scope>
         </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>com.linkedin.sparktfrecord</groupId>-->
+<!--            <artifactId>spark-tfrecord_2.12</artifactId>-->
+<!--            <version>0.4.0</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.tensorflow</groupId>-->
+<!--            <artifactId>tensorflow</artifactId>-->
+<!--            <version>1.12.0</version>-->
+<!--        </dependency>-->
+
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-mllib_${spark.scala.version}</artifactId>
@@ -58,18 +72,19 @@
             <scope>${spark.run}</scope>
         </dependency>
 
+        <!--json -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.83_noneautotype</version>
         </dependency>
-
+        <!--GeoHash-->
         <dependency>
             <groupId>ch.hsr</groupId>
             <artifactId>geohash</artifactId>
-            <version>1.2.0</version>
+            <version>1.4.0</version>
         </dependency>
-
+        <!-- Text -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
@@ -79,7 +94,7 @@
         <dependency>
             <groupId>com.github.scopt</groupId>
             <artifactId>scopt_${spark.scala.version}</artifactId>
-            <version>3.7.1</version>
+            <version>4.1.0</version>
         </dependency>
 
         <dependency>
@@ -95,21 +110,21 @@
         </dependency>
 
         <dependency>
-            <groupId>com.linkedin.sparktfrecord</groupId>
-            <artifactId>spark-tfrecord_2.12</artifactId>
-            <version>0.4.0</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.typesafe.play</groupId>
             <artifactId>play-json_2.12</artifactId>
             <version>2.9.3</version>
         </dependency>
 
         <dependency>
-            <groupId>org.tensorflow</groupId>
-            <artifactId>tensorflow</artifactId>
-            <version>1.12.0</version>
+            <groupId>com.github.jelmerk</groupId>
+            <artifactId>hnswlib-scala_2.12</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.jelmerk</groupId>
+            <artifactId>hnswlib-core</artifactId>
+            <version>1.0.1</version>
         </dependency>
 
         <dependency>
@@ -125,8 +140,10 @@
         </dependency>
     </dependencies>
 
+
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -186,6 +203,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.scala-tools</groupId>
                 <artifactId>maven-scala-plugin</artifactId>
@@ -199,7 +217,38 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.1</version>
+                <configuration>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>META-INF/*.SF</exclude>
+                                <exclude>META-INF/*.DSA</exclude>
+                                <exclude>META-INF/*.RSA</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
+                    <relocations>
+                        <relocation>
+                            <pattern>com.google.protobuf</pattern>
+                            <shadedPattern>shaded.com.google.protobuf</shadedPattern>
+                        </relocation>
+                    </relocations>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
-
 </project>
