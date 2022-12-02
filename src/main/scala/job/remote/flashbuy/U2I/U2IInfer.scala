@@ -34,7 +34,6 @@ object SkuEmbGen extends RemoteSparkJob {
                |       poi_id
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus
                | where dt=$dt and city_id=110100
-               |from mart_waimaiad.recsys_linshou_pt_poi_skus
                |""".stripMargin).rdd.map { row =>
             val sku_id = row.getAs[String](0)
             val poi_id = row.getAs[Long](0)
