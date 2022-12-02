@@ -18,6 +18,7 @@ case class UserInfo(id: String, vector: Array[Float]) extends Item[String, Array
 object SkuEmbGen extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.dt
+        println(dt)
 
         val threshold = params.threshold
         val threshold2 = params.threshold2
@@ -33,7 +34,8 @@ object SkuEmbGen extends RemoteSparkJob {
                |select cast(sku_id as string) as sku_id,
                |       poi_id
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus
-               | where dt=$dt and city_id=110100
+               | where dt='$dt'
+               |   and city_id in (110100)
                |""".stripMargin).rdd.map { row =>
             val sku_id = row.getAs[String](0)
             val poi_id = row.getAs[Long](0)
@@ -44,7 +46,8 @@ object SkuEmbGen extends RemoteSparkJob {
             s"""
                |select uuid, pois
                |  from mart_waimaiad.recsys_linshou_user_vecs
-               | where dt=$dt and city_id=110100
+               | where dt='$dt'
+               |   and city_id in (110100)
                |""".stripMargin).rdd.map { row =>
             val uuid = row.getAs[String](0)
             val pois = row.getAs[Seq[Long]](1)
