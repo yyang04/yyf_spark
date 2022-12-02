@@ -94,7 +94,7 @@
         <dependency>
             <groupId>com.github.scopt</groupId>
             <artifactId>scopt_${spark.scala.version}</artifactId>
-            <version>4.1.0</version>
+            <version>3.7.1</version>
         </dependency>
 
         <dependency>
