@@ -28,4 +28,8 @@ object TimeOperations {
         DateTime.parse(date, format).plusDays(delta).toString(formatPattern)
     }
 
+    def main(args: Array[String]): Unit = {
+        println("asd")
+    }
+
 }
