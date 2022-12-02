@@ -18,10 +18,13 @@ case class UserInfo(id: String, vector: Array[Float]) extends Item[String, Array
 object SkuEmbGen extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.dt
-        println(dt)
+
 
         val threshold = params.threshold
         val threshold2 = params.threshold2
+        println(s"dt=${dt}")
+        println(s"dt=${threshold}")
+        println(s"dt=${threshold2}")
 
         val user_path = "viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/20221202_115147/user_embedding/"
         val sku_path = "viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/20221202_115147/sku_embedding/"
