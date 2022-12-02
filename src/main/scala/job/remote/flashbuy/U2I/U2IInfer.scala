@@ -17,9 +17,7 @@ case class UserInfo(id: String, vector: Array[Float]) extends Item[String, Array
 
 object SkuEmbGen extends RemoteSparkJob {
     override def run(): Unit = {
-        val dt = params.dt
-
-
+        val dt = params.beginDt
         val threshold = params.threshold
         val threshold2 = params.threshold2
         println(s"dt=${dt}")
