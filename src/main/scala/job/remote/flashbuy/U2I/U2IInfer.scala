@@ -60,7 +60,7 @@ object SkuEmbGen extends RemoteSparkJob {
                     val vector = index.findNearest(user.vector, threshold)
                       .map(re => (re.item().id, (1 - re.distance()).toDouble)).toArray
                     (user.id, (poi, vector, vector.map(_._2).sum / vector.length))
-                }.toArray
+                }.toList
         }.groupByKey.mapValues { iter =>
             val result = iter.toArray.sortBy(_._3).reverse.take(threshold2)
             val tmp = result.flatMap {
