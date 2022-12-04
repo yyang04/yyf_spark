@@ -14,6 +14,7 @@ abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializ
     override var _sqlContext: SQLContext = _
 
     def main(args: Array[String]): Unit ={
+        println(args.mkString(","))
         initSpark(args)
         run()
     }
