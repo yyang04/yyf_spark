@@ -49,6 +49,7 @@ object U2IInfer extends RemoteSparkJob {
                |  from mart_waimaiad.recsys_linshou_user_vecs
                | where dt='$dt'
                |   and city_id in (110100)
+               |   and size(pois) != 0
                |""".stripMargin).rdd.map { row =>
             val uuid = row.getAs[String](0)
             val pois = row.getAs[Seq[Long]](1)
