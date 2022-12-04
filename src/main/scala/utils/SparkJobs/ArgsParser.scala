@@ -1,13 +1,13 @@
 package utils.SparkJobs
 
 import scopt.OptionParser
-case class Config(beginDt: String = "",
+case class Config(beginDt: String = "20221201",
                   endDt: String = "",
                   dt: String = "",
                   tableName: String = "",
                   sql: String = "",
-                  threshold: Int = 50,
-                  threshold2: Int = 2,
+                  threshold: Int = 1,
+                  threshold2: Int = 60,
                   algorithm: String = "simhash",
                   timestamp: String = "",
                   hour:Int = 0,
