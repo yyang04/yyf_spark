@@ -36,11 +36,13 @@
             <version>${spark.version}</version>
             <scope>${spark.run}</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-hive_${spark.scala.version}</artifactId>
             <version>${spark.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_${spark.scala.version}</artifactId>
@@ -48,23 +50,13 @@
             <scope>${spark.run}</scope>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>com.linkedin.sparktfrecord</groupId>-->
-<!--            <artifactId>spark-tfrecord_2.12</artifactId>-->
-<!--            <version>0.4.0</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.tensorflow</groupId>-->
-<!--            <artifactId>tensorflow</artifactId>-->
-<!--            <version>1.12.0</version>-->
-<!--        </dependency>-->
-
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-mllib_${spark.scala.version}</artifactId>
             <version>${spark.version}</version>
             <scope>${spark.run}</scope>
         </dependency>
+
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-graphx_${spark.scala.version}</artifactId>
@@ -94,50 +86,51 @@
         <dependency>
             <groupId>com.github.scopt</groupId>
             <artifactId>scopt_${spark.scala.version}</artifactId>
-            <version>3.7.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-avro_${spark.scala.version}</artifactId>
-            <version>${spark.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>13.0</version>
+            <version>4.1.0</version>
         </dependency>
 
         <dependency>
             <groupId>com.typesafe.play</groupId>
-            <artifactId>play-json_2.12</artifactId>
+            <artifactId>play-json_${spark.scala.version}</artifactId>
             <version>2.9.3</version>
         </dependency>
 
         <dependency>
             <groupId>com.github.jelmerk</groupId>
-            <artifactId>hnswlib-scala_2.12</artifactId>
+            <artifactId>hnswlib-scala_${spark.scala.version}</artifactId>
             <version>1.0.1</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.github.jelmerk</groupId>
-            <artifactId>hnswlib-core</artifactId>
-            <version>1.0.1</version>
-        </dependency>
 
-        <dependency>
-            <groupId>com.sankuai.meituan</groupId>
-            <artifactId>mtconfig-client</artifactId>
-            <version>2.3.2</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>libthrift</artifactId>
-                    <groupId>org.apache.thrift</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.linkedin.sparktfrecord</groupId>-->
+<!--            <artifactId>spark-tfrecord_2.12</artifactId>-->
+<!--            <version>0.4.0</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.tensorflow</groupId>-->
+<!--            <artifactId>tensorflow</artifactId>-->
+<!--            <version>1.12.0</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.spark</groupId>-->
+<!--            <artifactId>spark-avro_${spark.scala.version}</artifactId>-->
+<!--            <version>${spark.version}</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.sankuai.meituan</groupId>-->
+<!--            <artifactId>mtconfig-client</artifactId>-->
+<!--            <version>2.3.2</version>-->
+<!--            <exclusions>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>libthrift</artifactId>-->
+<!--                    <groupId>org.apache.thrift</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--        </dependency>-->
+
     </dependencies>
 
 
@@ -182,27 +175,6 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
-                <configuration>
-                    <relocations>
-                        <relocation>
-                            <pattern>com.google.protobuf</pattern>
-                            <shadedPattern>shaded.com.google.protobuf</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
 
             <plugin>
                 <groupId>org.scala-tools</groupId>
@@ -249,6 +221,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 </project>

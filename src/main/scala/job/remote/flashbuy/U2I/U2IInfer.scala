@@ -15,7 +15,7 @@ case class UserInfo(id: String, vector: Array[Float]) extends Item[String, Array
     override def dimensions: Int = vector.length
 }
 
-object SkuEmbGen extends RemoteSparkJob {
+object U2IInfer extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.beginDt
         val threshold = params.threshold
