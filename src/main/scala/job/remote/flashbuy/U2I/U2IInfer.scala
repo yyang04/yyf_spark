@@ -39,7 +39,7 @@ object U2IInfer extends RemoteSparkJob {
                |   and city_id in (110100)
                |""".stripMargin).rdd.map { row =>
             val sku_id = row.getAs[String](0)
-            val poi_id = row.getAs[Long](0)
+            val poi_id = row.getAs[Long](1)
             (sku_id, poi_id)
         }.join(sku).map { case (sku, (poi, emb)) => (poi, SkuInfo(sku, emb)) }.groupByKey
 
