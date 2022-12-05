@@ -6,6 +6,7 @@ import org.apache.spark.{SparkContext, SparkFiles}
 import org.apache.spark.rdd.RDD
 import utils.SparkJobs.RemoteSparkJob
 import utils.{ArrayOperations, FileOperations}
+import utils.FileOperations
 
 
 case class SkuInfo(id: String, vector: Array[Float]) extends Item[String, Array[Float]] {
@@ -21,13 +22,17 @@ object U2IInfer extends RemoteSparkJob {
         val threshold = params.threshold  // 几个邻居
         val threshold2 = params.threshold2  // 几家店
         val ts = params.timestamp  // 模型的ts
-        println(s"dt=${dt}")
-        println(s"threshold=${threshold}")
-        println(s"threshold2=${threshold2}")
-        println(s"ts=${ts}")
+
+        println(s"dt=$dt")
+        println(s"threshold=$threshold")
+        println(s"threshold2=$threshold2")
+        println(s"ts=$ts")
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
+
+        FileOperations.waitUntilFileExist(hdfs, user_path)
+        FileOperations.waitUntilFileExist(hdfs, sku_path)
 
         // params
         val user = read_raw(sc, user_path)

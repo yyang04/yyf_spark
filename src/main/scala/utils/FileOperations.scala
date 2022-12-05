@@ -5,6 +5,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import scala.util.control._
 
 import scala.reflect.ClassTag
 
@@ -107,5 +108,24 @@ object FileOperations {
         finalSchema
     }
 
+    def waitUntilFileExist(hdfs: FileSystem,
+                           path: String,
+                           interval: Int = 5,
+                           maxTimes: Int = 180 / 5): Boolean = {
 
+
+        var index = 0
+        val loop = new Breaks
+        loop.breakable {
+            while (index < maxTimes) {
+                val exist = hdfs.exists(new Path(path))
+                if (exist) {
+                    loop.break
+                }
+                Thread.sleep(interval * 1000)
+                index = index + 1
+            }
+        }
+        index != maxTimes
+    }
 }
