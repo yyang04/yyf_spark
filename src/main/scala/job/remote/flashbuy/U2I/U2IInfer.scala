@@ -18,14 +18,17 @@ case class UserInfo(id: String, vector: Array[Float]) extends Item[String, Array
 object U2IInfer extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.beginDt
-        val threshold = params.threshold
-        val threshold2 = params.threshold2
+        val threshold = params.threshold  // 几个邻居
+        val threshold2 = params.threshold2  // 几家店
+        val ts = params.timestamp  // 模型的ts
         println(s"dt=${dt}")
-        println(s"dt=${threshold}")
-        println(s"dt=${threshold2}")
+        println(s"threshold=${threshold}")
+        println(s"threshold2=${threshold2}")
+        println(s"ts=${ts}")
 
-        val user_path = "viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/20221202_115147/user_embedding/"
-        val sku_path = "viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/20221202_115147/sku_embedding/"
+        val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
+        val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
+
         // params
         val user = read_raw(sc, user_path)
         val sku = read_raw(sc, sku_path)
