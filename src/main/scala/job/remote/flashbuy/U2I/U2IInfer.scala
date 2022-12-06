@@ -31,8 +31,9 @@ object U2IInfer extends RemoteSparkJob {
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
 
-        FileOperations.waitUntilFileExist(hdfs, user_path)
-        FileOperations.waitUntilFileExist(hdfs, sku_path)
+        if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
+        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+
 
         // params
         val user = read_raw(sc, user_path)
