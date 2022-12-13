@@ -1,8 +1,7 @@
-package job.remote.flashbuy
+package job.remote.flashbuy.evaluation
 
-import utils.JSONUtils.{jsonArr2Arr, jsonObjectStrToMap, jsonPv}
+import utils.JSONUtils.jsonPv
 import utils.SparkJobs.RemoteSparkJob
-import com.alibaba.fastjson.JSONArray
 
 
 object Evaluation extends RemoteSparkJob{

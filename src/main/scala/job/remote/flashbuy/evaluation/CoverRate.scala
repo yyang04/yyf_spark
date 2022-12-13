@@ -1,8 +1,8 @@
-package job.remote.flashbuy
+package job.remote.flashbuy.evaluation
 
+import utils.JSONUtils.jsonPv
+import utils.MapOperations.mergeMap
 import utils.SparkJobs.RemoteSparkJob
-import utils.JSONUtils.{jsonObjectStrToMap, jsonArr2Arr, jsonPv}
-import com.alibaba.fastjson.JSONArray
 
 object CoverRate extends RemoteSparkJob{
     override def run(): Unit = {
@@ -11,30 +11,31 @@ object CoverRate extends RemoteSparkJob{
         val hour = params.hour
         val city = params.city
 
-        spark.sql("""CREATE TEMPORARY FUNCTION get_json_array as 'com.meituan.hive.udf.UDFJsonArray';""")
         // ADD jar viewfs://hadoop-meituan/user/hadoop-hotel/user_upload/hanyecong02_hive-udf.jar;
+        spark.sql("""CREATE TEMPORARY FUNCTION get_json_array as 'com.meituan.hive.udf.UDFJsonArray';""")
 
         val city_id = city match {
-                case "" => ""
-                case x => s"and city_id in ($x)"
-            }
+            case "" => ""
+            case x => s"and city_id in ($x)"
+        }
 
         val mv = spark.sql(
             s"""
-               | select ad_request_id,
+               | SELECT ad_request_id,
                |        poi_id,
                |        split(reserves["spuIdList"], ",") as spuIdList
-               |   from mart_waimai_dw_ad.fact_flow_ad_entry_mv mv
-               |   join (
+               |   FROM mart_waimai_dw_ad.fact_flow_ad_entry_mv mv
+               |   JOIN (
                |         select dt,
                |                wm_poi_id
                |  		   from mart_waimai.aggr_poi_info_dd
                | 	      where dt='$dt' and primary_first_tag_id in (10000000,11000000,5018,12000000,13000000,40000000,41000000,15000000,42000000,5007,5001,1001,22)) info
-               |   on mv.dt=info.dt and mv.poi_id=info.wm_poi_id
-               |        where mv.dt='$dt' and is_valid='PASS'
-               |          and split(reserves["spuIdList"], ",") is not null
-               |   	      and slot in (191, 201)
-               |          and cast(hour as int) >= $hour
+               |    ON mv.dt=info.dt and mv.poi_id=info.wm_poi_id
+               |    WHERE mv.dt='$dt'
+               |          AND is_valid='PASS'
+               |          AND split(reserves["spuIdList"], ",") is not null
+               |   	      AND slot in (191, 201)
+               |          AND cast(hour as int) >= $hour
                |          $city_id
                |""".stripMargin).rdd.flatMap{ row =>
             val ad_request_id = row.getAs[String](0)
@@ -45,19 +46,25 @@ object CoverRate extends RemoteSparkJob{
 
         val spu_sku_map = spark.sql(
             s"""
-               |select distinct sku_id, product_spu_id
-               |from mart_waimaiad.recsys_linshou_pt_poi_skus where dt='$dt'
+               |SELECT product_id,
+               |       product_spu_id
+               |  FROM mart_lingshou.dim_prod_product_sku_s_snapshot
+               | WHERE dt='$dt'
+               |   AND sell_status = '0'
+               |   AND product_status = '0'
+               |   AND is_valid = 1
+               |   AND is_online_poi_flag = 1
                |""".stripMargin
         ).rdd.map { row =>
             val sku_id = row.getAs[Long](0)
             val spu_id = row.getAs[Long](1)
             (spu_id, sku_id)
-        }
+        }.reduceByKey((x,_)=>x)
 
         val mv_tmp = mv
           .join(spu_sku_map)
-          .map { case (spuId, (request_poi, sku_id)) => (request_poi, sku_id) }
-          .groupByKey.mapValues(_.toArray).map{
+          .map { case (spuId, (request_poi, sku_id)) => (request_poi, Array(sku_id)) }
+          .reduceByKey(_++_).map {
             case ((request, poi), sku_id_list) => (poi, (request, sku_id_list))
         }
 
@@ -121,7 +128,7 @@ object CoverRate extends RemoteSparkJob{
                 (exp_id, (result_sku, result_pv))
         }.reduceByKey{
             case ((rs_x, rp_x), (rs_y, rp_y)) =>
-                (mergedMap(rs_x, rs_y), mergedMap(rp_x, rp_y))
+                (mergeMap(rs_x, rs_y), mergeMap(rp_x, rp_y))
         }.collect()
 
         // printResult
@@ -132,12 +139,6 @@ object CoverRate extends RemoteSparkJob{
                 println(s"""pv粒度: ${handleMap(result_pv).mkString(",")}""")
                 println()
         }
-    }
-
-    def mergedMap(x: Map[String, Int], y: Map[String, Int]) : Map[String, Int] = {
-        x.foldLeft(y)(
-            (mergedMap, kv) => mergedMap + (kv._1 -> (mergedMap.getOrElse(kv._1, 0) + kv._2))
-        )
     }
 
     def handleMap(x: Map[String, Int]): Array[(String, String)] = {

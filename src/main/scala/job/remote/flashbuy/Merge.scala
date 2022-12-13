@@ -5,7 +5,7 @@ import utils.FileOperations
 import utils.SparkJobs.RemoteSparkJob
 import utils.TimeOperations.getDateDelta
 
-object I2IMerge extends RemoteSparkJob {
+object Merge extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.beginDt
         val methodsNames = params.algorithm.split(",")

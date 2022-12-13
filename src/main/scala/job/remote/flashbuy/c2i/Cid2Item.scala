@@ -1,9 +1,9 @@
-package job.remote.flashbuy
+package job.remote.flashbuy.c2i
 
 import utils.ArrayOperations
+import utils.FileOperations.saveAsTable
 import utils.SparkJobs.RemoteSparkJob
 import utils.TimeOperations.getDateDelta
-import utils.FileOperations.saveAsTable
 
 
 object Cid2Item extends RemoteSparkJob {

@@ -1,4 +1,4 @@
-package job.remote.flashbuy
+package job.remote.flashbuy.evaluation
 
 import utils.JSONUtils.jsonPv
 import utils.SparkJobs.RemoteSparkJob

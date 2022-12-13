@@ -29,7 +29,7 @@ object TimeOperations {
     }
 
     def main(args: Array[String]): Unit = {
-        println("asd")
+        println(getDateDelta("20220908", 92))
     }
 
 }

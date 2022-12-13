@@ -24,20 +24,20 @@ class ArgsParser {
         opt[String]("dt").action((x, c) => c.copy(dt = x))
         opt[String]("tableName").action((x, c) => c.copy(tableName = x))
         opt[String]("sql").action((x, c) => c.copy(sql = x))
-        opt[Int]("threshold").action((x, c) => c.copy(threshold = x))
-        opt[Int]("threshold2").action((x, c) => c.copy(threshold2 = x))
         opt[String]("algorithm").action((x, c) => c.copy(algorithm = x))
         opt[String]("timestamp").action((x, c) => c.copy(timestamp = x))
-        opt[Int]("hour").action((x, c) => c.copy(hour = x))
         opt[String]("city").action((x, c) => c.copy(city = x))
         opt[String]("mode").action((x, c) => c.copy(mode = x))
         opt[String]("model_path").action((x, c) => c.copy(model_path = x))
+        opt[Int]("threshold").action((x, c) => c.copy(threshold = x))
+        opt[Int]("threshold2").action((x, c) => c.copy(threshold2 = x))
+        opt[Int]("hour").action((x, c) => c.copy(hour = x))
     }
 
     def initParams(args: Array[String]):Config = {
         val defaultParams = Config()
         parser.parse(args, defaultParams) match {
-            case Some(p) => p
+            case Some(p) => println(p); p
             case None => defaultParams
         }
     }

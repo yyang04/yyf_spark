@@ -1,4 +1,4 @@
-package job.remote.flashbuy.U2I
+package job.remote.flashbuy.u2i
 
 import com.github.jelmerk.knn.scalalike.{Item, floatInnerProduct}
 import com.github.jelmerk.knn.scalalike.hnsw.HnswIndex
@@ -19,9 +19,9 @@ case class UserInfo(id: String, vector: Array[Float]) extends Item[String, Array
 object U2IInfer extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.beginDt
-        val threshold = params.threshold  // 几个邻居
+        val threshold = params.threshold    // 每家店推几个
         val threshold2 = params.threshold2  // 几家店
-        val ts = params.timestamp  // 模型的ts
+        val ts = params.timestamp           // 模型的ts
 
         println(s"dt=$dt")
         println(s"threshold=$threshold")
