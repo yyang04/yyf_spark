@@ -66,6 +66,7 @@ object Cid2Item extends RemoteSparkJob {
                     val arr = tmp.toArray.sortBy(_._2).reverse
                     Array(f"${arr.apply(0)}:1.0", f"${arr.apply(1)}:0.01")
             }
+            value
         }.toDF("key", "value")
 
         val partition = Map("date" -> dt, "branch" -> "cid", "method" -> "pt_cid_sales_sku_base")
