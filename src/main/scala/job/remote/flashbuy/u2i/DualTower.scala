@@ -21,7 +21,7 @@ object U2IInfer extends RemoteSparkJob {
         val dt = params.beginDt
         val threshold = params.threshold    // 每家店推几个
         val threshold2 = params.threshold2  // 几家店
-        val ts = params.timestamp           // 模型的ts
+        val ts = params.timestamp           // 模型的 timestamp
 
         println(s"dt=$dt")
         println(s"threshold=$threshold")

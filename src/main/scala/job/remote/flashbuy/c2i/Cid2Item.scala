@@ -56,16 +56,16 @@ object Cid2Item extends RemoteSparkJob {
             (poi_cate, (sku_id, cnt))
         }.groupByKey.mapValues{_.toArray.sortBy(_._2).takeRight(threshold)}
 
-        val df = base.fullOuterJoin(supplement).map{ case (k, (v1, v2)) =>
+        val df = base.fullOuterJoin(supplement).mapValues{ case (v1, v2) =>
             val left = v1.getOrElse(Array())
             val right = v2.getOrElse(Array())
-            val tmp = (left ++ right).sortBy(_._2).takeRight(threshold)
-            val factors = ArrayOperations.logMaxScale(tmp.map(_._2.toDouble))
-            val value = tmp.map(_._1).zip(factors).sortBy(_._2).reverse.take(threshold).zipWithIndex.map{
-                case ((sku_id, _), 0L) => f"$sku_id:1.0"
-                case ((sku_id, _), _) => f"$sku_id:0.01"
+            val tmp = (left ++ right).sortBy(_._2).reverse.takeRight(threshold).toMap
+            val value = tmp.size match {
+                case 1 => Array(f"${tmp.toArray.apply(0)}:1.0")
+                case 2 =>
+                    val arr = tmp.toArray.sortBy(_._2).reverse
+                    Array(f"${arr.apply(0)}:1.0", f"${arr.apply(1)}:0.01")
             }
-            (k, value)
         }.toDF("key", "value")
 
         val partition = Map("date" -> dt, "branch" -> "cid", "method" -> "pt_cid_sales_sku_base")
