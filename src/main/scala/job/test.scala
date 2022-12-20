@@ -13,12 +13,6 @@ object test {
 //        val c = b.values.flatten.toMap
 //        c.foreach(k => println(k))
 
-        val lon = 116.4800673
-        val lat = 40.0254390
-        (lon-0.1 to lon+0.1 by 0.005).foreach { long =>
-            val geohash = GeoHash.withCharacterPrecision(lat, long, 5).toBase32
-            println(long, geohash)
-        }
     }
 
     def geoHash(latitude: Int, longitude: Int): String = {
