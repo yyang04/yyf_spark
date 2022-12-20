@@ -5,10 +5,8 @@ import utils.FileOperations.saveAsTable
 object SeqFeature extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.dt
-        val mode = params.mode
-
-        val src_table = "mart_waimaiad.lingshou_user_click"
-        val dst_table = "mart_waimaiad.lingshou_user_click_tag_sanitized_v1"
+        val src_table = params.src_table_name
+        val dst_table = params.dst_table_name
 
         val init = spark.sql(
             s"""
