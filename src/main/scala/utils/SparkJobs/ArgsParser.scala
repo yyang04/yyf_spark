@@ -13,7 +13,9 @@ case class Config(beginDt: String = "20221201",
                   hour:Int = 0,
                   city:String = "",
                   mode:String = "",
-                  model_path:String = ""
+                  model_path:String = "",
+                  src_table_name: String= "",
+                  dst_table_name: String = ""
                  )
 
 class ArgsParser {
@@ -29,6 +31,8 @@ class ArgsParser {
         opt[String]("city").action((x, c) => c.copy(city = x))
         opt[String]("mode").action((x, c) => c.copy(mode = x))
         opt[String]("model_path").action((x, c) => c.copy(model_path = x))
+        opt[String]("src_table_name").action((x, c) => c.copy(src_table_name = x))
+        opt[String]("dst_table_name").action((x, c) => c.copy(dst_table_name = x))
         opt[Int]("threshold").action((x, c) => c.copy(threshold = x))
         opt[Int]("threshold2").action((x, c) => c.copy(threshold2 = x))
         opt[Int]("hour").action((x, c) => c.copy(hour = x))
