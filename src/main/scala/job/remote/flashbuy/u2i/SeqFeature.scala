@@ -38,7 +38,9 @@ object SeqFeature extends RemoteSparkJob {
                | WHERE dt='$dt'
                |   AND is_delete = 0
                |   AND is_valid = 1
-               |   AND is_online_poi_flag = 1""".stripMargin).rdd.map{ row =>
+               |   AND is_online_poi_flag = 1
+               |   AND tag_id is not null AND tag_id != ''
+               |   """.stripMargin).rdd.map{ row =>
             val sku_id = row.getLong(0)
             val tag_id = row.getString(1).toLong
             (sku_id, tag_id)
