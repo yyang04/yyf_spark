@@ -45,7 +45,7 @@ object SeqFeature extends RemoteSparkJob {
         }.join(init).map{ case (sku_id, (tag_id, (uuid, timestamp))) => (uuid, (tag_id, timestamp))
         }.groupByKey.mapValues{ iter =>
             iter.toList.sortBy(_._2).reverse.map(_._1)
-        }.toDF("uuid, tag_list")
+        }.toDF("uuid", "tag_list")
 
         saveAsTable(spark, sku_info, dst_table, Map("dt" -> dt) )
 
