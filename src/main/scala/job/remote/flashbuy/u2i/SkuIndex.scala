@@ -26,7 +26,7 @@ object SkuIndex extends RemoteSparkJob{
             s"""
                |select cast(sku_id as string) as sku_id,
                |       poi_id,
-               |       product_spu_id,
+               |       product_spu_id
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus
                | where dt='$dt'
                |""".stripMargin).rdd.map { row =>
