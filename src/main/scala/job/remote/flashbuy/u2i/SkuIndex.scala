@@ -13,10 +13,6 @@ import scala.collection.mutable.ArrayBuffer
 
 object SkuIndex extends RemoteSparkJob{
 
-    def convert(rel: Seq[(Long, Float)], methodName: String): JSONObject = {
-        val methodRel = JSONUtils.iterableToJsonArray(rel.map(x => JSONUtils.iterableToJsonObject(Map("value" -> x._1, "score" -> x._2, "s_value" -> ""))))
-        JSONUtils.iterableToJsonObject(Map("method_name" -> methodName, "values" -> methodRel, "value_type" -> 0))
-    }
     override def run(): Unit = {
         val dt = params.dt
         val bucket = params.bucket
