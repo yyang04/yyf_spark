@@ -15,10 +15,9 @@ object SkuIndex extends RemoteSparkJob{
 
     override def run(): Unit = {
         val dt = params.dt
-        val bucket = params.bucket
-        val bucketTableName = params.bucketTableName
         val ts = params.timestamp
-
+        val bucket = "com-sankuai-wmadrecall-hangu-admultirecall"
+        val bucketTableName = "ptU2ISkuEmb"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
         if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
 
