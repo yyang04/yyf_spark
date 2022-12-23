@@ -101,6 +101,12 @@
             <version>1.0.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>mss-java-sdk-s3</artifactId>
+            <version>1.9.14</version>
+        </dependency>
+
 
 <!--        <dependency>-->
 <!--            <groupId>com.linkedin.sparktfrecord</groupId>-->

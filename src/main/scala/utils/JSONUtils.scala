@@ -1,9 +1,13 @@
 package utils
 import scala.reflect.ClassTag
 import scala.collection.mutable
-import com.alibaba.fastjson.{JSONArray,JSON}
+import com.alibaba.fastjson.{JSON, JSONArray, JSONObject}
+import com.alibaba.fastjson.parser.ParserConfig
+
+import scala.collection.mutable.ArrayBuffer
 
 object JSONUtils {
+    ParserConfig.getGlobalInstance.setSafeMode(true)
 
     def jsonObjectStrToMap[T: ClassTag](json: String): Map[String, T] = {
         val arr = new mutable.HashMap[String, T]()
@@ -41,28 +45,95 @@ object JSONUtils {
           }
     }
 
-    //    def main(args: Array[String]): Unit = {
-    //        val a = Map("lat" -> 51.235685, "long" -> -1.309197)
-    //        val b = Json.toJson(a)
-    //        val c = Json.toJson(
-    //            Array(
-    //                Json.obj(
-    //                    "name" -> "Fiver",
-    //                    "age" -> 4,
-    //                    "role" -> JsNull
-    //                ),
-    //                Json.obj(
-    //                    "name" -> "Bigwig",
-    //                    "age" -> 6,
-    //                    "role" -> "Owsla"
-    //                )
-    //
-    //            ))
-    //        println(c.toString())
-    //
-    //    }
+
+    def jsonObjectStrToArray[T: ClassTag](json: String): Array[(String, T)] = {
+        val arr = new ArrayBuffer[(String, T)]()
+        try {
+            val jb = JSON.parseObject(json)
+            val kSet = jb.entrySet().iterator()
+            while (kSet.hasNext) {
+                val kv = kSet.next()
+                val k = kv.getKey
+                val v = kv.getValue.asInstanceOf[T]
+                arr.append((k, v))
+            }
+        } catch {
+            case e: Exception => println("parse jsonobject error")
+        }
+        arr.toArray
+    }
+
+    def jsonArrStr2Array[T: ClassTag](json: String): Array[T] = {
+        val result = new ArrayBuffer[T]()
+        try {
+            val ja = JSON.parseArray(json)
+            var idx = 0
+            while (idx < ja.size()) {
+                val jb = ja.get(idx).toString
+                result.append(jb.asInstanceOf[T])
+                idx += 1
+            }
+        } catch {
+            case e: Exception => println("parse jsonArray error")
+        }
+        result.toArray
+    }
 
 
+    def iterableToJsonObjectStr(arr: Iterable[(String, Any)]): String = {
+        iterableToJsonObject(arr).toJSONString
+    }
+
+    def iterableToJsonObject(arr: Iterable[(String, Any)]): JSONObject = {
+        val jb = new JSONObject()
+        arr.foreach(x => jb.put(x._1, x._2))
+        jb
+    }
+
+    def iterableToJsonArray(arr: Iterable[Any]): JSONArray = {
+        val ja = new JSONArray()
+        arr.foreach(h => ja.add(h))
+        ja
+    }
+
+    def iterableToJsonArrayString(arr: Iterable[Any]): String = {
+        iterableToJsonArray(arr).toJSONString
+    }
 
 
+    def nestedArray2JsonObjectStr(arr: Array[(String, Array[(String, Double)])]): String = {
+        val jb = new JSONObject()
+        arr.map { case (idx, midArr) =>
+            val midJb = new JSONObject()
+            midArr.foreach(x => midJb.put(x._1, x._2))
+            (idx, midJb)
+        }.foreach(x => jb.put(x._1, x._2))
+        jb.toJSONString
+    }
+
+    def nestedJsonObjectStr2Array(json: String): Array[(String, Array[(String, Double)])] = {
+        jsonObjectStrToArray[String](json).map(x => (x._1, jsonObjectStrToArray[Double](x._2)))
+    }
+
+
+    def params2Array(json: String): Array[(String, String)] = {
+        val result = new ArrayBuffer[(String, String)]()
+        try {
+            val ja = JSON.parseArray(json)
+            var idx = 0
+            while (idx < ja.size()) {
+                val jb = ja.get(idx).toString
+                val arr = jsonObjectStrToMap[String](jb)
+                if (arr.contains("I") && arr.contains("V")) {
+                    val k = arr("I")
+                    val v = arr("V")
+                    result.append((k, v))
+                }
+                idx += 1
+            }
+        } catch {
+            case e: Exception => println("parse jsonArray error")
+        }
+        result.toArray
+    }
 }

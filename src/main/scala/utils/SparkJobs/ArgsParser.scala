@@ -15,7 +15,9 @@ case class Config(beginDt: String = "20221201",
                   mode:String = "",
                   model_path:String = "",
                   src_table_name: String= "",
-                  dst_table_name: String = ""
+                  dst_table_name: String = "",
+                  bucket: String= "",
+                  bucketTableName: String= "",
                  )
 
 class ArgsParser {
