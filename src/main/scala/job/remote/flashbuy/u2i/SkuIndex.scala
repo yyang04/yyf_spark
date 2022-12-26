@@ -1,6 +1,5 @@
 package job.remote.flashbuy.u2i
 
-import com.alibaba.fastjson.JSONObject
 import job.remote.flashbuy.u2i.U2IInfer.{hdfs, read_raw, sc}
 import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
@@ -9,7 +8,6 @@ import utils.{FileOperations, JSONUtils, S3Handler}
 import utils.SparkJobs.RemoteSparkJob
 
 import java.io.{File, PrintWriter}
-import scala.collection.mutable.ArrayBuffer
 
 object SkuIndex extends RemoteSparkJob{
 
@@ -19,6 +17,7 @@ object SkuIndex extends RemoteSparkJob{
         val bucket = "com-sankuai-wmadrecall-hangu-admultirecall"
         val bucketTableName = "ptU2ISkuEmb"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
+
         if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
 
         val sku = read_raw(sc, sku_path)

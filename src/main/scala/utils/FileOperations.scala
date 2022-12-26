@@ -112,8 +112,6 @@ object FileOperations {
                            path: String,
                            interval: Int = 5,
                            maxTimes: Int = 180 / 5): Boolean = {
-
-
         var index = 0
         val loop = new Breaks
         loop.breakable {
@@ -126,6 +124,6 @@ object FileOperations {
                 index = index + 1
             }
         }
-        index != maxTimes
+        index != maxTimes  // 存在返回 True, 不存在返回 false
     }
 }
