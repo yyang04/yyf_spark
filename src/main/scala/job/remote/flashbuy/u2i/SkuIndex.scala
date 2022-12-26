@@ -37,10 +37,10 @@ object SkuIndex extends RemoteSparkJob{
                 "embV1" -> Json.arr(),
                 "embV2" -> Json.arr(emb),
                 "geoHash" -> " ",
-                "poiId" -> poi.toInt,
-                "skuId" -> sku.toInt,
-                "skuId4R" -> sku.toInt,
-                "spuId" -> spu_id.toInt,
+                "poiId" -> poi,
+                "skuId" -> sku.toLong,
+                "skuId4R" -> sku.toLong,
+                "spuId" -> spu_id,
                 "spuName" -> " "
             ).toString()
         }
