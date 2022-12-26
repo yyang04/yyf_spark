@@ -18,7 +18,8 @@ object SkuIndex extends RemoteSparkJob{
         val bucketTableName = "ptU2ISkuEmb"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
 
-        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return}
+        println("123")
 
         val sku = read_raw(sc, sku_path)
         val poi_sku = spark.sql(
