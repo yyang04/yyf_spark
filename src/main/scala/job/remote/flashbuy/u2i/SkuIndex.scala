@@ -62,7 +62,7 @@ object SkuIndex extends RemoteSparkJob{
             S3Handler.putObjectFile(filePath, bucket, s"$bucketTableName/$version/part-$idx")
             file.delete()
             x
-        }
+        }.count()
     }
 
     def read_raw(sc: SparkContext, path: String): RDD[(String, Array[Float])] = {
