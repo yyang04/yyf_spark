@@ -1,7 +1,6 @@
 package job.remote.flashbuy.u2i
 
-import job.remote.flashbuy.u2i.U2IInfer.{hdfs, read_raw, sc}
-import org.apache.spark.TaskContext
+import org.apache.spark.{SparkContext, TaskContext}
 import org.apache.spark.rdd.RDD
 import play.api.libs.json.Json
 import utils.{FileOperations, JSONUtils, S3Handler}
@@ -19,9 +18,7 @@ object SkuIndex extends RemoteSparkJob{
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
         // viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/20221223_154733/sku_embedding/20221222
 
-        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return}
-        println("123")
-
+        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
         val sku = read_raw(sc, sku_path)
         val poi_sku = spark.sql(
             s"""
@@ -65,6 +62,14 @@ object SkuIndex extends RemoteSparkJob{
             S3Handler.putObjectFile(filePath, bucket, s"$bucketTableName/$version/part-$idx")
             file.delete()
             x
+        }
+    }
+
+    def read_raw(sc: SparkContext, path: String): RDD[(String, Array[Float])] = {
+        sc.textFile(path).map { row =>
+            val id = row.split(",")(0)
+            val emb = row.split(",").drop(1).map(_.toFloat)
+            (id, emb)
         }
     }
 }
