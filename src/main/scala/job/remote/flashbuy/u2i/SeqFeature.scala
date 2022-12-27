@@ -32,7 +32,6 @@ object SeqFeature extends RemoteSparkJob {
             }
         }
 
-
         val sku_info = spark.sql(
             s"""
                |SELECT product_id AS sku_id,
@@ -56,10 +55,5 @@ object SeqFeature extends RemoteSparkJob {
             (tag_seq_list, tag_freq_list)
         }.map { case (uuid, (tag_list, tag_freq_list)) => (uuid, tag_list, tag_freq_list) }.toDF("uuid", "tag_list", "tag_freq_list")
         saveAsTable(spark, sku_info, dst_table, Map("dt" -> dt))
-
-
     }
-
-
-
 }

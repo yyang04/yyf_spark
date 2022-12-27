@@ -2,11 +2,14 @@ package job.remote.flashbuy.u2i
 
 import org.apache.spark.{SparkContext, TaskContext}
 import org.apache.spark.rdd.RDD
-import play.api.libs.json.Json
+import play.api.libs.json.{JsArray, JsNumber, Json}
 import utils.{FileOperations, JSONUtils, S3Handler}
 import utils.SparkJobs.RemoteSparkJob
 
+import java.time.LocalDateTime
 import java.io.{File, PrintWriter}
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 object SkuIndex extends RemoteSparkJob{
 
@@ -19,7 +22,13 @@ object SkuIndex extends RemoteSparkJob{
         // viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/20221223_154733/sku_embedding/20221222
 
         if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+
+        val tableName = "PtVectorSg"
+        val timestamp = LocalDateTime.now.format(DateTimeFormatter.ofPattern("YYYYMMdd_HHmmss"))
+        val utime = new Date().getTime
+
         val sku = read_raw(sc, sku_path)
+
         val poi_sku = spark.sql(
             s"""
                |select cast(sku_id as string) as sku_id,
@@ -30,22 +39,23 @@ object SkuIndex extends RemoteSparkJob{
                |""".stripMargin).rdd.map { row =>
             val sku_id = row.getString(0)
             val poi_id = row.getLong(1)
-            val spu_id = row.getLong(2)
-            (sku_id, (poi_id, spu_id))
-        }.join(sku).map { case (sku, ((poi, spu_id), emb)) =>
-            Json.obj(
-                "embV1" -> Json.arr(),
-                "embV2" -> Json.arr(emb),
-                "geoHash" -> " ",
+            (sku_id, poi_id)
+        }.join(sku).map { case (sku_id, (poi, emb)) =>
+            val data = Json.obj(
+                "embV1" -> JsArray(emb.map(JsNumber(_))),
                 "poiId" -> poi,
-                "skuId" -> sku.toLong,
-                "skuId4R" -> sku.toLong,
-                "spuId" -> spu_id,
-                "spuName" -> " "
-            ).toString()
+                "skuId" -> sku_id.toLong,
+            ).toString
+            Json.obj(
+                "table" -> tableName,
+                "utime" -> utime,
+                "data" -> data,
+                "opType" -> 1,
+                "pKey" -> sku_id
+            ).toString
         }
 
-        write(poi_sku, bucket, bucketTableName, "v1")
+        write(poi_sku, bucket, bucketTableName, timestamp)
     }
 
     def write(s: RDD[String], bucket: String, bucketTableName: String, version: String): Unit = {
