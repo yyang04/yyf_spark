@@ -92,12 +92,12 @@ object SkuIndex extends RemoteSparkJob{
         val raw = Json.parse(
             s"""
               |{
-              |     "data_source": "com-sankuai-wmadrecall-hangu-admultirecall/ptU2ISkuEmb/$version/",
+              |     "data_source": "com-sankuai-wmadrecall-hangu-admultirecall/ptU2ISkuEmb/$version",
               |     "data_source_type": "s3",
               |     "table_name": "PtVectorSg",
               |     "schema": "com-sankuai-wmadrecall-hangu-admultirecall/sku_vector_pt.proto",
               |     "output_type": "s3",
-              |     "output_path": "",
+              |     "output_path": "com-sankuai-wmadrecall-hangu-admultirecall",
               |     "build_options": "forward.index.type=murmurhash,forward.index.hash.bucket.num=2097152, forward.segment.level=3,inverted.segment.level=6, inverted.term.index.type=murmurhash,inverted.term.index.hash.bucket.num=4194304",
               |     "owner": "yangyufeng04"
               |}
@@ -107,7 +107,7 @@ object SkuIndex extends RemoteSparkJob{
         val response = basicRequest
           .header("Content-Type", "application/json")
           .body(raw)
-          .put(url)
+          .post(url)
           .send(backend)
         response.body.toString
     }
