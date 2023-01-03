@@ -12,7 +12,7 @@ object HighQualitySku extends RemoteSparkJob {
         val dt = params.dt
         val threshold = params.threshold
 
-        val highQualitySku = spark.sql(
+        val highQualitySkuTmp = spark.sql(
             s"""
                |      select info.sku_id,
                |             poi_id,
@@ -37,33 +37,35 @@ object HighQualitySku extends RemoteSparkJob {
             val third_category_id = row.getLong(2)
             val score = row.getLong(3)
             (poi_id, (third_category_id, sku_id, score))
-        }.groupByKey.mapValues { iter =>
-            iter.size match {
-                case x if x > threshold =>
-                    val skuList = ArrayBuffer[(Long, Long, Long)]()
-                    val result = iter.toArray.groupBy(_._1).mapValues { iterArray => iterArray.sortBy(_._3).reverse }
-                    val loop = new Breaks
-                    loop.breakable {
-                        var i = 0
-                        while (true) {
-                            for (k <- result.values) {
-                                if (skuList.size < threshold) {
-                                    try {
-                                        skuList.append(k(i))
-                                    } catch {
-                                        case _: Exception =>
-                                    }
-                                } else {
-                                    loop.break()
-                                }
+        }.groupByKey.cache()
+
+        val lowN = highQualitySkuTmp.filter( x => x._2.size <= threshold ).mapValues{ _.toList }
+        val topN = highQualitySkuTmp.filter( x => x._2.size > threshold )
+
+        val highQualitySku = topN.mapValues{ iter =>
+            val skuList = ArrayBuffer[(Long, Long, Long)]()
+            val result = iter.toArray.groupBy(_._1).mapValues { iterArray => iterArray.sortBy(_._3).reverse }
+            val loop = new Breaks
+            loop.breakable {
+                var i = 0
+                while (true) {
+                    for (k <- result.values) {
+                        if (skuList.size < threshold) {
+                            try {
+                                skuList.append(k(i))
+                            } catch {
+                                case _: Exception =>
                             }
-                            i = i + 1
+                        } else {
+                            loop.break()
                         }
                     }
-                    skuList.toList
-                case _ => iter.toList
+                    i = i + 1
+                }
             }
-        }.flatMap{ case (poi_id, skuInfoList) => skuInfoList
+            skuList.toList
+        }.union(lowN)
+          .flatMap{ case (poi_id, skuInfoList) => skuInfoList
           .map{ case (third_category_id, sku_id, score) => (poi_id, third_category_id, sku_id, score)}
         }.toDF("poi_id", "third_category_id", "sku_id", "score")
 
