@@ -67,6 +67,6 @@ object HighQualitySku extends RemoteSparkJob {
           .map{ case (third_category_id, sku_id, score) => (poi_id, third_category_id, sku_id, score)}
         }.toDF("poi_id", "third_category_id", "sku_id", "score")
 
-        saveAsTable(spark, highQualitySku, "mart_waimaiad.recsys_linshou_pt_poi_skus_high_quality", Map("dt" -> s"$dt"))
+        saveAsTable(spark, highQualitySku, "recsys_linshou_pt_poi_skus_high_quality", Map("dt" -> s"$dt"))
     }
 }
