@@ -4,6 +4,7 @@ import org.apache.spark.{SparkContext, TaskContext}
 import org.apache.spark.rdd.RDD
 import play.api.libs.json.{JsArray, JsNumber, Json}
 import utils.{FileOperations, JSONUtils, S3Handler}
+import sttp.client3._
 import utils.SparkJobs.RemoteSparkJob
 
 import java.time.LocalDateTime
@@ -26,8 +27,9 @@ object SkuIndex extends RemoteSparkJob{
         val tableName = "PtVectorSg"
         val timestamp = LocalDateTime.now.format(DateTimeFormatter.ofPattern("YYYYMMdd_HHmmss"))
         val utime = new Date().getTime
-
         val sku = read_raw(sc, sku_path)
+
+
 
         val poi_sku = spark.sql(
             s"""
@@ -56,6 +58,8 @@ object SkuIndex extends RemoteSparkJob{
         }
 
         write(poi_sku, bucket, bucketTableName, timestamp)
+        println(send_request(mode="prod", version=timestamp))
+        // println(send_request(mode="stage", version=timestamp))
     }
 
     def write(s: RDD[String], bucket: String, bucketTableName: String, version: String): Unit = {
@@ -63,9 +67,7 @@ object SkuIndex extends RemoteSparkJob{
             val idx = TaskContext.getPartitionId()
             val filePath = "tmp" + File.separator + "index"
             val writer = new PrintWriter(filePath)
-            x.foreach(e => {
-                writer.println(e)
-            })
+            x.foreach(e => { writer.println(e) })
             writer.close()
             val file = new File(filePath)
             println(s"file length: ${file.length()}")
@@ -75,11 +77,40 @@ object SkuIndex extends RemoteSparkJob{
         }.count()
     }
 
+
     def read_raw(sc: SparkContext, path: String): RDD[(String, Array[Float])] = {
         sc.textFile(path).map { row =>
             val id = row.split(",")(0)
             val emb = row.split(",").drop(1).map(_.toFloat)
             (id, emb)
         }
+    }
+
+    def send_request(mode: String, version:String): String = {
+        val url = mode match {
+            case "stage" => uri"http://10.176.17.101:8088/v1/tasks"
+            case "prod" => uri"http://10.176.17.167:8088/v1/tasks"
+        }
+        val raw = Json.parse(
+            s"""
+              |{
+              |     "data_source": "com-sankuai-wmadrecall-hangu-admultirecall/ptU2ISkuEmb/$version/",
+              |     "data_source_type": "s3",
+              |     "table_name": "PtVectorSg",
+              |     "schema": "com-sankuai-wmadrecall-hangu-admultirecall/sku_vector_pt.proto",
+              |     "output_type": "s3",
+              |     "output_path": "",
+              |     "build_options": "forward.index.type=murmurhash,forward.index.hash.bucket.num=2097152, forward.segment.level=3,inverted.segment.level=6, inverted.term.index.type=murmurhash,inverted.term.index.hash.bucket.num=4194304",
+              |     "owner": "yangyufeng04"
+              |}
+              |""".stripMargin).toString()
+
+        val backend = HttpClientSyncBackend()
+        val response = basicRequest
+          .header("Content-Type", "application/json")
+          .body(raw)
+          .put(url)
+          .send(backend)
+        response.body.toString
     }
 }

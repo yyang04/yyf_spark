@@ -46,7 +46,7 @@ object Cid2Item extends RemoteSparkJob {
                |      where dt between ${ getDateDelta(dt,-60) } and $dt
                |        and a.sku_id is not null
                |        and event_type in ('click','order','cart')
-               |       )
+               |)
                |group by 1,2
                |having cnt > 1
                |""".stripMargin).rdd.map{ row =>

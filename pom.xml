@@ -107,6 +107,12 @@
             <version>1.9.14</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.softwaremill.sttp.client3</groupId>
+            <artifactId>core_${spark.scala.version}</artifactId>
+            <version>3.8.5</version>
+        </dependency>
+
 
 <!--        <dependency>-->
 <!--            <groupId>com.linkedin.sparktfrecord</groupId>-->
