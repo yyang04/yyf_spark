@@ -114,13 +114,15 @@
         </dependency>
 
         <dependency>
-            <groupId>com.softwaremill.sttp.client3</groupId>
-            <artifactId>core_${spark.scala.version}</artifactId>
-            <version>3.8.5</version>
+            <groupId>org.scalaj</groupId>
+            <artifactId>scalaj-http_${spark.scala.version}</artifactId>
+            <version>2.4.2</version>
         </dependency>
 
 
-<!--        <dependency>-->
+
+
+        <!--        <dependency>-->
 <!--            <groupId>com.linkedin.sparktfrecord</groupId>-->
 <!--            <artifactId>spark-tfrecord_2.12</artifactId>-->
 <!--            <version>0.4.0</version>-->

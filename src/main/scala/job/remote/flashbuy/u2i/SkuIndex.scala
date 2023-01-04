@@ -3,8 +3,8 @@ package job.remote.flashbuy.u2i
 import org.apache.spark.{SparkContext, TaskContext}
 import org.apache.spark.rdd.RDD
 import play.api.libs.json.{JsArray, JsNumber, Json}
+import scalaj.http.Http
 import utils.{FileOperations, JSONUtils, S3Handler}
-import sttp.client3._
 import utils.SparkJobs.RemoteSparkJob
 
 import java.time.LocalDateTime
@@ -27,6 +27,7 @@ object SkuIndex extends RemoteSparkJob{
 
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
         // viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/20221223_154733/sku_embedding/20221222
+
         if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
         val sku = read_raw(sc, sku_path)
         val poi_sku = spark.sql(
@@ -56,8 +57,9 @@ object SkuIndex extends RemoteSparkJob{
         }
 
         write(poi_sku, bucket, bucketTableName, timestamp)
-        // println(send_request(mode="prod", version=timestamp))
         println(send_request(mode="stage", version=timestamp))
+        println(send_request(mode="prod", version=timestamp))
+        println("end")
     }
 
     def write(s: RDD[String], bucket: String, bucketTableName: String, version: String): Unit = {
@@ -86,10 +88,11 @@ object SkuIndex extends RemoteSparkJob{
 
     def send_request(mode: String, version:String): String = {
         val url = mode match {
-            case "stage" => uri"http://10.176.17.101:8088/v1/tasks"
-            case "prod" => uri"http://10.176.17.167:8088/v1/tasks"
+            case "stage" => "http://10.176.17.101:8088/v1/tasks"
+            case "prod" => "http://10.176.17.167:8088/v1/tasks"
         }
-        val raw = Json.parse(
+
+        val data = Json.parse(
             s"""
               |{
               |     "data_source": "com-sankuai-wmadrecall-hangu-admultirecall/ptU2ISkuEmb/$version",
@@ -102,13 +105,7 @@ object SkuIndex extends RemoteSparkJob{
               |     "owner": "yangyufeng04"
               |}
               |""".stripMargin).toString()
-
-        val backend = HttpClientSyncBackend()
-        val response = basicRequest
-          .header("Content-Type", "application/json")
-          .body(raw)
-          .post(url)
-          .send(backend)
-        response.body.toString
+        val response = Http(url).postData(data).header("content-type", "application/json").asString.body
+        response
     }
 }
