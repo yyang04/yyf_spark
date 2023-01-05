@@ -30,7 +30,6 @@ object HighQualitySku extends RemoteSparkJob {
                |      on mv.sku_id=info.sku_id
                |      where info.dt=$dt
                |        and info.sku_id is not null
-               |
                |""".stripMargin).rdd.map { row =>
             val sku_id = row.getLong(0)
             val poi_id = row.getLong(1)

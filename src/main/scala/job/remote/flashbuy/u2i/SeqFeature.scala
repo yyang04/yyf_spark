@@ -31,7 +31,6 @@ object SeqFeature extends RemoteSparkJob {
                 case (sku_id, timestamp) => (sku_id, (uuid, timestamp))
             }
         }
-
         val sku_info = spark.sql(
             s"""
                |SELECT product_id AS sku_id,

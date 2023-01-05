@@ -7,12 +7,6 @@ import org.apache.spark.rdd.RDD
 import utils.SparkJobs.RemoteSparkJob
 import utils.{ArrayOperations, FileOperations}
 
-case class SkuInfo(id: String, vector: Array[Float]) extends Item[String, Array[Float]] {
-    override def dimensions: Int = vector.length
-}
-case class UserInfo(id: String, vector: Array[Float]) extends Item[String, Array[Float]] {
-    override def dimensions: Int = vector.length
-}
 
 object U2IInfer extends RemoteSparkJob {
     override def run(): Unit = {

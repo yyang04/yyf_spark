@@ -29,6 +29,7 @@ object SkuIndex extends RemoteSparkJob{
         // viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/20221223_154733/sku_embedding/20221222
 
         if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+
         val sku = read_raw(sc, sku_path)
         val poi_sku = spark.sql(
             s"""
