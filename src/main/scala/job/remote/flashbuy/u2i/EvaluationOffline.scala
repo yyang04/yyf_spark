@@ -38,6 +38,7 @@ object EvaluationOffline extends RemoteSparkJob {
         }.cache()
 
         val poi_user = poi_uuid_sku.map{ case (p, u, s) => (u, p) }
+          .distinct
           .join(user_emb)
           .map{ case (u, (p, emb)) => (p, UserInfo(u, emb)) }
           .groupByKey
