@@ -18,8 +18,8 @@ object EvaluationOffline extends RemoteSparkJob {
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
-        if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
-        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+//        if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
+//        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
         val user_emb = read_raw(sc, user_path)
         val sku_emb = read_raw(sc, sku_path)
 
