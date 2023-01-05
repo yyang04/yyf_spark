@@ -18,6 +18,9 @@ object EvaluationOffline extends RemoteSparkJob {
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
+
+        println(user_path)
+        println(sku_path)
 //        if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
 //        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
         val user_emb = read_raw(sc, user_path)
@@ -27,7 +30,7 @@ object EvaluationOffline extends RemoteSparkJob {
             s"""
                | select distinct uuid, poi_id, sku_id
                |   from mart_waimaiad.sg_pt_click_log_v1
-               |  where dt=$dt
+               |  where dt='$dt'
                |    and event_id in ('b_sct3Y', 'b_waimai_leosvgq2_mc')
                |""".stripMargin).rdd.map{ row =>
             val uuid = row.getString(0)
@@ -46,7 +49,7 @@ object EvaluationOffline extends RemoteSparkJob {
             s"""
                |select poi_id, sku_id
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus_high_quality
-               | where dt=$dt
+               | where dt='$dt'
                |""".stripMargin).rdd.map{ row =>
             val poi_id = row.getLong(0)
             val sku_id = row.getLong(1).toString
