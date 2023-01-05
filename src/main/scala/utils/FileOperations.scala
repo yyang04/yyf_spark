@@ -120,7 +120,7 @@ object FileOperations {
                 if (exist) {
                     loop.break
                 }
-                Thread.sleep(interval * 1000)
+                Thread.sleep(interval * 1000 * 60)
                 index = index + 1
             }
         }
