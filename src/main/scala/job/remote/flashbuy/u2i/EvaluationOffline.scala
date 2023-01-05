@@ -37,8 +37,6 @@ object EvaluationOffline extends RemoteSparkJob {
             (poi_id, uuid, sku_id)
         }.cache()
 
-
-
         val poi_user = poi_uuid_sku.map{ case (p, u, s) => (u, p) }
           .join(user_emb)
           .map{ case (u, (p, emb)) => (p, UserInfo(u, emb)) }
@@ -48,6 +46,7 @@ object EvaluationOffline extends RemoteSparkJob {
             s"""
                |select poi_id, sku_id
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus_high_quality
+               | where dt=$dt
                |""".stripMargin).rdd.map{ row =>
             val poi_id = row.getLong(0)
             val sku_id = row.getLong(1).toString
