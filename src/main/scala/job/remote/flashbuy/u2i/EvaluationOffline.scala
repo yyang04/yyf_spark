@@ -13,7 +13,7 @@ object EvaluationOffline extends RemoteSparkJob {
 
     override def run(): Unit = {
 
-        val dt = params.beginDt   // 需要 evaluate 的日期
+        val dt = params.dt   // 需要 evaluate 的日期
         val ts = params.timestamp // 模型的 timestamp
         val threshold = params.threshold  // 对于每个poi请求召回的数量@K
 
@@ -80,9 +80,6 @@ object EvaluationOffline extends RemoteSparkJob {
         println(s"inter_length: ${result._1}")
         println(s"recallRate: ${result._1/result._2}")
     }
-
-
-
 
     def read_raw(sc: SparkContext, path: String): RDD[(String, Array[Float])] = {
         sc.textFile(path).map { row =>
