@@ -1,11 +1,10 @@
 package job.remote.flashbuy.u2i
 
-import com.github.jelmerk.knn.scalalike.{Item, floatInnerProduct}
+import com.github.jelmerk.knn.scalalike.floatInnerProduct
 import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
-import job.remote.flashbuy.u2i.U2IInfer.spark
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import utils.{ArrayOperations, FileOperations}
+import utils.FileOperations
 import utils.SparkJobs.RemoteSparkJob
 
 
