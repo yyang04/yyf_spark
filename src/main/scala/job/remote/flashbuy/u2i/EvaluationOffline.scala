@@ -24,6 +24,7 @@ object EvaluationOffline extends RemoteSparkJob {
 
         val user_emb = read_raw(sc, user_path)
         val sku_emb = read_raw(sc, sku_path)
+        val dim = user_emb.take(1)(0)._2.length
 
         // 1. 选取用户点击的sku和广告点击的重合的部分
         val poi_uuid_sku = spark.sql(
@@ -67,7 +68,7 @@ object EvaluationOffline extends RemoteSparkJob {
         val uuid_sku_real = poi_uuid_sku.map{ case(p, u, s) => (u, s) }.groupByKey.mapValues(_.toList)
         val result = poi_sku.join(poi_user).flatMap {
             case (poi, (skus, users)) =>
-                val index = BruteForceIndex[String, Array[Float], SkuInfo, Float](32, floatInnerProduct)
+                val index = BruteForceIndex[String, Array[Float], SkuInfo, Float](dim, floatInnerProduct)
                 index.addAll(skus)
                 users.par.map { user =>
                     val skuArray = index
