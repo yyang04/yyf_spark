@@ -12,8 +12,8 @@ object EvaluationOffline extends RemoteSparkJob {
 
     override def run(): Unit = {
 
-        val dt = params.dt   // 需要 evaluate 的日期
-        val ts = params.timestamp // 模型的 timestamp
+        val dt = params.dt                // 需要 evaluate 的日期，需要确认模型下面有embedding
+        val ts = params.timestamp         // 模型的timestamp
         val threshold = params.threshold  // 对于每个poi请求召回的数量@K
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
@@ -25,12 +25,17 @@ object EvaluationOffline extends RemoteSparkJob {
         val user_emb = read_raw(sc, user_path)
         val sku_emb = read_raw(sc, sku_path)
 
+        // 1. 选取用户点击的sku和广告点击的重合的部分
         val poi_uuid_sku = spark.sql(
             s"""
-               | select distinct uuid, poi_id, sku_id
-               |   from mart_waimaiad.sg_pt_click_log_v1
-               |  where dt='$dt'
-               |    and event_id in ('b_sct3Y', 'b_waimai_leosvgq2_mc')
+               | select distinct uuid, poi_id, a.sku_id
+               |   from mart_waimaiad.sg_pt_click_log_v1 a
+               |   join (
+               |    select distinct sku_id
+               |      from mart_waimaiad.recsys_linshou_pt_poi_skus_high_quality
+               |     where dt='$dt') b
+               |    on a.sku_id = b.sku_id
+               |  where dt='$dt' and event_id in ('b_sct3Y', 'b_waimai_leosvgq2_mc')
                |""".stripMargin).rdd.map{ row =>
             val uuid = row.getString(0)
             val poi_id = row.getLong(1)
@@ -38,12 +43,14 @@ object EvaluationOffline extends RemoteSparkJob {
             (poi_id, uuid, sku_id)
         }.cache()
 
+        // 2. 按照 poi_id 进行分片
         val poi_user = poi_uuid_sku.map{ case (p, u, s) => (u, p) }
           .distinct
           .join(user_emb)
           .map{ case (u, (p, emb)) => (p, UserInfo(u, emb)) }
           .groupByKey
 
+        // 3. 按照 poi_id 选出sku集合
         val poi_sku = spark.sql(
             s"""
                |select poi_id, sku_id

@@ -24,7 +24,6 @@ object SkuIndex extends RemoteSparkJob{
         val bucket = "com-sankuai-wmadrecall-hangu-admultirecall"
         val bucketTableName = "ptU2ISkuEmb"
 
-
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
         // viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/20221223_154733/sku_embedding/20221222
 
