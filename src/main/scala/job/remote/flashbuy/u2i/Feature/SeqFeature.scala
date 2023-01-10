@@ -1,6 +1,7 @@
-package job.remote.flashbuy.u2i
-import utils.SparkJobs.RemoteSparkJob
+package job.remote.flashbuy.u2i.Feature
+
 import utils.FileOperations.saveAsTable
+import utils.SparkJobs.RemoteSparkJob
 
 object SeqFeature extends RemoteSparkJob {
     override def run(): Unit = {

@@ -36,7 +36,7 @@ object EvaluationOffline extends RemoteSparkJob {
                |      from mart_waimaiad.recsys_linshou_pt_poi_skus_high_quality
                |     where dt='$dt') b
                |    on a.sku_id = b.sku_id
-               |  where dt='$dt' and event_id in ('b_sct3Y', 'b_waimai_leosvgq2_mc')
+               |  where dt='$dt' and event_id in 'b_xU9Ua'
                |""".stripMargin).rdd.map{ row =>
             val uuid = row.getString(0)
             val poi_id = row.getLong(1)
