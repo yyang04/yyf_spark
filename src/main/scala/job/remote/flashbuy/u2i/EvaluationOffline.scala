@@ -91,6 +91,8 @@ object EvaluationOffline extends RemoteSparkJob {
         println(s"full_length: ${result._2}")
         println(s"recall_rate: ${result._3/result._4}")
         println(s"count: ${result._4}")
+
+
     }
 
     def read_raw(sc: SparkContext, path: String): RDD[(String, Array[Float])] = {
@@ -100,4 +102,14 @@ object EvaluationOffline extends RemoteSparkJob {
             (id, emb)
         }
     }
+
+    def skuQuality() : Unit ={
+        spark.sql("""
+         |select dimensions['sku_id'], count(*) as cnt
+         |  from mart_waimaiad.platinum_flashbuy_multirecall_train_data_new_v4
+         | where dt between 20221208 and 20230107
+                    |group by 1""".stripMargin)
+    }
+
+
 }
