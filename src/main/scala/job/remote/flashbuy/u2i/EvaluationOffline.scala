@@ -30,17 +30,23 @@ object EvaluationOffline extends RemoteSparkJob {
         val poi_uuid_sku = spark.sql(
             s"""
                | select distinct uuid, poi_id, a.sku_id
-               |   from mart_waimaiad.sg_pt_click_log_v1 a
+               |   from mart_lingshou.fact_flow_sdk_product_mv a
                |   join (
                |    select distinct sku_id
                |      from mart_waimaiad.recsys_linshou_pt_poi_skus_high_quality
                |     where dt='$dt') b
                |    on a.sku_id = b.sku_id
-               |  where dt='$dt' and event_id in ('b_xU9Ua')
+               |  where dt='$dt'
+               |    and uuid is not null
+               |    and sku_id is not null
+               |    and category_type=13
+               |    and event_id in ('b_Wl3cp', 'b_xU9Ua')
+               |    and page_id in ('41879681', '40000204')
+               |    and event_type = 'click'
                |""".stripMargin).rdd.map{ row =>
             val uuid = row.getString(0)
             val poi_id = row.getLong(1)
-            val sku_id = row.getString(2)
+            val sku_id = row.getLong(2).toString
             (poi_id, uuid, sku_id)
         }.cache()
 
