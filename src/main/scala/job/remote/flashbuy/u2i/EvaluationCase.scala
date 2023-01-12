@@ -1,8 +1,7 @@
 package job.remote.flashbuy.u2i
 
 import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
-import com.github.jelmerk.knn.scalalike.{Item, floatInnerProduct}
-import com.github.jelmerk.knn.scalalike.hnsw.HnswIndex
+import com.github.jelmerk.knn.scalalike.floatInnerProduct
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import utils.SparkJobs.RemoteSparkJob
@@ -20,11 +19,11 @@ object EvaluationCase extends RemoteSparkJob {
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
+        println(user_path)
+        println(sku_path)
+//        if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
+//        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
 
-        if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
-        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
-
-        // params
         val user = read_raw(sc, user_path)
         val sku = read_raw(sc, sku_path)
         val dim = user.take(1)(0)._2.length
@@ -35,7 +34,7 @@ object EvaluationCase extends RemoteSparkJob {
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus_high_quality
                | where dt='$dt'
                |""".stripMargin).rdd.map { row =>
-            val sku_id = row.getAs[String](0)
+            val sku_id = row.getAs[Long](0).toString
             val poi_id = row.getAs[Long](1)
             (sku_id, poi_id)
         }.join(sku).map { case (sku, (poi, emb)) => (poi, SkuInfo(sku, emb)) }.groupByKey

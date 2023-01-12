@@ -108,14 +108,4 @@ object EvaluationOffline extends RemoteSparkJob {
             (id, emb)
         }
     }
-
-    def skuQuality() : Unit ={
-        spark.sql("""
-         |select dimensions['sku_id'], count(*) as cnt
-         |  from mart_waimaiad.platinum_flashbuy_multirecall_train_data_new_v4
-         | where dt between 20221208 and 20230107
-                    |group by 1""".stripMargin)
-    }
-
-
 }
