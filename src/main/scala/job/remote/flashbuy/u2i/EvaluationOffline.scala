@@ -45,7 +45,7 @@ object EvaluationOffline extends RemoteSparkJob {
                |    and event_type = 'click'
                |""".stripMargin).rdd.map{ row =>
             val uuid = row.getString(0)
-            val poi_id = row.getLong(1)
+            val poi_id = row.getString(1).toLong
             val sku_id = row.getLong(2).toString
             (poi_id, uuid, sku_id)
         }.cache()
