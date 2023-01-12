@@ -11,7 +11,7 @@ import utils.{ArrayOperations, FileOperations}
 object EvaluationCase extends RemoteSparkJob {
     override def run(): Unit = {
 
-        val dt = params.beginDt
+        val dt = params.dt
         val threshold = params.threshold    // 每家店推几个
         val threshold2 = params.threshold2  // 几家店
         val ts = params.timestamp           // 模型的 timestamp
@@ -19,10 +19,8 @@ object EvaluationCase extends RemoteSparkJob {
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
-        println(user_path)
-        println(sku_path)
-//        if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
-//        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+        if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
+        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
 
         val user = read_raw(sc, user_path)
         val sku = read_raw(sc, sku_path)
