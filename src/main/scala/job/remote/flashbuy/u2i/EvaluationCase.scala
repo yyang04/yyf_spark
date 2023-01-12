@@ -16,6 +16,7 @@ object EvaluationCase extends RemoteSparkJob {
         val threshold = params.threshold    // 每家店推几个
         val threshold2 = params.threshold2  // 几家店
         val ts = params.timestamp           // 模型的 timestamp
+        val method = params.algorithm       // 模型的算法
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
@@ -67,7 +68,7 @@ object EvaluationCase extends RemoteSparkJob {
             val scores = ArrayOperations.maxScale(tmp.map(_._2))
             tmp.map(_._1).zip(scores).map { case (sku_id, score) => s"$sku_id:${"%.5f".format(score)}" }
         }.toDF("key", "value")
-        val partition = Map("date" -> dt, "method" -> "dual_tower")
+        val partition = Map("date" -> dt, "method" -> method)
         FileOperations.saveAsTable(spark, res, "recsys_linshou_multi_recall_results_vtest", partition)
     }
 
