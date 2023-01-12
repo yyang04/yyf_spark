@@ -38,7 +38,7 @@ object EvaluationOffline extends RemoteSparkJob {
                |    on a.sku_id = b.sku_id
                |  where dt='$dt'
                |    and uuid is not null
-               |    and sku_id is not null
+               |    and a.sku_id is not null
                |    and category_type=13
                |    and event_id in ('b_Wl3cp', 'b_xU9Ua')
                |    and page_id in ('41879681', '40000204')
