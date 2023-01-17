@@ -92,8 +92,8 @@ object CoverRate extends RemoteSparkJob{
 
         val pv = spark.sql(
             s"""select pvid,
-               |       case when pv.exp_id like '%193264%' then 'exp'
-               |            when pv.exp_id like '%193265%' then 'base'
+               |       case when exp_id like '%193264%' then 'exp'
+               |            when exp_id like '%193265%' then 'base'
                |            else 'other' as exp_id,
                |       recallresults
                |   from (
