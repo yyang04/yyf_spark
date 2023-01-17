@@ -94,7 +94,7 @@ object CoverRate extends RemoteSparkJob{
             s"""select pvid,
                |       case when exp_id like '%193264%' then 'exp'
                |            when exp_id like '%193265%' then 'base'
-               |            else 'other' as exp_id,
+               |            else 'other' end as exp_id,
                |       recallresults
                |   from (
                |      select pvid,
