@@ -6,7 +6,7 @@ import utils.SparkJobs.RemoteSparkJob
 
 object CoverRate extends RemoteSparkJob{
     override def run(): Unit = {
-        // 频道页分召回渠道统计覆盖率比例
+        // 频道页分召回曝光渠道统计覆盖率比例
         val dt = params.dt
         val hour = params.hour
         val city = params.city
@@ -54,12 +54,13 @@ object CoverRate extends RemoteSparkJob{
                |   AND product_status = '0'
                |   AND is_valid = 1
                |   AND is_online_poi_flag = 1
+               |   AND product_spu_id is not null
                |""".stripMargin
         ).rdd.map { row =>
             val sku_id = row.getAs[Long](0)
             val spu_id = row.getAs[Long](1)
             (spu_id, sku_id)
-        }.reduceByKey((x,_)=>x)
+        }.reduceByKey((x ,_)=>x)
 
         val mv_tmp = mv
           .join(spu_sku_map)
@@ -74,9 +75,9 @@ object CoverRate extends RemoteSparkJob{
                |  from (select wm_poi_id,
                |               get_json_object(b.item, "$$.skuId") as skuId
                |          from origindb_ss.waimaibizadmateriel_bizad_materiel__wm_ad_muses_creative_library a
-               |          lateral view explode(get_json_array(content, "$$.product")) b as item
+               |          lateral view explode(get_json_array(content, "$$.productList")) b as item
                |          where dt=$dt)
-               |where skuId is not null
+               |  where skuId is not null
                |""".stripMargin).rdd.map{ row =>
             val poi = row.getAs[Long](0)
             val skuId = row.getAs[String](1).toLong
@@ -91,14 +92,10 @@ object CoverRate extends RemoteSparkJob{
 
         val pv = spark.sql(
             s"""select pvid,
-               |       case when exp_id like '%184594%' and exp_id like '%185967%' then 'base'
-               |            when exp_id like '%184594%' and exp_id like '%185966%' then 'uuid'
-               |            when exp_id like '%184462%' and exp_id like '%185967%' then 'cid'
-               |            when exp_id like '%184462%' and exp_id like '%185966%' then 'cid_uuid'
-               |            when exp_id like '%144570%' and exp_id like '%185967%' then 'cid_sku'
-               |            when exp_id like '%144570%' and exp_id like '%185966%' then 'cid_sku_uuid'
-               |            else 'other' end as exp_id,
-               |        recallresults
+               |       case when pv.exp_id like '%193264%' then 'exp'
+               |            when pv.exp_id like '%193265%' then 'base'
+               |            else 'other' as exp_id,
+               |       recallresults
                |   from (
                |      select pvid,
                |             get_json_object(expids, '$$.frame_exp_list') exp_id,

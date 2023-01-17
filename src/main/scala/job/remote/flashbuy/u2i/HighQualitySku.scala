@@ -23,9 +23,9 @@ object HighQualitySku extends RemoteSparkJob {
                |         ( select sku_id,
                |                  count(*) as score
                |             from mart_waimaiad.recsys_linshou_user_explicit_acts
-               |            where dt between ${getDateDelta(dt, -90)} and $dt
+               |            where dt between ${getDateDelta(dt, -180)} and $dt
                |              and sku_id is not null
-               |              and event_type='click'
+               |              and event_type='order'
                |              group by 1) mv
                |      on mv.sku_id=info.sku_id
                |      where info.dt=$dt
