@@ -1,5 +1,6 @@
 package utils
 import scala.math.{exp, log}
+import scala.util.Random
 
 object ArrayOperations {
     // element-wise addition
@@ -54,8 +55,14 @@ object ArrayOperations {
         }
     }
 
+    def randomChoice(x: Array[Double], n: Int): Array[Double] = {
+        Random.shuffle(x.toList).take(n).toArray
+    }
+
     def main(args: Array[String]): Unit = {
         println(maxScale(Array(2.0,3.0)).mkString)
     }
+
+
 
 }
