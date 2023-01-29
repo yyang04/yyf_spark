@@ -26,18 +26,20 @@ object sample_v1 extends RemoteSparkJob{
             s"""
                |SELECT event_type,
                |       request_id,
-               |       uuid, user_id
-               |       sku_id, spu_id,
+               |       uuid,
+               |       user_id
+               |       sku_id,
+               |       spu_id,
                |       poi_id
                |  FROM mart_lingshou.fact_flow_sdk_product_mv
                | WHERE dt='$dt'
                |   AND uuid is not null
                |   AND uuid != ''
-               |   AND sku_id is not null
+               |   AND sku_id is not null AND cast(sku_id as bigint) is not null
+               |   AND spu_id is not null AND cast(spu_id as bigint) is not null
                |   AND poi_id is not null
                |   AND category_type = 13
                |   AND event_id = 'b_xU9Ua'
-               |   AND not (sku_id is null AND spu_id is null)
                |""".stripMargin
         ).rdd.map{ row =>
             val event_type = row.getString(0)

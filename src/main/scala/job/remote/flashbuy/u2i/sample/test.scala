@@ -7,8 +7,8 @@ object test {
 
 
         val row = Row(null, null)
-        val a = row.getAs[String](0)
-        println(a(0))
+        val a = row.getAs[Long](0)
+        println(a)
         val b = "123"
         println(b(0))
     }
