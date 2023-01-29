@@ -27,7 +27,7 @@ object sample_v1 extends RemoteSparkJob{
                |SELECT event_type,
                |       request_id,
                |       uuid,
-               |       user_id
+               |       user_id,
                |       sku_id,
                |       spu_id,
                |       poi_id
