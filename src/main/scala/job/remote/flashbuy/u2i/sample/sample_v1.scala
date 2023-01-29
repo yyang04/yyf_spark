@@ -71,7 +71,7 @@ object sample_v1 extends RemoteSparkJob{
             case (poi_id, (v1, v2)) =>
                 val (event_type, request_id, uuid, user_id, sku_id, spu_id) = v1
                 Random.shuffle(v2).take(threshold).map {
-                    case (sku_id, spu_id) => (poi_id, (event_type, request_id, uuid, user_id, sku_id, spu_id))
+                    case (sku_id, spu_id) => (poi_id, ("view", request_id, uuid, user_id, sku_id, spu_id))
                 }
         }.union(sku_pos).map{
             case (poi_id, (event_type, request_id, uuid, user_id, sku_id, spu_id)) =>
