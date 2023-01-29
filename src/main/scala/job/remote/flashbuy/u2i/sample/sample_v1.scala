@@ -35,8 +35,7 @@ object sample_v1 extends RemoteSparkJob{
                | WHERE dt='$dt'
                |   AND uuid is not null
                |   AND uuid != ''
-               |   AND sku_id is not null AND cast(sku_id as bigint) is not null
-               |   AND spu_id is not null AND cast(spu_id as bigint) is not null
+               |   AND NOT (sku_id is null AND spu_id is null)
                |   AND poi_id is not null
                |   AND category_type = 13
                |   AND event_id = 'b_xU9Ua'
@@ -47,7 +46,7 @@ object sample_v1 extends RemoteSparkJob{
             val uuid = row.getString(2)
             val user_id = row.getAs[String](3)
             val sku_id = row.getAs[Long](4)
-            val spu_id = row.getAs[String](5).toLong
+            val spu_id = row.getAs[Long](5)
             val poi_id = row.getLong(6)
             (poi_id, (event_type, request_id, uuid, user_id, sku_id, spu_id))
         }.distinct.join(sku_pool).mapValues{ case(x, _) => x }.cache
