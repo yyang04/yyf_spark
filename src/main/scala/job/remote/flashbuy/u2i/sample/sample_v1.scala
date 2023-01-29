@@ -47,7 +47,7 @@ object sample_v1 extends RemoteSparkJob{
             val user_id = row.getAs[String](3)
             val sku_id = row.getAs[Long](4)
             val spu_id = row.getAs[Long](5)
-            val poi_id = row.getLong(6)
+            val poi_id = row.getAs[String](6).toLong
             (poi_id, (event_type, request_id, uuid, user_id, sku_id, spu_id))
         }.distinct.join(sku_pool).mapValues{ case(x, _) => x }.cache
 
