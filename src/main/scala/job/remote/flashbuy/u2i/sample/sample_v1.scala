@@ -29,7 +29,7 @@ object sample_v1 extends RemoteSparkJob{
                |       uuid,
                |       user_id,
                |       sku_id,
-               |       spu_id,
+               |       cast(spu_id as bigint) as spu_id,
                |       poi_id
                |  FROM mart_lingshou.fact_flow_sdk_product_mv
                | WHERE dt='$dt'
