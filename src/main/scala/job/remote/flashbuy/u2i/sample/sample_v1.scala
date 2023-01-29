@@ -47,7 +47,7 @@ object sample_v1 extends RemoteSparkJob{
             val uuid = row.getString(2)
             val user_id = row.getAs[String](3)
             val sku_id = row.getAs[Long](4)
-            val spu_id = row.getAs[Long](5)
+            val spu_id = row.getAs[String](5).toLong
             val poi_id = row.getLong(6)
             (poi_id, (event_type, request_id, uuid, user_id, sku_id, spu_id))
         }.distinct.join(sku_pool).mapValues{ case(x, _) => x }.cache
@@ -80,27 +80,6 @@ object sample_v1 extends RemoteSparkJob{
         }.toDF("poi_id", "event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id")
 
         FileOperations.saveAsTable(spark, df, "pt_sg_u2i_sample_v1", Map("dt" -> s"$dt"))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
 }
