@@ -12,7 +12,4 @@ object test {
         val b = "123"
         println(b(0))
     }
-
-
-
 }
