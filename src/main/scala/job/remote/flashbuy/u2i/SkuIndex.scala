@@ -8,15 +8,14 @@ import utils.{FileOperations, JSONUtils, S3Handler}
 import utils.SparkJobs.RemoteSparkJob
 
 import java.time.LocalDateTime
-import java.io.{File, PrintWriter}
 import java.time.format.DateTimeFormatter
 import java.util.Date
-import s3Writer.s3write
-import scala.collection.JavaConversions._
+import utils.S3Connect
 
-object SkuIndex extends RemoteSparkJob{
+object SkuIndex extends RemoteSparkJob with S3Connect {
 
     override def run(): Unit = {
+        initConnect(sc)
         // parameters
         val dt = params.dt
         val ts = params.timestamp
@@ -56,26 +55,25 @@ object SkuIndex extends RemoteSparkJob{
                 "opType" -> 1,
                 "pKey" -> sku_id
             ).toString
-        }
+        }.repartition(20).saveAsTextFile(s"s3a://$bucket/$bucketTableName/$timestamp")
 
-        write(poi_sku, bucket, bucketTableName, timestamp)
         println(send_request(mode="stage", version=timestamp))
         println(send_request(mode="prod", version=timestamp))
         println("end")
     }
 
-    def write(s: RDD[String], bucket: String, bucketTableName: String, version: String): Unit = {
-        s.repartition(100).mapPartitions { x =>
-            val idx = TaskContext.getPartitionId()
-            val filePath = "tmp" + File.separator + "index"
-            s3write.write2Disk(filePath, x)
-            val file = new File(filePath)
-            println(s"file length: ${file.length()}")
-            S3Handler.putObjectFile(filePath, bucket, s"$bucketTableName/$version/part-$idx")
-            file.delete()
-            x
-        }.count()
-    }
+//    def write(s: RDD[String], bucket: String, bucketTableName: String, version: String): Unit = {
+//        s.repartition(100).mapPartitions { x =>
+//            val idx = TaskContext.getPartitionId()
+//            val filePath = "tmp" + File.separator + "index"
+//            s3write.write2Disk(filePath, x)
+//            val file = new File(filePath)
+//            println(s"file length: ${file.length()}")
+//            S3Handler.putObjectFile(filePath, bucket, s"$bucketTableName/$version/part-$idx")
+//            file.delete()
+//            x
+//        }.count()
+//    }
 
 
     def read_raw(sc: SparkContext, path: String): RDD[(String, Array[Float])] = {
