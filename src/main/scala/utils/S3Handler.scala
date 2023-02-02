@@ -100,17 +100,13 @@ object S3Handler extends Serializable {
 
     def createAmazonS3Client(accessKey: String, secretKey: String): AmazonS3 = {
         val credentials = new BasicAWSCredentials(accessKey, secretKey)
-
         val configuration = new ClientConfiguration
         // 默认协议为HTTPS。将这个值设置为Protocol.HTTP，则使用的是HTTP协议
         configuration.setProtocol(Protocol.HTTPS)
-
         //生成云存储api client
         val mssClient = new AmazonS3Client(credentials, configuration)
-
         //配置云存储服务地址 https://km.sankuai.com/page/194870634
         mssClient.setEndpoint(host)
-
         //设置客户端生成的http请求hos格式，目前只支持path type的格式，不支持bucket域名的格式
         val s3ClientOptions = new S3ClientOptions
         s3ClientOptions.setPathStyleAccess(true)

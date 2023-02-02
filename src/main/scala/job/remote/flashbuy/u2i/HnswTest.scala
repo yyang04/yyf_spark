@@ -15,6 +15,9 @@ object HnswTest {
         val index = BruteForceIndex[String, Array[Float], SkuInfo, Float](dimensions, floatInnerProduct)
         index.addAll(Seq(item1, item2, item3))
         val results = index.findNearest(item1.vector, 1)
+        println(results.head.item().id)
+
+        println(results.head.distance())
 
     }
 

@@ -11,6 +11,8 @@ import java.time.LocalDateTime
 import java.io.{File, PrintWriter}
 import java.time.format.DateTimeFormatter
 import java.util.Date
+import s3Writer.s3write
+import scala.collection.JavaConversions._
 
 object SkuIndex extends RemoteSparkJob{
 
@@ -66,9 +68,7 @@ object SkuIndex extends RemoteSparkJob{
         s.repartition(100).mapPartitions { x =>
             val idx = TaskContext.getPartitionId()
             val filePath = "tmp" + File.separator + "index"
-            val writer = new PrintWriter(filePath)
-            x.foreach(e => { writer.println(e) })
-            writer.close()
+            s3write.write2Disk(filePath, x)
             val file = new File(filePath)
             println(s"file length: ${file.length()}")
             S3Handler.putObjectFile(filePath, bucket, s"$bucketTableName/$version/part-$idx")
