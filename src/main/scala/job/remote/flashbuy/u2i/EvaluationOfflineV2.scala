@@ -8,7 +8,7 @@ import utils.FileOperations
 import utils.SparkJobs.RemoteSparkJob
 
 
-object EvaluationOffline_v2 extends RemoteSparkJob {
+object EvaluationOfflineV2 extends RemoteSparkJob {
 
     override def run(): Unit = {
 
