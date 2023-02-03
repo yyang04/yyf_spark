@@ -104,8 +104,8 @@ object EvaluationOfflineV2 extends RemoteSparkJob {
                 val sku_predict_unique = sku_predict.distinct
                 val sku_real_unique = sku_real.distinct
                 val inter = sku_predict_unique.intersect(sku_real_unique)
-                val precision_rate = inter.length / sku_real_unique.length
-                val recall_rate = inter.length / sku_predict_unique.length
+                val precision_rate = inter.length.toDouble / sku_real_unique.length.toDouble
+                val recall_rate = inter.length.toDouble / sku_predict_unique.length.toDouble
                 val count = 1
                 (precision_rate, recall_rate, count)
         }.map(_._2).reduce((x, y) => (x._1 + y._1, x._2 + y._2, x._3 + y._3))
