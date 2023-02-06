@@ -89,9 +89,6 @@ object EvaluationOffline extends RemoteSparkJob {
 
         println(f"${coverage._1/coverage._2 * 100}%.2f%%")
 
-
-
-
         val result = tmp.map(x => (x._2, x._3))
           .groupByKey.mapValues{ iter => iter.flatten.toList.sortBy(_._2).reverse.map(_._1) }
           .join(uuid_sku_real).values.map{
