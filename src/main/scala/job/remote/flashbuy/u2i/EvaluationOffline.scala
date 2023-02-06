@@ -4,7 +4,7 @@ import com.github.jelmerk.knn.scalalike.floatInnerProduct
 import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import utils.{ArrayOperations, FileOperations, RecallEvaluation}
+import utils.{ArrayOperations, FileOperations, MapOperations, RecallEvaluation}
 import utils.SparkJobs.RemoteSparkJob
 
 
@@ -69,7 +69,7 @@ object EvaluationOffline extends RemoteSparkJob {
           .groupByKey
 
         val uuid_sku_real = poi_uuid_sku.map{ case(p, u, s) => (u, s) }.groupByKey.mapValues(_.toList)
-        val result = poi_sku.join(poi_user).flatMap {
+        val tmp = poi_sku.join(poi_user).flatMap {
             case (poi, (skus, users)) =>
                 val index = BruteForceIndex[String, Array[Float], SkuInfo, Float](dim, floatInnerProduct)
                 index.addAll(skus)
@@ -78,9 +78,22 @@ object EvaluationOffline extends RemoteSparkJob {
                       .findNearest(user.vector, threshold)
                       .map(re => (re.item.id, (1 - re.distance).toDouble))
                       .toArray
-                    (user.id, skuArray)
+                    (poi, user.id, skuArray)
                 }.toList
-        }.groupByKey.mapValues{ iter => iter.flatten.toList.sortBy(_._2).reverse.map(_._1) }
+        }.cache
+
+        val coverage = tmp.map(x => (x._1, x._3.map(_._1).groupBy(identity).mapValues(_.length)))
+          .reduceByKey(MapOperations.mergeMap)
+          .values.map(x => (ArrayOperations.entropy(x.map(_._2.toDouble).toArray), 1d))
+          .reduce((x, y) => (x._1 + y._1, x._2 + y._2))
+
+        println(f"${coverage._1/coverage._2 * 100}%.2f%%")
+
+
+
+
+        val result = tmp.map(x => (x._2, x._3))
+          .groupByKey.mapValues{ iter => iter.flatten.toList.sortBy(_._2).reverse.map(_._1) }
           .join(uuid_sku_real).values.map{
             case (sku_predict, sku_real) =>
                 val rel = sku_real.map(_.toLong).toSet

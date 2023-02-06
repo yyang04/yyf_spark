@@ -66,12 +66,27 @@ object ArrayOperations {
         Random.shuffle(x.toList).take(n).toArray
     }
 
-    def main(args: Array[String]): Unit = {
-        println(maxScale(Array(2.0,3.0)).mkString)
-        val a = Array((1d,2d),(3d,4d))
-        val b = Array((2d,3d),(3d,5d))
-        println(add_2(a, b).mkString(","))
+    def entropy(x: Array[Double]): Double = {
+        val total = x.sum
+        val res = x.map(_/total)
+        res.map{x => - x * math.log(x)}.sum
     }
+
+    def main(args: Array[String]): Unit = {
+//        println(maxScale(Array(2.0,3.0)).mkString)
+//        val a = Array((1d,2d),(3d,4d))
+//        val b = Array((2d,3d),(3d,5d))
+//        println(add_2(a, b).mkString(","))
+        val a = Array(1d, 2d, 3d, 4d)
+        val b = Array(1d, 1d, 1d, 1d)
+        val c = Array(1d, 1d, 1d, 1d, 1d)
+        println(entropy(a))
+        println(entropy(b))
+        println(entropy(c))
+
+    }
+
+
 
 
 
