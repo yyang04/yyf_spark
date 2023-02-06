@@ -86,17 +86,18 @@ object EvaluationOffline extends RemoteSparkJob {
         }.groupByKey.mapValues{ iter => iter.flatten.toList.map(_._1) }
           .join(uuid_sku_real).mapValues{
             case (sku_predict, sku_real) =>
-                val inter_length = sku_predict.intersect(sku_real).length.toDouble
-                val real_length = sku_real.distinct.length.toDouble
-                val recall_rate = inter_length / real_length
+                val sku_predict_unique = sku_predict.distinct
+                val sku_real_unique = sku_real.distinct
+                val inter = sku_predict_unique.intersect(sku_real_unique)
+                val precision_rate = inter.length.toDouble / sku_real_unique.length.toDouble
+                val recall_rate = inter.length.toDouble / sku_predict_unique.length.toDouble
                 val count = 1
-                (inter_length, real_length, recall_rate, count)
-        }.map(_._2).reduce((x, y) => (x._1 + y._1, x._2 + y._2, x._3 + y._3, x._4 + y._4))
+                (precision_rate, recall_rate, count)
+        }.map(_._2).reduce((x, y) => (x._1 + y._1, x._2 + y._2, x._3 + y._3))
 
-        println(s"inter_length: ${result._1}")
-        println(s"full_length: ${result._2}")
-        println(s"recall_rate: ${result._3/result._4}")
-        println(s"count: ${result._4}")
+        println(s"total_count: $result._3")
+        println(s"precision_rate: ${result._1 / result._3}")
+        println(s"recall_rate: ${result._2 / result._3}")
 
 
     }
