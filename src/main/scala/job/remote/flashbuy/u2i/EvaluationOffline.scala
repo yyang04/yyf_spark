@@ -4,7 +4,7 @@ import com.github.jelmerk.knn.scalalike.floatInnerProduct
 import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import utils.FileOperations
+import utils.{ArrayOperations, FileOperations}
 import utils.SparkJobs.RemoteSparkJob
 
 
@@ -83,23 +83,39 @@ object EvaluationOffline extends RemoteSparkJob {
                       .toArray
                     (user.id, skuArray)
                 }.toList
-        }.groupByKey.mapValues{ iter => iter.flatten.toList.map(_._1) }
+        }.groupByKey.mapValues{ iter => iter.flatten.toList.sortBy(_._2).reverse.map(_._1) }
           .join(uuid_sku_real).mapValues{
             case (sku_predict, sku_real) =>
-                val sku_predict_unique = sku_predict.distinct
-                val sku_real_unique = sku_real.distinct
-                val inter = sku_predict_unique.intersect(sku_real_unique)
-                val precision_rate = inter.length.toDouble / sku_real_unique.length.toDouble
-                val recall_rate = inter.length.toDouble / sku_predict_unique.length.toDouble
+                val recall_5 = sku_predict.take(5).toSet
+                val recall_10 = sku_predict.take(10).toSet
+                val recall_15 = sku_predict.take(15).toSet
+                val recall_20 = sku_predict.take(20).toSet
+
+                val click = sku_real.toSet
+
+                val precision5 = click.intersect(recall_5).size.toDouble / click.size.toDouble
+                val precision10 = click.intersect(recall_10).size.toDouble / click.size.toDouble
+                val precision15 = click.intersect(recall_15).size.toDouble / click.size.toDouble
+                val precision20 = click.intersect(recall_20).size.toDouble / click.size.toDouble
+
+                val recall5 = click.intersect(recall_5).size.toDouble / recall_5.size.toDouble
+                val recall10 = click.intersect(recall_5).size.toDouble / recall_10.size.toDouble
+                val recall15 = click.intersect(recall_5).size.toDouble / recall_15.size.toDouble
+                val recall20 = click.intersect(recall_5).size.toDouble / recall_20.size.toDouble
                 val count = 1
-                (precision_rate, recall_rate, count)
-        }.map(_._2).reduce((x, y) => (x._1 + y._1, x._2 + y._2, x._3 + y._3))
+                (Array(precision5, precision10, precision15, precision20, recall5, recall10, recall15, recall20), count)
+        }.map(_._2).reduce((x, y) => (ArrayOperations.add(x._1, y._1), (x._2 + y._2)))
 
-        println(s"total_count: $result._3")
-        println(s"precision_rate: ${result._1 / result._3}")
-        println(s"recall_rate: ${result._2 / result._3}")
-
-
+        val arr = ArrayOperations.div(result._1, result._2)
+        println(s"total count: ${result._2}")
+        println(s"precision@5: ${arr.apply(0)}")
+        println(s"precision@10: ${arr.apply(1)}")
+        println(s"precision@15: ${arr.apply(2)}")
+        println(s"precision@20: ${arr.apply(3)}")
+        println(s"recall@5: ${arr.apply(4)}")
+        println(s"recall@10: ${arr.apply(5)}")
+        println(s"recall@15: ${arr.apply(6)}")
+        println(s"recall@20: ${arr.apply(7)}")
     }
 
     def read_raw(sc: SparkContext, path: String): RDD[(String, Array[Float])] = {
