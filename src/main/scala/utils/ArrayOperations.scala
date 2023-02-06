@@ -8,6 +8,13 @@ object ArrayOperations {
         require(x.length == y.length)
         (x, y).zipped.map(_+_)
     }
+    def add_2(x: Array[(Double, Double)], y: Array[(Double, Double)]): Array[(Double, Double)] ={
+        require(x.length == y.length)
+        (x, y).zipped.map{
+            case (x, y) =>
+                (x._1 + y._1, x._2 + y._2)
+        }
+    }
 
     def div(x: Array[Double], y: Double): Array[Double] = {
         x.map(_/y)
@@ -61,6 +68,9 @@ object ArrayOperations {
 
     def main(args: Array[String]): Unit = {
         println(maxScale(Array(2.0,3.0)).mkString)
+        val a = Array((1d,2d),(3d,4d))
+        val b = Array((2d,3d),(3d,5d))
+        println(add_2(a, b).mkString(","))
     }
 
 
