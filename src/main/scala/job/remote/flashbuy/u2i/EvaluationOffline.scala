@@ -87,7 +87,7 @@ object EvaluationOffline extends RemoteSparkJob {
           .values.map(x => (ArrayOperations.entropy(x.map(_._2.toDouble).toArray), 1d))
           .reduce((x, y) => (x._1 + y._1, x._2 + y._2))
 
-        println(f"${coverage._1/coverage._2 * 100}%.2f%%")
+        println(f"Coverage: ${coverage._1/coverage._2}%.2f")
 
         val result = tmp.map(x => (x._2, x._3))
           .groupByKey.mapValues{ iter => iter.flatten.toList.sortBy(_._2).reverse.map(_._1) }
