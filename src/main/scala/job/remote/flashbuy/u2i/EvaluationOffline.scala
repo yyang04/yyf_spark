@@ -99,9 +99,9 @@ object EvaluationOffline extends RemoteSparkJob {
                 val precision20 = click.intersect(recall_20).size.toDouble / click.size.toDouble
 
                 val recall5 = click.intersect(recall_5).size.toDouble / recall_5.size.toDouble
-                val recall10 = click.intersect(recall_5).size.toDouble / recall_10.size.toDouble
-                val recall15 = click.intersect(recall_5).size.toDouble / recall_15.size.toDouble
-                val recall20 = click.intersect(recall_5).size.toDouble / recall_20.size.toDouble
+                val recall10 = click.intersect(recall_10).size.toDouble / recall_10.size.toDouble
+                val recall15 = click.intersect(recall_15).size.toDouble / recall_15.size.toDouble
+                val recall20 = click.intersect(recall_20).size.toDouble / recall_20.size.toDouble
                 val count = 1
                 (Array(precision5, precision10, precision15, precision20, recall5, recall10, recall15, recall20), count)
         }.map(_._2).reduce((x, y) => (ArrayOperations.add(x._1, y._1), (x._2 + y._2)))
