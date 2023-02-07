@@ -9,9 +9,9 @@ import scala.util.Random
 case class ModelSample (event_type: String= "",
                         request_id: String= "",
                         uuid: String= "",
-                        user_id: String= "",
-                        sku_id: Long=0L,
-                        spu_id: Long=0L,
+                        user_id: Option[String]= Some(""),
+                        sku_id: Option[Long]=Some(0L),
+                        spu_id: Option[Long]=Some(0L),
                         poi_id: Long=0L)
 
 object sample_v2 extends RemoteSparkJob{
@@ -71,7 +71,7 @@ object sample_v2 extends RemoteSparkJob{
             val sku_id = row.getAs[Long](0)
             val spu_id = row.getAs[Long](1)
             val poi_id = row.getLong(2)
-            val sample = ModelSample(sku_id=sku_id, spu_id=spu_id, poi_id=poi_id)
+            val sample = ModelSample(sku_id=Some(sku_id), spu_id=Some(spu_id), poi_id=poi_id)
             (sample.poi_id, sample)
         }.join(sku_pool)
           .map(_._2._1)
