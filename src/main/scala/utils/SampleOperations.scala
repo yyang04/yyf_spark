@@ -22,10 +22,11 @@ object SampleOperations {
         partitionWeights = partitionWeights.map { case (partitionIndex, weight) => (partitionIndex, weight / Z) }
 
         // 2. Sample from partitions indexes to determine number of samples from each partition
-        val samplesPerIndex = sc.broadcast(sample[Int](partitionWeights, numSamples).groupBy(x => x).mapValues(_.length)).value
+        val bcSamplesPerIndex = sc.broadcast(sample[Int](partitionWeights, numSamples).groupBy(x => x).map(x => (x._1, x._2.length)))
 
         // 3. On each partition, sample the number of elements needed for that partition
         ar.mapPartitionsWithIndex { case (partitionIndex, iter) =>
+            val samplesPerIndex = bcSamplesPerIndex.value
             val numSamplesForPartition = samplesPerIndex.getOrElse(partitionIndex, 0)
             var ar = iter.map(x => (x.obj, x.weight)).toArray
             val Z = ar.map(x => x._2).sum
