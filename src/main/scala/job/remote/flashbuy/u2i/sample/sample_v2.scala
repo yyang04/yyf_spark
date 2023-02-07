@@ -79,7 +79,7 @@ object sample_v2 extends RemoteSparkJob{
           .leftOuterJoin(sku_pos_count)
           .values
           .map{
-            case (x, score) => (x.poi_id, Sample(score.getOrElse(0d) + 1d, x))
+            case (x, score) => (x.poi_id, Sample(norm_neg(score.getOrElse(0d) + 1d), x))
         }.groupByKey.join(sample_sku_pos).values.flatMap {
             case (iter, x_pos) =>
                 SampleOperations.weightedSampleWithReplacement(iter.toArray, threshold, new Random)
