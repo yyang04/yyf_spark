@@ -1,5 +1,6 @@
 package utils
 import scala.math.{exp, log}
+import scala.reflect.ClassTag
 import scala.util.Random
 
 object ArrayOperations {
@@ -72,17 +73,24 @@ object ArrayOperations {
         res.map{x => - x * math.log(x)}.sum
     }
 
+
+
     def main(args: Array[String]): Unit = {
 //        println(maxScale(Array(2.0,3.0)).mkString)
 //        val a = Array((1d,2d),(3d,4d))
 //        val b = Array((2d,3d),(3d,5d))
 //        println(add_2(a, b).mkString(","))
-        val a = Array(1d, 2d, 3d, 4d)
-        val b = Array(1d, 1d, 1d, 1d)
-        val c = Array(1d, 1d, 1d, 1d, 1d)
-        println(entropy(a))
-        println(entropy(b))
-        println(entropy(c))
+//        val a = Array(1d, 2d, 3d, 4d)
+//        val b = Array(1d, 1d, 1d, 1d)
+//        val c = Array(1d, 1d, 1d, 1d, 1d)
+//        println(entropy(a))
+//        println(entropy(b))
+//        println(entropy(c))
+//        val r = new Random
+//        val data = Array(1, 2, 3, 4, 5)
+//        val weights = Array(1.0, 2.0, 3.0, 4.0, 5.0)
+//        val result = weightedSampleWithReplacement[Int](data, weights, 5, random=r)
+//        println(result.mkString(","))
 
     }
 

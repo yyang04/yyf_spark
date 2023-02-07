@@ -1,10 +1,18 @@
 package job.remote.flashbuy.u2i.sample
 
-import utils.FileOperations
+import utils.{FileOperations, SampleOperations, Sample}
 import utils.SparkJobs.RemoteSparkJob
 import utils.TimeOperations.getDateDelta
 
 import scala.util.Random
+
+case class ModelSample (event_type: String= "",
+                        request_id: String= "",
+                        uuid: String= "",
+                        user_id: String= "",
+                        sku_id: Long=0L,
+                        spu_id: Long=0L,
+                        poi_id: Long=0L)
 
 object sample_v2 extends RemoteSparkJob{
 
@@ -14,6 +22,7 @@ object sample_v2 extends RemoteSparkJob{
         val dt = params.dt
         val threshold = params.threshold
 
+        // 候选池
         val sku_pool = spark.sql(
             s"""
                |SELECT distinct poi_id
@@ -23,7 +32,8 @@ object sample_v2 extends RemoteSparkJob{
             val poi_id = row.getLong(0)
             (poi_id, 0L)
         }
-
+//
+//        // 正样本
         val sku_pos_tmp = spark.sql(
             s"""
                |SELECT event_type,
@@ -41,22 +51,11 @@ object sample_v2 extends RemoteSparkJob{
                |   AND poi_id is not null
                |   AND event_id in ('b_xU9Ua', 'b_lR1gR')
                |""".stripMargin
-        ).rdd.map{ row =>
-            val event_type = row.getString(0)
-            val request_id = row.getString(1)
-            val uuid = row.getString(2)
-            val user_id = row.getAs[String](3)
-            val sku_id = row.getAs[Long](4)
-            val spu_id = row.getAs[Long](5)
-            val poi_id = row.getAs[String](6).toLong
-            (poi_id, (event_type, request_id, uuid, user_id, sku_id, spu_id))
-        }.distinct.join(sku_pool).mapValues{ case(x, _) => x }.cache
-        val sku_pos_count = sku_pos_tmp.map{ case (p, (e, r, uu, us, sk, sp)) => ((sk, sp), 1d)}.reduceByKey(_+_).cache
-        val total_score = sku_pos_count.map(_._2).reduce(_+_)
-        sku_pos_count.map{ case (item, score) => (item, probability_pos(score/total_score)) }
-        val sku_pos = sku_pos_tmp.map{ case (p, (e, r, uu, us, sk, sp)) => ((sk, sp), (p, e, r, uu, us)) }.join(sku_pos_count).map{
-            case((sk, sp), ((p, e, r, uu, us), s)) => ((p, (e, r, uu, us, sk, sp)), keep_rate(s))
-        }.filter(_._2).map(_._1)
+        ).as[ModelSample].rdd.map { sample => (sample.poi_id, sample) }.join(sku_pool).map{ _._2._1 }.cache
+        val total_count = sku_pos_tmp.count().toDouble
+        val sku_pos_count = sku_pos_tmp.map{ x => ((x.sku_id, x.spu_id), 1d) }.reduceByKey(_+_)
+        val sku_pos = sku_pos_tmp.map(x => ((x.sku_id, x.spu_id), x)).join(sku_pos_count).map{ x => Sample(norm_pos(x._2._2 / total_count), x._2._1) }
+        val sample_sku_pos = SampleOperations.sampleWeightedRDD[ModelSample](sku_pos, total_count.toInt).map(x => (x.poi_id, x))
 
 
         val sku_neg = spark.sql(
@@ -72,30 +71,31 @@ object sample_v2 extends RemoteSparkJob{
             val sku_id = row.getAs[Long](0)
             val spu_id = row.getAs[Long](1)
             val poi_id = row.getLong(2)
-            (poi_id, (sku_id, spu_id))
-        }.join(sku_pool).mapValues{ case(x, _) => x }.groupByKey
+            val sample = ModelSample(sku_id=sku_id, spu_id=spu_id, poi_id=poi_id)
+            (sample.poi_id, sample)
+        }.join(sku_pool)
+          .map(_._2._1)
+          .map(x => ((x.sku_id, x.spu_id), x))
+          .leftOuterJoin(sku_pos_count)
+          .values
+          .map{
+            case (x, score) => (x.poi_id, Sample(score.getOrElse(0d) + 1d, x))
+        }.groupByKey.join(sample_sku_pos).values.flatMap {
+            case (iter, x_pos) =>
+                SampleOperations.weightedSampleWithReplacement(iter.toArray, threshold, new Random)
+                .map{ x => ModelSample("view", x_pos.request_id, x_pos.uuid, x_pos.user_id, x.sku_id, x.spu_id, x.poi_id) } :+ x_pos
+        }.map{
+            case ModelSample(event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id) =>
+                (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
+        }.toDF("event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id", "poi_id")
 
-        val df = sku_pos.join(sku_neg).flatMap{
-            case (poi_id, (v1, v2)) =>
-                val (event_type, request_id, uuid, user_id, sku_id, spu_id) = v1
-                Random.shuffle(v2).take(threshold).map {
-                    case (sku_id, spu_id) => (poi_id, ("view", request_id, uuid, user_id, sku_id, spu_id))
-                }
-        }.union(sku_pos).map{
-            case (poi_id, (event_type, request_id, uuid, user_id, sku_id, spu_id)) =>
-            (poi_id, event_type, request_id, uuid, user_id, sku_id, spu_id)
-        }.toDF("poi_id", "event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id")
-
-        FileOperations.saveAsTable(spark, df, "pt_sg_u2i_sample_v1", Map("dt" -> s"$dt"))
+        FileOperations.saveAsTable(spark, sku_neg, "pt_sg_u2i_sample_v2", Map("dt" -> s"$dt"))
     }
 
-    def probability_pos(rate: Double): Double = {
+    def norm_pos(rate: Double): Double = {
         (scala.math.sqrt(rate/0.001) + 1) * 0.001 / rate
     }
-
-    def keep_rate(rate: Double): Boolean = {
-        require(rate > 0 && rate < 1)
-        val r = new scala.util.Random
-        r.nextDouble() < rate
+    def norm_neg(freq: Double): Double = {
+        scala.math.pow(freq, 0.75)
     }
 }

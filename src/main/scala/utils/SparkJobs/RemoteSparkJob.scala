@@ -8,7 +8,7 @@ import org.apache.hadoop.fs.FileSystem
 abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializable {
     Logger.getLogger("org").setLevel(Level.ERROR)
     var spark: SparkSession = _
-    var sc: SparkContext = _
+    implicit var sc: SparkContext = _
     var params: Config = Config()
     var hdfs: FileSystem = _
     override var _sqlContext: SQLContext = _
