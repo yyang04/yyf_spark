@@ -51,7 +51,7 @@ object sample_v2 extends RemoteSparkJob{
                |   AND poi_id is not null
                |   AND event_id in ('b_xU9Ua', 'b_lR1gR')
                |""".stripMargin
-        ).as[ModelSample].rdd.map { sample => (sample.poi_id, sample) }.join(sku_pool).map{ _._2._1 }.cache
+        ).as[ModelSample].rdd.distinct.map { sample => (sample.poi_id, sample) }.join(sku_pool).map{ _._2._1 }.cache
         val total_count = sku_pos_tmp.count().toDouble
         val sku_pos_count = sku_pos_tmp.map{ x => ((x.sku_id, x.spu_id), 1d) }.reduceByKey(_+_)
         val sku_pos = sku_pos_tmp.map(x => ((x.sku_id, x.spu_id), x)).join(sku_pos_count).map{ x => Sample(norm_pos(x._2._2 / total_count), x._2._1) }
@@ -89,7 +89,7 @@ object sample_v2 extends RemoteSparkJob{
                 (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
         }.toDF("event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id", "poi_id")
 
-        FileOperations.saveAsTable(spark, sku_neg, "pt_sg_u2i_sample_v2", Map("dt" -> s"$dt"))
+        FileOperations.saveAsTable(spark, sku_neg, "pt_sg_u2i_sample_v3", Map("dt" -> s"$dt"))
     }
 
     def norm_pos(rate: Double): Double = {
