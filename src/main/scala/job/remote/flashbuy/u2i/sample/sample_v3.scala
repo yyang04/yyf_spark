@@ -6,15 +6,8 @@ import utils.TimeOperations.getDateDelta
 
 import scala.util.Random
 
-case class ModelSample (event_type: String= "",
-                        request_id: String= "",
-                        uuid: String= "",
-                        user_id: Option[String]= Some(""),
-                        sku_id: Long=0L,
-                        spu_id: Option[Long]=Some(0L),
-                        poi_id: Long=0L)
 
-object sample_v2 extends RemoteSparkJob{
+object sample_v3 extends RemoteSparkJob{
 
     override def run(): Unit = {
         // 正样本扩充并按照采样方式采样

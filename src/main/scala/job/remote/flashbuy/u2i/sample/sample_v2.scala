@@ -79,7 +79,7 @@ object sample_v2 extends RemoteSparkJob{
           .leftOuterJoin(sku_pos_count)
           .values
           .map{
-            case (x, score) => (x.poi_id, Sample(norm_neg(score.getOrElse(0d) + 1d), x))
+            case (x, score) => (x.poi_id, Sample(1d, x))
         }.groupByKey.join(sample_sku_pos).values.flatMap {
             case (iter, x_pos) =>
                 SampleOperations.weightedSampleWithReplacement(iter.toArray, threshold, new Random)
@@ -96,6 +96,6 @@ object sample_v2 extends RemoteSparkJob{
         (scala.math.sqrt(rate/0.001) + 1) * 0.001 / rate
     }
     def norm_neg(freq: Double): Double = {
-        scala.math.pow(freq, 0.75)
+        scala.math.pow(freq, 0.25)
     }
 }
