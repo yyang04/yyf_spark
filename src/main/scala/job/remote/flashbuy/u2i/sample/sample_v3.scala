@@ -82,7 +82,7 @@ object sample_v3 extends RemoteSparkJob{
                 (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
         }.toDF("event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id", "poi_id")
 
-        FileOperations.saveAsTable(spark, sku_neg, "pt_sg_u2i_sample_v3", Map("dt" -> s"$dt"))
+        FileOperations.saveAsTable(spark, sku_neg, "pt_sg_u2i_sample_v4", Map("dt" -> s"$dt"))
     }
 
     def norm_pos(rate: Double): Double = {
