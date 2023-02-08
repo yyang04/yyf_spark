@@ -34,9 +34,11 @@ object EvaluationOffline extends RemoteSparkJob {
                |     where dt='$dt') b
                |    on a.sku_id = b.sku_id
                |  where dt='$dt'
-               |    and uuid is not null
-               |    and a.sku_id is not null
-               |    AND event_id in ('b_xU9Ua', 'b_lR1gR')
+               |   AND uuid is not null
+               |   AND uuid != ''
+               |   AND sku_id is not null
+               |   AND poi_id is not null
+               |   AND event_id='b_xU9Ua'
                |""".stripMargin).rdd.map{ row =>
             val uuid = row.getString(0)
             val poi_id = row.getString(1).toLong
