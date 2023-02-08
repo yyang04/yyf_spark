@@ -19,10 +19,12 @@ object sample_v2 extends RemoteSparkJob{
     override def run(): Unit = {
         // 正样本扩充并按照采样方式采样
         // 负样本也采样
+        // 不要用搜索数据，就用自然数据，一定要归一化，不归一化全都完了
         val dt = params.dt
         val threshold = params.threshold
+        val dst_table_name = params.dst_table_name
 
-        // 候选池
+        // 候选 poi 池
         val sku_pool = spark.sql(
             s"""
                |SELECT distinct poi_id
@@ -89,7 +91,7 @@ object sample_v2 extends RemoteSparkJob{
                 (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
         }.toDF("event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id", "poi_id")
 
-        FileOperations.saveAsTable(spark, sku_neg, "pt_sg_u2i_sample_v3", Map("dt" -> s"$dt"))
+        FileOperations.saveAsTable(spark, sku_neg, dst_table_name, Map("dt" -> s"$dt", "threshold" -> s"$threshold"))
     }
 
     def norm_pos(rate: Double): Double = {

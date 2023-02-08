@@ -1,4 +1,5 @@
-package job.remote.flashbuy.u2i.sample
+package job.local
+
 import org.apache.spark.sql._
 case class A(a: Option[Long], b: Option[Long])
 
