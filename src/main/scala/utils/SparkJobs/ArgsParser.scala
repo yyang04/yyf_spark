@@ -15,7 +15,8 @@ case class Config(beginDt: String = "20221201",
                   mode:String = "",
                   model_path:String = "",
                   src_table_name: String= "",
-                  dst_table_name: String = ""
+                  dst_table_name: String = "",
+                  window: Int = 0
                  )
 
 class ArgsParser {
@@ -36,6 +37,7 @@ class ArgsParser {
         opt[Int]("threshold").action((x, c) => c.copy(threshold = x))
         opt[Int]("threshold2").action((x, c) => c.copy(threshold2 = x))
         opt[Int]("hour").action((x, c) => c.copy(hour = x))
+        opt[Int]("window").action((x, c) => c.copy(window = x))
     }
 
     def initParams(args: Array[String]):Config = {

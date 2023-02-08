@@ -1,5 +1,5 @@
 package job.remote.flashbuy.u2i
-import com.github.jelmerk.knn.scalalike.{Item, floatInnerProduct}
+import com.github.jelmerk.knn.scalalike.floatInnerProduct
 import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
 
 object HnswTest {
@@ -14,10 +14,10 @@ object HnswTest {
 
         val index = BruteForceIndex[String, Array[Float], SkuInfo, Float](dimensions, floatInnerProduct)
         index.addAll(Seq(item1, item2, item3))
-        val results = index.findNearest(item1.vector, 1)
-        println(results.head.item().id)
+        val results = index.findNearest(item1.vector, 10)
+        println(results)
 
-        println(results.head.distance())
+        println(results)
 
     }
 
