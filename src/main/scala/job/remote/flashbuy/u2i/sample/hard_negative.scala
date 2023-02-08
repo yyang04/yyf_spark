@@ -18,8 +18,11 @@ object hard_negative extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.dt
         val timestamp = params.timestamp
+        val src_table_name = params.src_table_name
+        val dst_table_name = params.dst_table_name
         val threshold = params.threshold
         val window = params.window
+
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$dt"
         if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
@@ -29,17 +32,19 @@ object hard_negative extends RemoteSparkJob {
         val dim = user_emb.take(1)(0)._2.length
 
 
-        val total = spark.sql(s"""
+        val pos = spark.sql(s"""
              select event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id
-               from mart_waimaiad.pt_sg_u2i_sample_v2
+               from $src_table_name
               where dt=$dt
+               and sku_id is not null
+               and event_type = 'click'
         """).as[ModelSample].rdd
-        val pos = total.filter(_.event_type == "click")
-        val neg_easy = total.filter(_.event_type == "view")
+
         val poi_uuid = pos
           .map{x => (x.uuid, x.poi_id)}.distinct
           .join(user_emb)
-          .map{ case (uuid, (poi_id, emb)) => (poi_id, UserInfo(uuid, emb)) }.groupByKey
+          .map{ case (uuid, (poi_id, emb)) => (poi_id, UserInfo(uuid, emb)) }
+          .groupByKey
 
         val poi_sku = spark.sql(
             s"""
@@ -59,7 +64,8 @@ object hard_negative extends RemoteSparkJob {
             val poi_id = row.getAs[Long](2)
             (sku_id, (poi_id, spu_id))
         }.join(sku_emb)
-          .map { case (sku_id, ((poi_id, spu_id), emb)) => (poi_id, SkuInfo(sku_id + "," + spu_id, emb)) }.groupByKey
+          .map { case (sku_id, ((poi_id, spu_id), emb)) => (poi_id, SkuInfo(sku_id + "," + spu_id, emb)) }
+          .groupByKey
 
         val neg_hard = poi_sku.join(poi_uuid).flatMap {
             case (poi_id, (skus, users)) =>
@@ -78,23 +84,11 @@ object hard_negative extends RemoteSparkJob {
                     val spu_id = x.split(",")(1).toLong
                     ModelSample(pos.event_type, pos.request_id, pos.uuid, pos.user_id, sku_id, Some(spu_id), pos.poi_id)
                 }
-        }.union(neg_easy).map {
+        }.map {
             case ModelSample(event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id) =>
                 (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
         }.toDF("event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id", "poi_id")
-        FileOperations.saveAsTable(spark, df, "pt_sg_u2i_sample_v2_hard_negative", Map("dt" -> s"$dt"))
-//          .groupByKey.mapValues { iter =>
-//            val result = iter.toArray.sortBy(_._3).reverse.take(threshold2)
-//            val tmp = result.flatMap {
-//                case (poi_id, skuIdList, average) => skuIdList
-//            }
-//            val scores = tmp.map(_._2)
-//            tmp.map(_._1).zip(scores).map { case (sku_id, score) => s"$sku_id:${"%.5f".format(score)}" }
-//        }.toDF("key", "value")
-
-
-
-
+        FileOperations.saveAsTable(spark, df, dst_table_name, Map("dt" -> s"$dt"))
     }
 
     def read_raw[T: ClassTag](path: String)(implicit sc: SparkContext): RDD[(T, Array[Float])] = {

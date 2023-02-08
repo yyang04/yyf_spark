@@ -36,7 +36,7 @@ object EvaluationOffline extends RemoteSparkJob {
                |  where dt='$dt'
                |   AND uuid is not null
                |   AND uuid != ''
-               |   AND sku_id is not null
+               |   AND a.sku_id is not null
                |   AND poi_id is not null
                |   AND event_id='b_xU9Ua'
                |""".stripMargin).rdd.map{ row =>
