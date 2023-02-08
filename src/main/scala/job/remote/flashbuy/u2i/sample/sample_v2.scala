@@ -51,7 +51,7 @@ object sample_v2 extends RemoteSparkJob{
                |   AND uuid != ''
                |   AND sku_id is not null
                |   AND poi_id is not null
-               |   AND event_id in ('b_xU9Ua', 'b_lR1gR')
+               |   AND event_id='b_xU9Ua'
                |""".stripMargin
         ).as[ModelSample].rdd.distinct.map { sample => (sample.poi_id, sample) }.join(sku_pool).map{ _._2._1 }.cache
         val total_count = sku_pos_tmp.count().toDouble
