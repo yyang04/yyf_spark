@@ -10,7 +10,7 @@ case class ModelSample (event_type: String= "",
                         request_id: String= "",
                         uuid: String= "",
                         user_id: Option[String]= Some(""),
-                        sku_id: Option[Long]=Some(0L),
+                        sku_id: Long=0L,
                         spu_id: Option[Long]=Some(0L),
                         poi_id: Long=0L)
 
@@ -47,7 +47,7 @@ object sample_v2 extends RemoteSparkJob{
                | WHERE dt='$dt'
                |   AND uuid is not null
                |   AND uuid != ''
-               |   AND NOT (sku_id is null AND spu_id is null)
+               |   AND sku_id is not null
                |   AND poi_id is not null
                |   AND event_id in ('b_xU9Ua', 'b_lR1gR')
                |""".stripMargin
@@ -71,7 +71,7 @@ object sample_v2 extends RemoteSparkJob{
             val sku_id = row.getAs[Long](0)
             val spu_id = row.getAs[Long](1)
             val poi_id = row.getLong(2)
-            val sample = ModelSample(sku_id=Some(sku_id), spu_id=Some(spu_id), poi_id=poi_id)
+            val sample = ModelSample(sku_id=sku_id, spu_id=Some(spu_id), poi_id=poi_id)
             (sample.poi_id, sample)
         }.join(sku_pool)
           .map(_._2._1)

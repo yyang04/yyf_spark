@@ -9,7 +9,6 @@ import utils.SparkJobs.RemoteSparkJob
 
 import scala.reflect.ClassTag
 import com.github.jelmerk.knn.scalalike.{Item, floatInnerProduct}
-import job.remote.flashbuy.u2i.sample.sample_v2.spark
 
 case class SkuInfo(id: String, vector: Array[Float]) extends Item[String, Array[Float]] {
     override def dimensions: Int = vector.length
@@ -77,7 +76,7 @@ object hard_negative extends RemoteSparkJob {
                     require(x.length == 2)
                     val sku_id = x.split(",")(0).toLong
                     val spu_id = x.split(",")(1).toLong
-                    ModelSample(pos.event_type, pos.request_id, pos.uuid, pos.user_id, Some(sku_id), Some(spu_id), pos.poi_id)
+                    ModelSample(pos.event_type, pos.request_id, pos.uuid, pos.user_id, sku_id, Some(spu_id), pos.poi_id)
                 }
         }.union(neg_easy).map {
             case ModelSample(event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id) =>
