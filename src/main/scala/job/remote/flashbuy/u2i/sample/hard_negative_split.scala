@@ -21,6 +21,7 @@ object hard_negative_split extends RemoteSparkJob{
         val dt = params.dt            // 需要的时间
         val beginDt = params.beginDt  // 时间段
         val timestamp = params.timestamp
+
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$beginDt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$beginDt"
         if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
