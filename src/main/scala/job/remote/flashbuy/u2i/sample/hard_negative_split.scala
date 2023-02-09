@@ -29,8 +29,8 @@ object hard_negative_split extends RemoteSparkJob{
 
         val user_emb = read_raw(user_path)
         val sku_emb = read_raw(sku_path)
-        FileOperations.saveAsTextFile(hdfs, user_emb.filter(_._1 == dt), s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$dt")
-        FileOperations.saveAsTextFile(hdfs, sku_emb.filter(_._1 == dt), s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$dt")
+        FileOperations.saveAsTextFile(hdfs, user_emb.filter(_._1 == dt).coalesce(200), s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$dt")
+        FileOperations.saveAsTextFile(hdfs, sku_emb.filter(_._1 == dt).coalesce(1000), s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$dt")
     }
 
 
