@@ -38,7 +38,7 @@ object hard_negative_split extends RemoteSparkJob{
     def read_raw(path: String)(implicit sc: SparkContext): RDD[(String, String)] = {
         sc.textFile(path).map { row =>
             val dt = row.split(",")(0)
-            val id_emb = row.split(",")(1).drop(1).mkString(",")
+            val id_emb = row.split(",").drop(1).mkString(",")
             (dt, id_emb)
         }
     }
