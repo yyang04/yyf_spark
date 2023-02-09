@@ -5,9 +5,16 @@ import org.apache.spark.{Partitioner, SparkContext}
 import org.apache.spark.rdd.RDD
 import utils.FileOperations
 import utils.SparkJobs.RemoteSparkJob
+import utils.TimeOperations.getDate
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
+
+class IDPartitioner(override val numPartitions: Int) extends Partitioner {
+    override def getPartition(key: Any): Int = key match {
+        case x: String => x.toInt
+    }
+}
 
 object hard_negative_split extends RemoteSparkJob{
     override def run(): Unit = {
@@ -17,44 +24,57 @@ object hard_negative_split extends RemoteSparkJob{
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$dt"
         if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
         if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
-        val user_emb = read_raw[String](user_path)
-        val sku_emb = read_raw[String](sku_path)
-        writeFile(user_emb, "user_embedding", timestamp)
-        writeFile(sku_emb, "sku_embedding", timestamp)
+        val user_emb = read_raw(user_path)
+        val sku_emb = read_raw(sku_path)
+        val beginDt = dt.split("_")(0)
+        val endDt = dt.split("_")(1)
+
+        for (day <- getDate(beginDt, endDt)) {
+            user_emb
+              .filter(_._1 == day)
+              .saveAsTextFile(s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$day")
+            sku_emb
+              .filter(_._1 == day)
+              .repartition(1000).saveAsTextFile(s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$day")
+        }
     }
 
-    def read_raw[T: ClassTag](path: String)(implicit sc: SparkContext): RDD[(String, (T, Array[Float]))] = {
+
+
+    def read_raw(path: String)(implicit sc: SparkContext): RDD[(String, String)] = {
         sc.textFile(path).map { row =>
             val dt = row.split(",")(0)
-            val id = row.split(",")(1).asInstanceOf[T]
-            val emb = row.split(",").drop(2).map(_.toFloat)
-            (dt, (id, emb))
+            val id_emb = row.split(",")(1).drop(1).mkString(",")
+            (dt, id_emb)
         }
     }
+
+
+
 
     def writeFile(data: RDD[(String, (String, Array[Float]))], mode: String, timestamp: String)(implicit hdfs: FileSystem): Unit = {
-        val bHdfs = sc.broadcast(hdfs)
-        data.groupByKey.foreach {
-            case (dt, iter) =>
-                val hdfs = bHdfs.value
-                val path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/$mode/$dt"
-                val iterator = iter.toIterator
-                val data = mutable.ListBuffer[String]()
-                var index = 0
-                while (iterator.hasNext) {
-                    val element = iterator.next
-                    val result = s"${element._1},${element._2.mkString(",")}"
-                    data.append(result)
-                    if (data.size > 10000) {
-                        FileOperations.saveTextFile(hdfs, data, path + s"/part-$index")
-                        data.clear
-                        index += 1
-                    }
-                }
-                if (data.nonEmpty) {
-                    FileOperations.saveTextFile(hdfs, data, path)
-                }
-        }
-
+//        val bHdfs = sc.broadcast(hdfs)
+//        data.groupByKey.foreach {
+//            case (dt, iter) =>
+//                val hdfs = bHdfs.value
+//                val path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/$mode/$dt"
+//                val iterator = iter.toIterator
+//                val data = mutable.ListBuffer[String]()
+//                var index = 0
+//                while (iterator.hasNext) {
+//                    val element = iterator.next
+//                    val result = s"${element._1},${element._2.mkString(",")}"
+//                    data.append(result)
+//                    if (data.size > 10000) {
+//                        FileOperations.saveTextFile(hdfs, data, path + s"/part-$index")
+//                        data.clear
+//                        index += 1
+//                    }
+//                }
+//                if (data.nonEmpty) {
+//                    FileOperations.saveTextFile(hdfs, data, path)
+//                }
+//        }
     }
 }
+

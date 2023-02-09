@@ -2,7 +2,9 @@ package utils
 
 import java.text.SimpleDateFormat
 import org.joda.time.format.DateTimeFormat
-import org.joda.time.{DateTime, Days}
+import org.joda.time.{DateTime, Days, Period}
+
+import scala.annotation.tailrec
 
 
 object TimeOperations {
@@ -28,8 +30,17 @@ object TimeOperations {
         DateTime.parse(date, format).plusDays(delta).toString(formatPattern)
     }
 
+    def getDate(beginDate: String, endDate: String, formatPattern: String= "YYYYMMdd"): List[String] = {
+        val format = DateTimeFormat.forPattern(formatPattern)
+        val from = DateTime.parse(beginDate, format)
+        val to = DateTime.parse(endDate, format)
+        val numberOfDays = Days.daysBetween(from, to).getDays
+
+        getDateRange(beginDate, numberOfDays, formatPattern)
+    }
+
     def main(args: Array[String]): Unit = {
-        println(getDateDelta("20220908", 92))
+        println(getDate("20220202", "20220212").mkString(","))
     }
 
 }
