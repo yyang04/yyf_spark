@@ -90,7 +90,8 @@ object ArrayOperations {
 //        val data = Array(1, 2, 3, 4, 5)
 //        val weights = Array(1.0, 2.0, 3.0, 4.0, 5.0)
 //        val result = weightedSampleWithReplacement[Int](data, weights, 5, random=r)
-//        println(result.mkString(","))
+        val result = randomChoice(Array(1,2,3), 1)
+        println(result.mkString(","))
 
     }
 

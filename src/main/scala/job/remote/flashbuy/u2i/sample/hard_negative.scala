@@ -75,13 +75,15 @@ object hard_negative extends RemoteSparkJob {
         }
         val df = pos.map(x => ((x.uuid, x.poi_id), x)).join(neg_hard).values.flatMap{
             case (pos, skuArr) =>
-                ArrayOperations.randomChoice(
+                val result = ArrayOperations.randomChoice[ModelSample](
                   skuArr.map{ x =>
                     require(x.split(",").length == 2)
                     val sku_id = x.split(",")(0).toLong
                     val spu_id = x.split(",")(1).toLong
                     ModelSample("view", pos.request_id, pos.uuid, pos.user_id, sku_id, Some(spu_id), pos.poi_id)
                 }, 1)
+                println(result.length)
+                result
         }.map {
             case ModelSample(event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id) =>
                 (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
