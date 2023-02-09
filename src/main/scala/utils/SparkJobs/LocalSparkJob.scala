@@ -20,7 +20,6 @@ abstract class LocalSparkJob extends SQLImplicits with Serializable {
         this.spark = SparkSession.builder().config(conf).enableHiveSupport().getOrCreate
         // this.spark = SparkSession.builder().config(conf).getOrCreate
         this.sc = spark.sparkContext
-        this._sqlContext = this.spark.sqlContext
     }
 
     def main(args: Array[String]): Unit = {

@@ -10,7 +10,7 @@ abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializ
     var spark: SparkSession = _
     implicit var sc: SparkContext = _
     var params: Config = Config()
-    var hdfs: FileSystem = _
+    implicit var hdfs: FileSystem = _
     override var _sqlContext: SQLContext = _
 
     def main(args: Array[String]): Unit ={

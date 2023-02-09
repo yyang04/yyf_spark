@@ -86,7 +86,6 @@ object FileOperations {
             HdfsOp.write[String](writer, line)
         }
         HdfsOp.closeHdfsFile(writer)
-
     }
 
     def deleteTextFile(hdfs: FileSystem,
