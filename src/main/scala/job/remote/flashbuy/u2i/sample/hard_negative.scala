@@ -85,7 +85,7 @@ object hard_negative extends RemoteSparkJob {
             case ModelSample(event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id) =>
                 (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
         }.toDF("event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id", "poi_id")
-        FileOperations.saveAsTable(spark, df, dst_table_name, Map("dt" -> s"$dt"))
+        FileOperations.saveAsTable(spark, df, dst_table_name, Map("dt" -> s"$dt", "threshold"-> threshold))
     }
 
     def read_raw[T: ClassTag](path: String)(implicit sc: SparkContext): RDD[(T, Array[Float])] = {
