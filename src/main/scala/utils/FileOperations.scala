@@ -9,7 +9,7 @@ import scala.util.control._
 
 import scala.reflect.ClassTag
 
-object FileOperations {
+object FileOperations extends Serializable {
     def saveAsTable(spark: SparkSession,
                     df: DataFrame,
                     tableName: String,
