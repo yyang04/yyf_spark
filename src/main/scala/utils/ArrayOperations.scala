@@ -63,7 +63,7 @@ object ArrayOperations {
         }
     }
 
-    def randomChoice(x: Array[Double], n: Int): Array[Double] = {
+    def randomChoice[T: ClassTag](x: Array[T], n: Int): Array[T] = {
         Random.shuffle(x.toList).take(n).toArray
     }
 

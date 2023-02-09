@@ -1,10 +1,10 @@
 package job.remote.flashbuy.u2i.sample
 
 import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
-import job.remote.flashbuy.u2i.{UserInfo, SkuInfo}
+import job.remote.flashbuy.u2i.{SkuInfo, UserInfo}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import utils.FileOperations
+import utils.{ArrayOperations, FileOperations}
 import utils.SparkJobs.RemoteSparkJob
 
 import scala.reflect.ClassTag
@@ -75,12 +75,13 @@ object hard_negative extends RemoteSparkJob {
         }
         val df = pos.map(x => ((x.uuid, x.poi_id), x)).join(neg_hard).values.flatMap{
             case (pos, skuArr) =>
-                skuArr.map{x =>
+                ArrayOperations.randomChoice(
+                  skuArr.map{ x =>
                     require(x.split(",").length == 2)
                     val sku_id = x.split(",")(0).toLong
                     val spu_id = x.split(",")(1).toLong
                     ModelSample("view", pos.request_id, pos.uuid, pos.user_id, sku_id, Some(spu_id), pos.poi_id)
-                }
+                }, 1)
         }.map {
             case ModelSample(event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id) =>
                 (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
