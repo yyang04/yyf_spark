@@ -79,7 +79,7 @@ object hard_negative extends RemoteSparkJob {
                     require(x.length == 2)
                     val sku_id = x.split(",")(0).toLong
                     val spu_id = x.split(",")(1).toLong
-                    ModelSample(pos.event_type, pos.request_id, pos.uuid, pos.user_id, sku_id, Some(spu_id), pos.poi_id)
+                    ModelSample("view", pos.request_id, pos.uuid, pos.user_id, sku_id, Some(spu_id), pos.poi_id)
                 }
         }.map {
             case ModelSample(event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id) =>
