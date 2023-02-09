@@ -66,12 +66,16 @@ object hard_negative extends RemoteSparkJob {
 
         val neg_hard = poi_sku.join(poi_uuid).flatMap {
             case (poi_id, (skus, users)) =>
-                val index = BruteForceIndex[String, Array[Float], SkuInfo, Float](dim, floatInnerProduct)
-                index.addAll(skus)
-                users.par.map { user =>
-                    val skuArr = index.findNearest(user.vector, threshold + window).map(re => re.item().id).toArray.slice(threshold, threshold + window) // 找到最近的n个然后
-                    ((user.id, poi_id), skuArr)
-                }.toList
+                try {
+                    val index = BruteForceIndex[String, Array[Float], SkuInfo, Float](dim, floatInnerProduct)
+                    index.addAll(skus)
+                    users.par.map { user =>
+                        val skuArr = index.findNearest(user.vector, threshold + window).map(re => re.item().id).toArray.slice(threshold, threshold + window) // 找到最近的n个然后
+                        ((user.id, poi_id), skuArr)
+                    }.toList
+                } catch {
+                    case _: Exception => List()
+                }
         }
         val df = pos.map(x => ((x.uuid, x.poi_id), x)).join(neg_hard).values.flatMap{
             case (pos, skuArr) =>
