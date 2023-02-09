@@ -18,25 +18,23 @@ class IDPartitioner(override val numPartitions: Int) extends Partitioner {
 
 object hard_negative_split extends RemoteSparkJob{
     override def run(): Unit = {
-        val dt = params.dt
+        val dt = params.dt            // 需要的时间
+        val beginDt = params.beginDt  // 时间段
         val timestamp = params.timestamp
-        val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$dt"
-        val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$dt"
+        val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$beginDt"
+        val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$beginDt"
         if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
         if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+
         val user_emb = read_raw(user_path)
         val sku_emb = read_raw(sku_path)
-        val beginDt = dt.split("_")(0)
-        val endDt = dt.split("_")(1)
 
-        for (day <- getDate(beginDt, endDt)) {
-            user_emb
-              .filter(_._1 == day)
-              .saveAsTextFile(s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$day")
-            sku_emb
-              .filter(_._1 == day)
-              .repartition(1000).saveAsTextFile(s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$day")
-        }
+        user_emb
+          .filter(_._1 == dt)
+          .saveAsTextFile(s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$dt")
+        sku_emb
+          .filter(_._1 == dt)
+          .saveAsTextFile(s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$dt")
     }
 
 
