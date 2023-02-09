@@ -27,8 +27,8 @@ object sample_v3 extends RemoteSparkJob{
             val poi_id = row.getLong(0)
             (poi_id, 0L)
         }
-//
-//        // 正样本
+
+        // 正样本
         val sku_pos_tmp = spark.sql(
             s"""
                |SELECT event_type,
@@ -88,9 +88,10 @@ object sample_v3 extends RemoteSparkJob{
     }
 
     def norm_pos(freq: Double): Double = {
-        math.log(freq) + 1
+        (math.sqrt(freq / 0.001) + 1) * 0.001 / freq
     }
+
     def norm_neg(freq: Double): Double = {
-        scala.math.pow(freq, 0.25)
+        math.pow(freq, 0.25)
     }
 }

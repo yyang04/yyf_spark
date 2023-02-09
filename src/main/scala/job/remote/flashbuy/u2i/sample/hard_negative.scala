@@ -1,18 +1,15 @@
 package job.remote.flashbuy.u2i.sample
 
 import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
-import job.remote.flashbuy.u2i.UserInfo
+import job.remote.flashbuy.u2i.{UserInfo, SkuInfo}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import utils.FileOperations
 import utils.SparkJobs.RemoteSparkJob
 
 import scala.reflect.ClassTag
-import com.github.jelmerk.knn.scalalike.{Item, floatInnerProduct}
+import com.github.jelmerk.knn.scalalike.floatInnerProduct
 
-case class SkuInfo(id: String, vector: Array[Float]) extends Item[String, Array[Float]] {
-    override def dimensions: Int = vector.length
-}
 
 object hard_negative extends RemoteSparkJob {
     override def run(): Unit = {
