@@ -33,8 +33,10 @@ object hard_negative_split extends RemoteSparkJob{
     }
 
     def writeFile(data: RDD[(String, (String, Array[Float]))], mode: String, timestamp: String)(implicit hdfs: FileSystem): Unit = {
+        val bHdfs = sc.broadcast(hdfs)
         data.groupByKey.foreach {
             case (dt, iter) =>
+                val hdfs = bHdfs.value
                 val path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/$mode/$dt"
                 val iterator = iter.toIterator
                 val data = mutable.ListBuffer[String]()
