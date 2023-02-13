@@ -34,9 +34,9 @@ object InstantSeqFeature extends RemoteSparkJob {
         val sku_info = spark.sql(
             s"""
                |SELECT product_id AS sku_id,
-               |       coalesce(first_category_id, 0),
-               |       coalesce(second_category_id, 0),
-               |       coalesce(third_category_id, 0),
+               |       coalesce(first_category_id, 0) as first_category_id,
+               |       coalesce(second_category_id, 0) as second_category_id,
+               |       coalesce(third_category_id, 0) as third_category_id,
                |       cast(coalesce(tag_id, '0') as bigint) as tag_id
                |  FROM mart_lingshou.dim_prod_product_sku_s_snapshot
                | WHERE dt='$dt'
