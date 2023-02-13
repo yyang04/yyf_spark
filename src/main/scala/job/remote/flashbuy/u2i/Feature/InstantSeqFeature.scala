@@ -43,7 +43,6 @@ object InstantSeqFeature extends RemoteSparkJob {
                |   AND is_delete = 0
                |   AND is_valid = 1
                |   AND is_online_poi_flag = 1
-               |   and
                |   """.stripMargin).as[SeqEntity].rdd.map{ x => (x.sku_id, x)}
           .join(init)
           .map { case (sku_id, (entity, (uuid, timestamp))) => (uuid, (entity, timestamp)) }
