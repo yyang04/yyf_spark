@@ -45,12 +45,12 @@ object sample_v3 extends RemoteSparkJob{
                |   AND sku_id is not null
                |   AND poi_id is not null
                |   AND event_id='b_xU9Ua'
-               |   AND category_type=13
+               |   AND category_type in (1, 13)
                |""".stripMargin
         ).as[ModelSample].rdd.distinct.map { sample => (sample.poi_id, sample) }.join(sku_pool).map{ _._2._1 }.cache
         val total_count = sku_pos_tmp.count().toDouble
-        val sku_pos_count = sku_pos_tmp.map{ x => ((x.sku_id, x.spu_id), 1d) }.reduceByKey(_+_)
-        val sku_pos = sku_pos_tmp.map(x => ((x.sku_id, x.spu_id), x)).join(sku_pos_count).map{ x => Sample(norm_pos(x._2._2), x._2._1) }
+        val sku_pos_count = sku_pos_tmp.map{ x => (x.sku_id, 1d) }.reduceByKey(_+_)
+        val sku_pos = sku_pos_tmp.map(x => (x.sku_id, x)).join(sku_pos_count).map{ x => Sample(norm_pos(x._2._2), x._2._1) }
         val sample_sku_pos = SampleOperations.sampleWeightedRDD[ModelSample](sku_pos, total_count.toInt).map(x => (x.poi_id, x))
 
         val sku_neg = spark.sql(
@@ -70,7 +70,7 @@ object sample_v3 extends RemoteSparkJob{
             (sample.poi_id, sample)
         }.join(sku_pool)
           .map(_._2._1)
-          .map(x => ((x.sku_id, x.spu_id), x))
+          .map(x => (x.sku_id, x))
           .leftOuterJoin(sku_pos_count)
           .values
           .map{
