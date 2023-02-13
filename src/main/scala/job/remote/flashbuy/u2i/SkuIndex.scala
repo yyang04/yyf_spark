@@ -97,7 +97,7 @@ object SkuIndex extends RemoteSparkJob with S3Connect {
               |{
               |     "data_source": "com-sankuai-wmadrecall-hangu-admultirecall/ptU2ISkuEmb/$version",
               |     "data_source_type": "s3",
-              |     "table_name": $tableName,
+              |     "table_name": "$tableName",
               |     "schema": "com-sankuai-wmadrecall-hangu-admultirecall/$config",
               |     "output_type": "s3",
               |     "output_path": "com-sankuai-wmadrecall-hangu-admultirecall",
