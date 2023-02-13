@@ -88,8 +88,8 @@ object SkuIndex extends RemoteSparkJob with S3Connect {
     def send_request(mode: String, version:String, tableName:String= "PtVectorSg", config: String="sku_vector_pt.proto"): String = {
 
         val url = mode match {
-            case "stage" => "http://10.176.17.101:8088/v1/tasks"
-            case "prod" => "http://10.176.17.167:8088/v1/tasks"
+            case "prod" => "http://10.176.17.101:8088/v1/tasks"
+            case "stage" => "http://10.176.17.167:8088/v1/tasks"
         }
 
         val data = Json.parse(
