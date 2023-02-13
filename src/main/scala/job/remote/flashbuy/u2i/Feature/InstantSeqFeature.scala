@@ -37,12 +37,13 @@ object InstantSeqFeature extends RemoteSparkJob {
                |       coalesce(first_category_id, 0) as first_category_id,
                |       coalesce(second_category_id, 0) as second_category_id,
                |       coalesce(third_category_id, 0) as third_category_id,
-               |       cast(coalesce(tag_id, '0') as bigint) as tag_id
+               |       coalesce(cast(coalesce(tag_id, '0') as bigint), 0) as tag_id
                |  FROM mart_lingshou.dim_prod_product_sku_s_snapshot
                | WHERE dt='$dt'
                |   AND is_delete = 0
                |   AND is_valid = 1
                |   AND is_online_poi_flag = 1
+               |   and
                |   """.stripMargin).as[SeqEntity].rdd.map{ x => (x.sku_id, x)}
           .join(init)
           .map { case (sku_id, (entity, (uuid, timestamp))) => (uuid, (entity, timestamp)) }
