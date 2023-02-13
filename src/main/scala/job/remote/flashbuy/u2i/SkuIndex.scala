@@ -16,9 +16,11 @@ object SkuIndex extends RemoteSparkJob with S3Connect {
 
     override def run(): Unit = {
         initConnect(sc)
-        // parameters
-        val dt = params.dt
-        val ts = params.timestamp
+        // 将sku embedding上传到s3，并加载到函谷
+        val dt = params.dt           // 哪一天的 sku embedding
+        val ts = params.timestamp    // 模型的时间戳
+        val mode = params.mode       // prod or stage
+
         val tableName = "PtVectorSg"
         val timestamp = LocalDateTime.now.format(DateTimeFormatter.ofPattern("YYYYMMdd_HHmmss"))
         val utime = new Date().getTime
@@ -26,12 +28,11 @@ object SkuIndex extends RemoteSparkJob with S3Connect {
         val bucketTableName = "ptU2ISkuEmb"
 
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
-        // viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/20221223_154733/sku_embedding/20221222
 
         if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
 
         val sku = read_raw(sc, sku_path)
-        val poi_sku = spark.sql(
+        spark.sql(
             s"""
                |select cast(sku_id as string) as sku_id,
                |       poi_id,
@@ -57,8 +58,10 @@ object SkuIndex extends RemoteSparkJob with S3Connect {
             ).toString
         }.repartition(20).saveAsTextFile(s"s3a://$bucket/$bucketTableName/$timestamp")
 
-        println(send_request(mode="stage", version=timestamp))
-        println(send_request(mode="prod", version=timestamp))
+        mode.split(",").foreach {
+            case "stage" => println(send_request(mode="stage", version=timestamp))
+            case "prod" => println(send_request(mode="prod", version=timestamp))
+        }
         println("end")
     }
 
