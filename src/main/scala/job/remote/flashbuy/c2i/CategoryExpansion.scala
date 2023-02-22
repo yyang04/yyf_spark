@@ -22,7 +22,7 @@ object CategoryExpansion extends RemoteSparkJob {
         }.collect
         val cateMap = categoryMap.groupBy(_._1).mapValues(_.map(_._2))
         val result = categoryMap.map{ case( cate1, cate2 ) =>
-            (cate2, cateMap(cate1).map{ x => s"$x:1.0"}.mkString(","))
+            (cate2, cateMap(cate1).filter( _ != cate2).map{ x => s"$x:1.0"}.mkString(","))
         }
         val df = sc.makeRDD(result, 1).toDF("key", "value")
         FileOperations.saveAsTable(spark, df, "pt_sg_cate_map", partition=Map("method" -> "base", "dt" -> "20230221"))
