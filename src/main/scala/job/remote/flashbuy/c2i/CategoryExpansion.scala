@@ -3,7 +3,7 @@ package job.remote.flashbuy.c2i
 import utils.FileOperations
 import utils.SparkJobs.RemoteSparkJob
 
-class CategoryExpansion extends RemoteSparkJob {
+object CategoryExpansion extends RemoteSparkJob {
 
     override def run(): Unit = {
 
