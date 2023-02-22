@@ -1,9 +1,13 @@
 package job.remote.flashbuy.c2i
 
+import com.taobao.tair3.client.TairClient
+import com.taobao.tair3.client.TairClient.TairOption
 import utils.FileOperations
 import utils.SparkJobs.RemoteSparkJob
+import utils.TairUtil
 
 object CategoryExpansion extends RemoteSparkJob {
+
 
     override def run(): Unit = {
 
@@ -26,6 +30,12 @@ object CategoryExpansion extends RemoteSparkJob {
         }
         val df = sc.makeRDD(result, 1).toDF("key", "value")
         FileOperations.saveAsTable(spark, df, "pt_sg_cate_map", partition=Map("method" -> "base", "dt" -> "20230221"))
-
+        val client = new TairUtil
+        val prefix = "pt_sg_cate1_"
+        val tairOption = new TairClient.TairOption(500)
+        result.foreach { case (cate1, value) =>
+            val key = prefix + cate1.toString
+            client.putString(key, value, 4, tairOption)
+        }
     }
 }
