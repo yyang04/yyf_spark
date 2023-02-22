@@ -160,6 +160,12 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>com.sankuai.meituan.waimai</groupId>
+            <artifactId>waimai_c_experiment_core</artifactId>
+            <version>1.6.7-nospring</version>
+        </dependency>
+
         <!--        <dependency>-->
 <!--            <groupId>com.linkedin.sparktfrecord</groupId>-->
 <!--            <artifactId>spark-tfrecord_2.12</artifactId>-->

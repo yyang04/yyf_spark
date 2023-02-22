@@ -84,6 +84,8 @@ object sample_v3 extends RemoteSparkJob{
                 (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
         }.toDF("event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id", "poi_id")
 
+        sku_neg.cache
+
         FileOperations.saveAsTable(spark, sku_neg, dst_table_name, Map("dt" -> s"$dt", "threshold" -> s"$threshold"))
     }
 
