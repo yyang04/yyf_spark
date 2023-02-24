@@ -1,8 +1,6 @@
 package job.remote.flashbuy.c2i
 
 import com.taobao.tair3.client.TairClient
-import com.taobao.tair3.client.TairClient.TairOption
-import utils.FileOperations
 import utils.SparkJobs.RemoteSparkJob
 import utils.TairUtil
 
