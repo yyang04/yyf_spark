@@ -33,9 +33,13 @@ object CategoryExpansion extends RemoteSparkJob {
         val client = new TairUtil
         val prefix = "pt_sg_cate1_"
         val tairOption = new TairClient.TairOption(500)
+
+        val rs = new java.util.HashMap[String, String]()
         result.foreach { case (cate1, value) =>
             val key = prefix + cate1.toString
-            client.putString(key, value, 4, tairOption)
+            rs.put(key, value)
         }
+        client.batchPutString(rs, 4, tairOption)
+        spark.stop()
     }
 }
