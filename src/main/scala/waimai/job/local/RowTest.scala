@@ -1,7 +1,6 @@
 package waimai.job.local
 
 import org.apache.spark.sql._
-case class A(a: Option[Int], b: Option[Int], c: Option[Int])
 
 object RowTest {
     def main(args: Array[String]): Unit = {
