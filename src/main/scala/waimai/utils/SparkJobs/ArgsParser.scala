@@ -1,0 +1,54 @@
+package waimai.utils.SparkJobs
+
+import scopt.OptionParser
+case class Config(beginDt: String = "20221201",
+                  endDt: String = "",
+                  dt: String = "",
+                  tableName: String = "",
+                  sql: String = "",
+                  threshold: Int = 1,
+                  threshold2: Int = 60,
+                  algorithm: String = "simhash",
+                  timestamp: String = "",
+                  hour:Int = 0,
+                  city:String = "",
+                  mode:String = "",
+                  model_path:String = "",
+                  src_table_name: String= "",
+                  dst_table_name: String = "",
+                  window: Int = 0,
+                  version: String = "",
+                  config: String = ""
+                 )
+
+class ArgsParser {
+    val parser: OptionParser[Config] = new scopt.OptionParser[Config]("scopt") {
+        head("scopt", "4.x")
+        opt[String]("beginDt").action((x, c) => c.copy(beginDt = x))
+        opt[String]("endDt").action((x, c) => c.copy(endDt = x))
+        opt[String]("dt").action((x, c) => c.copy(dt = x))
+        opt[String]("tableName").action((x, c) => c.copy(tableName = x))
+        opt[String]("sql").action((x, c) => c.copy(sql = x))
+        opt[String]("algorithm").action((x, c) => c.copy(algorithm = x))
+        opt[String]("timestamp").action((x, c) => c.copy(timestamp = x))
+        opt[String]("city").action((x, c) => c.copy(city = x))
+        opt[String]("mode").action((x, c) => c.copy(mode = x))
+        opt[String]("model_path").action((x, c) => c.copy(model_path = x))
+        opt[String]("src_table_name").action((x, c) => c.copy(src_table_name = x))
+        opt[String]("dst_table_name").action((x, c) => c.copy(dst_table_name = x))
+        opt[String]("version").action((x, c) => c.copy(version = x))
+        opt[String]("config").action((x, c) => c.copy(config = x))
+        opt[Int]("threshold").action((x, c) => c.copy(threshold = x))
+        opt[Int]("threshold2").action((x, c) => c.copy(threshold2 = x))
+        opt[Int]("hour").action((x, c) => c.copy(hour = x))
+        opt[Int]("window").action((x, c) => c.copy(window = x))
+    }
+
+    def initParams(args: Array[String]):Config = {
+        val defaultParams = Config()
+        parser.parse(args, defaultParams) match {
+            case Some(p) => println(p); p
+            case None => defaultParams
+        }
+    }
+}
