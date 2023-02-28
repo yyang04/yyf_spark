@@ -3,10 +3,11 @@ package utils
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import scala.util.control._
 
+import scala.util.control._
 import scala.reflect.ClassTag
 
 object FileOperations extends Serializable {
@@ -124,5 +125,13 @@ object FileOperations extends Serializable {
             }
         }
         index != maxTimes  // 存在返回 True, 不存在返回 false
+    }
+
+    class GenericRowWithSchemaWithOptionalField(values: Array[Any], override val schema: StructType)
+      extends GenericRowWithSchema(values, schema) {
+        def getOpt[T](fieldname: String): Option[T] = {
+            if (isNullAt(fieldIndex(fieldname))) None
+            else Some(getAs[T](fieldname))
+        }
     }
 }
