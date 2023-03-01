@@ -8,7 +8,7 @@ import scalaj.http.Http
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
-import waimai.utils.Json.JSONUtils
+import waimai.utils.JsonUtils
 import waimai.utils.{FileOp, S3Connect, S3Handler}
 import waimai.utils.SparkJobs.RemoteSparkJob
 

@@ -1,11 +1,7 @@
-package waimai.job
+package waimai.job.local
 
-import com.alibaba.fastjson.{JSON, JSONArray}
-
-import scala.collection.mutable
-import scala.reflect.ClassTag
 import ch.hsr.geohash.GeoHash
-import scalaj.http.{Http, HttpResponse, Token}
+import scalaj.http.{Http, HttpResponse}
 
 object test {
     def main(args: Array[String]): Unit = {

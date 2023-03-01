@@ -1,6 +1,6 @@
 package waimai.job.remote.flashbuy.evaluation
 
-import waimai.utils.Json.JSONUtils.jsonPv
+import waimai.utils.JsonUtils.jsonPv
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 

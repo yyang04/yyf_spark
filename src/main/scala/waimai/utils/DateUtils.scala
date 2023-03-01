@@ -41,7 +41,7 @@ object DateUtils{
         dtFormat.format(c.getTime)
     }
 
-    def genDtRange(begin: String, end: String): Iterable[String] = {
+    def getDtRange(begin: String, end: String): Iterable[String] = {
         val beginDt = dtFormat.parse(begin)
         val c = Calendar.getInstance()
         c.setTime(beginDt)
@@ -144,6 +144,12 @@ object DateUtils{
         cal.set(Calendar.SECOND, 0)
         cal.set(Calendar.MILLISECOND, 0)
         (cal.getTimeInMillis / 1000).toInt - 1
+    }
+
+
+    def main(args: Array[String]): Unit = {
+        getDtRange("20210101", "20210102").foreach(println(_)) // 20210101, 20210102
+
     }
 }
 

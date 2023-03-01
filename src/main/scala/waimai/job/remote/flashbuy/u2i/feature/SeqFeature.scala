@@ -1,4 +1,4 @@
-package waimai.job.remote.flashbuy.u2i.Feature
+package waimai.job.remote.flashbuy.u2i.feature
 
 import waimai.utils.FileOp.saveAsTable
 import waimai.utils.SparkJobs.RemoteSparkJob
