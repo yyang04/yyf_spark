@@ -1,6 +1,6 @@
 package waimai.job.remote.flashbuy.u2i.Feature
 
-import waimai.utils.FileOperations.saveAsTable
+import waimai.utils.FileOp.saveAsTable
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 object InstantSeqFeature extends RemoteSparkJob {

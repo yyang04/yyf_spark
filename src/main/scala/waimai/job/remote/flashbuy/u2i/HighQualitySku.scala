@@ -1,6 +1,6 @@
 package waimai.job.remote.flashbuy.u2i
 
-import waimai.utils.FileOperations.saveAsTable
+import waimai.utils.FileOp.saveAsTable
 import waimai.utils.TimeOperations.getDateDelta
 import waimai.utils.SparkJobs.RemoteSparkJob
 

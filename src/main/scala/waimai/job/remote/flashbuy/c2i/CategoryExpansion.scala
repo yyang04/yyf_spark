@@ -55,7 +55,7 @@ object CategoryExpansion extends RemoteSparkJob {
 //            (cate2, cateMap(cate1).filter( _ != cate2).map{ x => s"$x:1.0"}.mkString(","))
 //        }
 //        val df = sc.makeRDD(result, 1).toDF("key", "value")
-//        FileOperations.saveAsTable(spark, df, "pt_sg_cate_map", partition=Map("method" -> "base", "dt" -> "20230221"))
+//        FileOp.saveAsTable(spark, df, "pt_sg_cate_map", partition=Map("method" -> "base", "dt" -> "20230221"))
 
 
 //

@@ -1,6 +1,6 @@
 package waimai.job.remote.flashbuy.u2i.sample
 
-import waimai.utils.FileOperations
+import waimai.utils.FileOp
 import waimai.utils.TimeOperations.getDateDelta
 import waimai.utils.SparkJobs.RemoteSparkJob
 
@@ -78,7 +78,7 @@ object sample_v1 extends RemoteSparkJob{
             (poi_id, event_type, request_id, uuid, user_id, sku_id, spu_id)
         }.toDF("poi_id", "event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id")
 
-        FileOperations.saveAsTable(spark, df, "pt_sg_u2i_sample_v1", Map("dt" -> s"$dt"))
+        FileOp.saveAsTable(spark, df, "pt_sg_u2i_sample_v1", Map("dt" -> s"$dt"))
     }
 
 }

@@ -10,7 +10,7 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import scala.util.control._
 import scala.reflect.ClassTag
 
-object FileOperations extends Serializable {
+object FileOp extends Serializable {
     def saveAsTable(spark: SparkSession,
                     df: DataFrame,
                     tableName: String,
@@ -53,19 +53,6 @@ object FileOperations extends Serializable {
         println(s"insert sql: $sql_insert_table")
         spark.sql(sql_create_table)
         spark.sql(sql_insert_table)
-    }
-
-
-    def persistRDD[T: ClassTag](sc: SparkContext,
-                                hdfs: FileSystem,
-                                rdd: RDD[T],
-                                path: String): RDD[T] = {
-
-        val full_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/resys/${sc.applicationId}/$path"
-        val p = new Path(full_path)
-        if (hdfs.exists(p)) hdfs.delete(p, true)
-        rdd.saveAsObjectFile(full_path)
-        sc.objectFile[T](full_path)
     }
 
     def saveAsTextFile(hdfs: FileSystem,

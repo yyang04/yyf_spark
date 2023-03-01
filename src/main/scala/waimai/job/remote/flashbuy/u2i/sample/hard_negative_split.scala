@@ -3,7 +3,7 @@ package waimai.job.remote.flashbuy.u2i.sample
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.{Partitioner, SparkContext}
 import org.apache.spark.rdd.RDD
-import waimai.utils.FileOperations
+import waimai.utils.FileOp
 import waimai.utils.TimeOperations.getDate
 import waimai.utils.SparkJobs.RemoteSparkJob
 
@@ -24,13 +24,13 @@ object hard_negative_split extends RemoteSparkJob{
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$beginDt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$beginDt"
-        if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
-        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
 
         val user_emb = read_raw(user_path)
         val sku_emb = read_raw(sku_path)
-        FileOperations.saveAsTextFile(hdfs, user_emb.filter(_._1 == dt).map(_._2).coalesce(200), s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$dt")
-        FileOperations.saveAsTextFile(hdfs, sku_emb.filter(_._1 == dt).map(_._2).coalesce(1000), s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$dt")
+        FileOp.saveAsTextFile(hdfs, user_emb.filter(_._1 == dt).map(_._2).coalesce(200), s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$dt")
+        FileOp.saveAsTextFile(hdfs, sku_emb.filter(_._1 == dt).map(_._2).coalesce(1000), s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$dt")
     }
 
 
@@ -60,13 +60,13 @@ object hard_negative_split extends RemoteSparkJob{
 //                    val result = s"${element._1},${element._2.mkString(",")}"
 //                    data.append(result)
 //                    if (data.size > 10000) {
-//                        FileOperations.saveTextFile(hdfs, data, path + s"/part-$index")
+//                        FileOp.saveTextFile(hdfs, data, path + s"/part-$index")
 //                        data.clear
 //                        index += 1
 //                    }
 //                }
 //                if (data.nonEmpty) {
-//                    FileOperations.saveTextFile(hdfs, data, path)
+//                    FileOp.saveTextFile(hdfs, data, path)
 //                }
 //        }
     }

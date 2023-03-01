@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import waimai.utils.Json.JSONUtils
-import waimai.utils.{FileOperations, S3Connect, S3Handler}
+import waimai.utils.{FileOp, S3Connect, S3Handler}
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 object SkuIndex extends RemoteSparkJob with S3Connect {
@@ -112,7 +112,7 @@ object SkuIndex extends RemoteSparkJob with S3Connect {
 
     def prepare_data(ts: String, dt: String, version: String): RDD[(String, (String, Array[Float]))] = {
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
-        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) {
+        if (!FileOp.waitUntilFileExist(hdfs, sku_path)) {
             sc.stop()
         }
         read_raw(sc, sku_path, version)

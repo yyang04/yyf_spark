@@ -3,7 +3,7 @@ package waimai.job.remote.flashbuy
 import org.apache.hadoop.fs.Path
 import play.api.libs.json._
 import waimai.utils.TimeOperations.getDateDelta
-import waimai.utils.FileOperations
+import waimai.utils.FileOp
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 object Merge extends RemoteSparkJob {
@@ -44,18 +44,18 @@ object Merge extends RemoteSparkJob {
 
 
 
-        FileOperations.saveAsTextFile(hdfs, result, s"/user/hadoop-hmart-waimaiad/ad/admultirecall/online_dict/$dt/pt_cid2sku")
+        FileOp.saveAsTextFile(hdfs, result, s"/user/hadoop-hmart-waimaiad/ad/admultirecall/online_dict/$dt/pt_cid2sku")
         val path = s"/user/hadoop-hmart-waimaiad/ad/admultirecall/file_list/${getDateDelta(dt, 1)}"
 
         val p = new Path(path)
         if (hdfs.exists(p)) {
             val originFiles = sc.textFile(path).collect().toBuffer.filterNot(_ contains s"pt_cid2sku")
             originFiles.append(s"$dt/pt_cid2sku")
-            FileOperations.saveTextFile(hdfs, originFiles, path)
+            FileOp.saveTextFile(hdfs, originFiles, path)
         } else {
-            FileOperations.saveTextFile(hdfs, Seq(s"$dt/pt_cid2sku"), path)
+            FileOp.saveTextFile(hdfs, Seq(s"$dt/pt_cid2sku"), path)
         }
-        FileOperations.deleteTextFile(hdfs, s"/user/hadoop-hmart-waimaiad/ad/admultirecall/online_dict/${getDateDelta(dt, -30)}/pt_cid2sku")
+        FileOp.deleteTextFile(hdfs, s"/user/hadoop-hmart-waimaiad/ad/admultirecall/online_dict/${getDateDelta(dt, -30)}/pt_cid2sku")
     }
 
 }

@@ -1,6 +1,6 @@
 package waimai.job.remote.privacy
 
-import waimai.utils.FileOperations.saveAsTable
+import waimai.utils.FileOp.saveAsTable
 import waimai.utils.PrivacyClustering.PrefixLshClustering
 import waimai.utils.SparkJobs.RemoteSparkJob
 

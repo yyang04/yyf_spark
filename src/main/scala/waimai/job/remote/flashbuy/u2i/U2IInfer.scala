@@ -4,7 +4,7 @@ import com.github.jelmerk.knn.scalalike.{Item, floatInnerProduct}
 import com.github.jelmerk.knn.scalalike.hnsw.HnswIndex
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import waimai.utils.{ArrayOperations, FileOperations}
+import waimai.utils.{ArrayOperations, FileOp}
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 
@@ -23,8 +23,8 @@ object U2IInfer extends RemoteSparkJob {
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
 
-        if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
-        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
 
         // params
         val user = read_raw(sc, user_path)
@@ -74,7 +74,7 @@ object U2IInfer extends RemoteSparkJob {
             tmp.map(_._1).zip(scores).map { case (sku_id, score) => s"$sku_id:${"%.5f".format(score)}" }
         }.toDF("key", "value")
         val partition = Map("date" -> dt, "branch" -> "u2i", "method" -> "dual_tower_v1")
-        FileOperations.saveAsTable(spark, res, "recsys_linshou_multi_recall_results_v2", partition)
+        FileOp.saveAsTable(spark, res, "recsys_linshou_multi_recall_results_v2", partition)
     }
 
     def read_raw(sc: SparkContext, path: String): RDD[(String, Array[Float])] = {

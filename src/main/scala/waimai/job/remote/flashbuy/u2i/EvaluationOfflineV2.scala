@@ -4,7 +4,7 @@ import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
 import com.github.jelmerk.knn.scalalike.floatInnerProduct
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import waimai.utils.FileOperations
+import waimai.utils.FileOp
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 
@@ -18,8 +18,8 @@ object EvaluationOfflineV2 extends RemoteSparkJob {
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
-        if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
-        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
         val user_emb = read_raw(sc, user_path)
         val sku_emb = read_raw(sc, sku_path)
         val dim = user_emb.take(1)(0)._2.length

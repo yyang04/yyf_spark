@@ -1,7 +1,7 @@
 package waimai.job.remote.privacy
 
 import waimai.utils.SparkJobs.RemoteSparkJob
-import waimai.utils.{FileOperations, TimeOperations}
+import waimai.utils.{FileOp, TimeOperations}
 
 object DistinctUserEmbeddingJob extends RemoteSparkJob {
     override def run(): Unit = {
@@ -29,6 +29,6 @@ object DistinctUserEmbeddingJob extends RemoteSparkJob {
           .repartition(8000)
 
         val df = data.toDF("uuid", "user_emb")
-        FileOperations.saveAsTable(spark, df, "user_emb_floc_test", Map("dt" -> dt))
+        FileOp.saveAsTable(spark, df, "user_emb_floc_test", Map("dt" -> dt))
     }
 }

@@ -1,6 +1,6 @@
 package waimai.job.remote.flashbuy.u2i.sample
 
-import waimai.utils.{FileOperations, Sample, SampleOperations}
+import waimai.utils.{FileOp, Sample, SampleOperations}
 import waimai.utils.TimeOperations.getDateDelta
 import waimai.utils.SparkJobs.RemoteSparkJob
 
@@ -85,7 +85,7 @@ object sample_v2 extends RemoteSparkJob{
                 (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
         }.toDF("event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id", "poi_id")
 
-        FileOperations.saveAsTable(spark, sku_neg, dst_table_name, Map("dt" -> s"$dt", "threshold" -> s"$threshold"))
+        FileOp.saveAsTable(spark, sku_neg, dst_table_name, Map("dt" -> s"$dt", "threshold" -> s"$threshold"))
     }
 
     def norm_pos(rate: Double): Double = {

@@ -4,7 +4,7 @@ import com.github.jelmerk.knn.scalalike.floatInnerProduct
 import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import waimai.utils.{ArrayOperations, FileOperations, MapOperations, RecallEvaluation}
+import waimai.utils.{ArrayOperations, FileOp, MapOperations, RecallEvaluation}
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 
@@ -17,8 +17,8 @@ object EvaluationOffline extends RemoteSparkJob {
         val threshold = params.threshold  // 对于每个poi请求召回的数量@K
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
-        if (!FileOperations.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
-        if (!FileOperations.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
         val user_emb = read_raw(sc, user_path)
         val sku_emb = read_raw(sc, sku_path)
         val dim = user_emb.take(1)(0)._2.length
