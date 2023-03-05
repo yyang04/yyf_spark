@@ -146,9 +146,24 @@ object DateUtils{
         (cal.getTimeInMillis / 1000).toInt - 1
     }
 
+    def getHourFromTs(ts: Long): Int = {
+        val c = Calendar.getInstance()
+        c.setTimeInMillis(ts)
+        c.getTime.getHours
+    }
+
+    def getWeekDayFromTs(ts: Long): Int = {
+        val c = Calendar.getInstance()
+        c.setTimeInMillis(ts)
+        val ret = c.get(Calendar.DAY_OF_WEEK)
+        if (ret < 6 && ret > 0) 0 else 1
+    }
+
 
     def main(args: Array[String]): Unit = {
         getDtRange("20210101", "20210102").foreach(println(_)) // 20210101, 20210102
+        println(getHourFromTs(1594787450270L))
+        println(getWeekDayFromTs(1677734274397L))
 
     }
 }

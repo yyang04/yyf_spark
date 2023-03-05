@@ -12,6 +12,7 @@ object Mytest2 extends LocalSparkJob {
     }
 
     def a(): Long = {
-        1
+        Integer.parseInt("1.1e8")
+
     }
 }

@@ -6,7 +6,7 @@ import waimai.utils.SparkJobs.RemoteSparkJob
 
 import scala.util.Random
 
-object sample_v1 extends RemoteSparkJob{
+object sample_v1 extends RemoteSparkJob {
 
     override def run(): Unit = {
         val dt = params.dt

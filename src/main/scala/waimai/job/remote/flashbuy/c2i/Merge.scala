@@ -1,10 +1,10 @@
-package waimai.job.remote.flashbuy
+package waimai.job.remote.flashbuy.c2i
 
 import org.apache.hadoop.fs.Path
 import play.api.libs.json._
-import waimai.utils.TimeOperations.getDateDelta
 import waimai.utils.FileOp
 import waimai.utils.SparkJobs.RemoteSparkJob
+import waimai.utils.TimeOperations.getDateDelta
 
 object Merge extends RemoteSparkJob {
     override def run(): Unit = {
