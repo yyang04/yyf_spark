@@ -1,12 +1,14 @@
 package waimai.job.remote.flashbuy.s2i
 
 import waimai.utils.SparkJobs.RemoteSparkJob
-import waimai.utils.DateUtils.{getFoodTime, getHourFromTs, getNDaysAgo, getNDaysAgoFrom, getWeekDayFromTs}
+import waimai.utils.DateUtils.{getFoodTime, getHourFromTs, getNDaysAgoFrom, getWeekDayFromTs}
 import waimai.utils.FileOp
 
 object AoiRecallTable extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.dt
+        val version = params.version
+
         val pt_poi_aoi = spark.sql(
             s"""
                | select a.poi_id,
@@ -20,13 +22,13 @@ object AoiRecallTable extends RemoteSparkJob {
                |       from mart_waimaiad.pt_flashbuy_expose_poi_daily_v1
                |      where dt between ${getNDaysAgoFrom(dt, 10)} and $dt
                |   ) b on a.poi_id=b.poi_id
-               |  where dt between 20231201 and $dt
+               |  where dt between 20221201 and $dt
                |""".stripMargin).rdd.map{ row =>
             val poi_id = row.getAs[String](0)
             val sku_id = row.getAs[String](1).toLong
             val event_timestamp = row.getAs[Long](2)
             val cate2 = row.getAs[Long](3)
-            val aoi_type_id = row.getAs[Long](4).toString
+            val aoi_type_id = row.getAs[Int](4).toString
             val week = getWeekDayFromTs(event_timestamp).toString
             val foodTime = getFoodTime(getHourFromTs(event_timestamp)).toString
             Sample(poi_id, aoi_type_id, s"${week}_$foodTime", sku_id, cate2)
@@ -34,19 +36,20 @@ object AoiRecallTable extends RemoteSparkJob {
 
         val topK = pt_poi_aoi.groupBy{ x => (x.poi_id, x.cate2) }.map{
             case (key, iter) =>
-                var skuScore = iter.groupBy(_.sku_id).mapValues(_.size).filter(_._2 != 1).toArray.sortBy(-_._2).take(5).map{ x=> SkuScore(x._1, x._2.toDouble)}
+                var skuScore = iter.groupBy(_.sku_id).mapValues(_.size).filter(_._2 >= 2).toArray.sortBy(-_._2).take(5).map{ x=> SkuScore(x._1, x._2.toDouble)}
                 val total = skuScore.map(_.score).sum
                 skuScore = skuScore.map{ case SkuScore(skuId, skuScore) => SkuScore(skuId, skuScore / total)}
                 (key, skuScore)
-        }.map{ case((poi_id, cate2), skuScore) => (poi_id, (cate2, skuScore))}
+        }.filter(_._2.length != 0).map{ case((poi_id, cate2), skuScore) => (poi_id, (cate2, skuScore)) }
+
 
         val aoi_time_category = spark.sql(
             s"""
-               |select aoi_type_id
+               |select aoi_type_id,
                |       event_timestamp,
                |       sku_second_category_id
                |   from mart_waimaiad.flashbuy_channelpage_click_item_aoi
-               |  where dt between 20231201 and $dt
+               |  where dt between 20221201 and $dt
                |  group by 1,2,3
                |""".stripMargin).rdd.map{ row =>
             val aoi_type_id = row.getAs[Long](0)
@@ -57,7 +60,7 @@ object AoiRecallTable extends RemoteSparkJob {
             val time = s"${week}_$foodTime"
             ((aoi_type_id, time), cate2)
         }.groupByKey.mapValues{ iter =>
-            iter.groupBy(identity).mapValues{_.size}.toArray.sortBy(-_._2).take(3).map(_._1)}
+            iter.groupBy(identity).mapValues{_.size}.toArray.sortBy(-_._2).take(4).map(_._1)}
           .collect.toMap
 
         val df = topK.groupByKey.flatMap{
@@ -69,10 +72,10 @@ object AoiRecallTable extends RemoteSparkJob {
                             case SkuScore(skuId, weight)  => f"$skuId:$weight%.4f"
                         }.mkString(",")
                         (s"${poi_id}_${k._1}_${k._2}", ret)
-                }.toArray
+                }.toList
         }.toDF("key", "value")
-        FileOp.saveAsTable(spark, df, "recsys_linshou_multi_recall_results_v2", Map("methodName" -> "eges"))
-
+        FileOp.saveAsTable(spark, df, "recsys_linshou_multi_recall_results_v2" + version,
+            Map("method" -> "eges", "date" -> dt, "branch" -> "u2i"))
 
 
 
