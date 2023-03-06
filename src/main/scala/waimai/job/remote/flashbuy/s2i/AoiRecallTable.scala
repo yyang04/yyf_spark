@@ -70,7 +70,7 @@ object AoiRecallTable extends RemoteSparkJob {
                     case (k, v) =>
                         val ret = v.flatMap{ x =>  cateMap.getOrElse(x, Array()) }.map{
                             case SkuScore(skuId, weight)  => f"$skuId:$weight%.4f"
-                        }.mkString(",")
+                        }
                         (s"${poi_id}_${k._1}_${k._2}", ret)
                 }.toList
         }.toDF("key", "value")
