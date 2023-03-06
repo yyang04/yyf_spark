@@ -52,7 +52,7 @@ object AoiRecallTable extends RemoteSparkJob {
                |  where dt between 20221201 and $dt
                |  group by 1,2,3
                |""".stripMargin).rdd.map{ row =>
-            val aoi_type_id = row.getAs[Long](0)
+            val aoi_type_id = row.getAs[Int](0)
             val event_timestamp = row.getAs[Long](1)
             val cate2 = row.getAs[Long](2)
             val week = getWeekDayFromTs(event_timestamp).toString
