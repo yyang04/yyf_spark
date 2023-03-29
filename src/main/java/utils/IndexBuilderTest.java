@@ -15,9 +15,7 @@ public class IndexBuilderTest {
     @Test
     public void test() throws Exception {
         //1、初始化builder
-        WmAoiIndexBuilder builder = new WmAoiIndexBuilder()
-                .buffer(0.0002);
-
+        WmAoiIndexBuilder builder = new WmAoiIndexBuilder().buffer(0.0002);
         //2、构建索引
         List<Pair<Integer, String>> list = new ArrayList<>();
         list.add(new Pair<>(1, "POLYGON ((119.030249 33.598459, 119.030402 33.598523, 119.030684 33.598641, 119.031245 33.598706,119.031463 33.598377,119.031493 33.598249,119.032008 33.598303,119.032139 33.597814,119.031101 33.597579,119.030372 33.59742,119.030099 33.598459,119.030249 33.598459))"));
@@ -32,7 +30,6 @@ public class IndexBuilderTest {
             }
         }
         WmAoiIndexBuilder.WmAoiIndex reader = builder.build();
-
         //3、数据查询
         Assert.assertEquals(1, reader.searchAoi(119.031068, 33.598067).getId());
         Assert.assertEquals(2, reader.searchAoi(117.343753, 31.931834).getId());

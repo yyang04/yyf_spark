@@ -4,6 +4,8 @@ import waimai.utils.SparkJobs.RemoteSparkJob
 import waimai.utils.DateUtils.{getFoodTime, getHourFromTs, getNDaysAgoFrom, getWeekDayFromTs}
 import waimai.utils.FileOp
 
+import scala.collection.mutable
+
 object AoiRecallTable extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.dt

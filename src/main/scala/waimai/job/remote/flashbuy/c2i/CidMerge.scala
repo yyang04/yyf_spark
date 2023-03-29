@@ -6,7 +6,7 @@ import waimai.utils.FileOp
 import waimai.utils.SparkJobs.RemoteSparkJob
 import waimai.utils.TimeOperations.getDateDelta
 
-object Merge extends RemoteSparkJob {
+object CidMerge extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.beginDt
         val methodsNames = params.algorithm.split(",")
