@@ -16,7 +16,6 @@ object AoiSearchLog extends RemoteSparkJob {
                |  from mart_waimai.fact_flow_sdk_entry_mv
                | where dt='$dt'
                |   and event_id='b_G73OZ'
-               |   and page_id=41820005
                |""".stripMargin).rdd.mapPartitions{ iter =>
                 val reader = bcReader.value
                 iter.map { row =>
