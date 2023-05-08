@@ -10,10 +10,10 @@ object log_adt_flashbuy_pv extends RemoteSparkJob {
 
         val poiInfo = spark.sql(
             s"""
-               |SELECT cast(poi_id AS string) AS poi_id,
-               |       first_category_id,
-               |       city_name
-               |   FROM mart_lingshou.aggr_poi_info_dd
+               |SELECT cast(wm_poi_id AS string) AS poi_id,
+               |       primary_first_category_id,
+               |       second_city_name
+               |   FROM mart_waimai.aggr_poi_info_dd
                |  WHERE dt=20230420
                |""".stripMargin).rdd.map{ row =>
             val poi_id = row.getAs[String](0)
@@ -44,7 +44,17 @@ object log_adt_flashbuy_pv extends RemoteSparkJob {
               val poiFilter = row.getAs[Seq[String]](3)
               val poiList = recallPois.diff(poiFilter)
               var label = 0
-              val city_name = poiInfo(poiList.head)._2
+              var city_name = ""
+
+              breakable {
+                  for (poi <- poiList) {
+                      city_name = poiInfo.getOrElse(poi, (0L, ""))._2
+                      if (city_name != "") {
+                          break()
+                      }
+                  }
+              }
+
               breakable {
                   for (poi <- poiList) {
                       if (poiInfo.getOrElse(poi, (0L, ""))._1 == 10000000L) {
