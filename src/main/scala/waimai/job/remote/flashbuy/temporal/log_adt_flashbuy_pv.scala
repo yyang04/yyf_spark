@@ -30,7 +30,7 @@ object log_adt_flashbuy_pv extends RemoteSparkJob {
                |            when product='cpcNewHomepage' then '新首页'
                |            else 'other' end as page,
                |            split(substr(poiids, 2, length(poiids)-1), ',') as RecallPois,
-               |            split(substr(poifilterlist, 2, length(poifilterlist)-1), ',') as PoiFilter,
+               |            split(substr(poifilterlist, 2, length(poifilterlist)-1), ',') as PoiFilter
                |        FROM log.adt_flashbuy_pv
                |       WHERE dt=20230420
                |         AND (categorycode IN ('102620', '101578') or product='cpcNewHomepage')
