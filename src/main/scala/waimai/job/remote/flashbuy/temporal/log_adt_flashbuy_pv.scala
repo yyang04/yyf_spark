@@ -47,7 +47,7 @@ object log_adt_flashbuy_pv extends RemoteSparkJob {
               val city_name = poiInfo(poiList.head)._2
               breakable {
                   for (poi <- poiList) {
-                      if (poiInfo(poi)._1 == 10000000L) {
+                      if (poiInfo.getOrElse(poi, (0L, ""))._1 == 10000000L) {
                           label = 1
                           break()
                       }
