@@ -15,6 +15,7 @@ object log_adt_flashbuy_pv extends RemoteSparkJob {
                |       second_city_name
                |   FROM mart_waimai.aggr_poi_info_dd
                |  WHERE dt=20230420
+               |
                |""".stripMargin).rdd.map{ row =>
             val poi_id = row.getAs[String](0)
             val first_category_id = row.getAs[Long](1)
