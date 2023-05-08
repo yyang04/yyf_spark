@@ -11,7 +11,7 @@ object log_adt_flashbuy_pv extends RemoteSparkJob {
         val poiInfo = spark.sql(
             s"""
                |SELECT cast(wm_poi_id AS string) AS poi_id,
-               |       primary_first_category_id,
+               |       primary_first_tag_id,
                |       second_city_name
                |   FROM mart_waimai.aggr_poi_info_dd
                |  WHERE dt=20230420
