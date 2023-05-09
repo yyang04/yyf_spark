@@ -15,7 +15,6 @@ object log_adt_flashbuy_pv extends RemoteSparkJob {
                |       second_city_name
                |   FROM mart_waimai.aggr_poi_info_dd
                |  WHERE dt=20230420
-               |
                |""".stripMargin).rdd.map{ row =>
             val poi_id = row.getAs[String](0)
             val first_category_id = row.getAs[Long](1)
@@ -27,14 +26,13 @@ object log_adt_flashbuy_pv extends RemoteSparkJob {
             s"""
                |select pvid,
                |       case when categorycode='102620' then '商超频道页'
-               |            when categorycode='101578' then '蔬菜水果频道页'
                |            when product='cpcNewHomepage' then '新首页'
                |            else 'other' end as page,
                |            split(substr(poiids, 2, length(poiids)-1), ',') as RecallPois,
                |            split(substr(poifilterlist, 2, length(poifilterlist)-1), ',') as PoiFilter
                |        FROM log.adt_flashbuy_pv
                |       WHERE dt=20230420
-               |         AND (categorycode IN ('102620', '101578') or product='cpcNewHomepage')
+               |         AND (categorycode IN ('102620') or product='cpcNewHomepage')
                |""".stripMargin
         ).rdd.mapPartitions { iter =>
           val poiInfo = bcPoiInfo.value
@@ -58,7 +56,7 @@ object log_adt_flashbuy_pv extends RemoteSparkJob {
 
               breakable {
                   for (poi <- poiList) {
-                      if (poiInfo.getOrElse(poi, (0L, ""))._1 == 10000000L) {
+                      if (poiInfo.getOrElse(poi, (0L, ""))._1 == 40000000L) {
                           label = 1
                           break()
                       }
