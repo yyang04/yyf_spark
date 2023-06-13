@@ -11,7 +11,7 @@ object metrics extends RemoteSparkJob {
         val endDt = params.endDt
         val mv = spark.sql(
             s"""
-               |select ad_request_id,
+               |select mv.ad_request_id,
                |       hour,
                |       poi_id,
                |       act,
