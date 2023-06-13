@@ -20,7 +20,7 @@ object metrics extends RemoteSparkJob {
                |       sub_ord_num as order_num,
                |       sub_mt_charge_fee,
                |       sub_total
-               |  from mart_waimai_dw_ad.fact_flow_ad_entry_mv
+               |  from mart_waimai_dw_ad.fact_flow_ad_entry_mv mv
                |  join (
                |       select poi_id
                |         from mart_lingshou.aggr_poi_info_dd
