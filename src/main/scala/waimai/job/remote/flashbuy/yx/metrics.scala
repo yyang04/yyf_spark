@@ -20,7 +20,7 @@ object metrics extends RemoteSparkJob {
                |       sub_ord_num,
                |       sub_mt_charge_fee,
                |       sub_total,
-               |       get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.bid_ocpm') as gmv
+               |       get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.bid_ocpm') as ptgmv
                |  from mart_waimaiad.pt_newpage_dsa_ad_mpv
                |  where dt between $beginDt and $endDt
                |  and get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.poi_id') = cast(poi_id as string)
