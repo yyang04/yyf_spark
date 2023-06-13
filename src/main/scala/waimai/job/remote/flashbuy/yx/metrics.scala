@@ -6,9 +6,9 @@ import org.apache.commons.math3.stat.descriptive.rank.Percentile
 import scala.util.control.Breaks._
 
 object metrics extends RemoteSparkJob {
-    val beginDt = params.beginDt
-    val endDt = params.endDt
     override def run(): Unit = {
+        val beginDt = params.beginDt
+        val endDt = params.endDt
         val mv = spark.sql(
             s"""
                |select ad_request_id,
