@@ -23,6 +23,7 @@ object metrics extends RemoteSparkJob {
                |       ptgmv
                |  from mart_waimaiad.pt_newpage_dsa_ad_mpv
                |  where dt between $beginDt and $endDt
+               |  and get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.poi_id') = cast(poi_id as string)
                |""".stripMargin).as[Request].rdd.cache()
 
         val per = mv.filter { request => request.act == 3 }.map{ request => (request.hour, request) }.groupByKey.map{
