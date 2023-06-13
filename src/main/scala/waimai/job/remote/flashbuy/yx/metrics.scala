@@ -13,7 +13,7 @@ object metrics extends RemoteSparkJob {
             s"""
                |select mv.ad_request_id,
                |       hour,
-               |       poi_id,
+               |       mv.poi_id,
                |       act,
                |       is_charge,
                |       final_charge,
