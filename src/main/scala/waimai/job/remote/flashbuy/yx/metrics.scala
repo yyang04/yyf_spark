@@ -17,54 +17,17 @@ object metrics extends RemoteSparkJob {
                |       act,
                |       is_charge,
                |       final_charge,
-               |       coalesce(sub_ord_num, 0) as sub_ord_num,
-               |       coalesce(sub_mt_charge_fee, 0.0) as sub_mt_charge_fee,
-               |       coalesce(sub_total, 0.0) as sub_total
+               |       sub_ord_num,
+               |       sub_mt_charge_fee,
+               |       sub_total,
+               |       ptgmv
                |  from mart_waimai_dw_ad.fact_flow_ad_entry_mv mv
-               |  join (
-               |       select dt, poi_id
-               |         from mart_lingshou.aggr_poi_info_dd
-               |        where dt between $beginDt and $endDt
-               |  ) info on mv.poi_id=info.poi_id and mv.dt=info.dt
-               |  left join (
-               |        select dt,
-               |               ad_request_id,
-               |               sub_mt_charge_fee,
-               |               sub_total,
-               |               sub_ord_num
-               |          from mart_waimai_dw_ad.fact_flow_ad_sdk_entry_order_view
-               |         where dt between $beginDt and $endDt
-               |           and is_push=1
-               |  ) od on mv.ad_request_id=od.ad_request_id and mv.dt=od.dt and mv.act=2
-               |  where mv.dt between $beginDt and $endDt
-               |    and is_valid='PASS'
-               |    and slot in (195)
-               |""".stripMargin).as[Request].rdd
+               |  where dt between $beginDt and $endDt
+               |""".stripMargin).as[Request].rdd.cache()
 
-        val pv = spark.sql(
-            s"""
-               |select pv_id,
-               |       predict_ad_queue
-               |  from log.adt_flashbuy_platinum_pv_v1
-               | where dt between $beginDt and $endDt
-               |""".stripMargin).rdd.map{ row =>
-            val ad_request_id = row.getString(0)
-            val predict_ad_queue = jsonObjectStrToArrayMap[String](row.getString(1))
-            (ad_request_id, predict_ad_queue)
-        }.reduceByKey(_++_)
-
-        val tmp = mv.map{ request => (request.ad_request_id, request) }.join(pv).map{
-            case(ad_request_id, (request, predict_ad_queue)) =>
-                val ad_map = predict_ad_queue.map { ad =>
-                    (ad("poi_id"), ad)
-                }.toMap
-                val gmv = ad_map(request.poi_id.toString)("gmv").toDouble
-                (request, gmv)
-        }.cache()
-
-        val per = tmp.filter { case (request, gmv) => request.act == 3}.map{ case (request, gmv) => (request.hour, (request, gmv)) }.groupByKey.map{
+        val per = mv.filter { request => request.act == 3 }.map{ request => (request.hour, request) }.groupByKey.map{
             case (hour, iter) =>
-                val gmvPerHour = iter.map{case (request, gmv) => gmv}
+                val gmvPerHour = iter.map { request => request.ptgmv }
                 val percentile = new Percentile
                 val gmvPer = Range.inclusive(10, 90, 10).toArray.map{ x => percentile.evaluate(gmvPerHour.toArray, x.toDouble) }
                 (hour.toInt, gmvPer)
@@ -74,11 +37,10 @@ object metrics extends RemoteSparkJob {
             println(s"Hour:$hour, ${gmvPer.mkString(",")}")
         }
 
-        tmp.map {
-            case (request, gmv) => (grade(request.hour.toInt, gmv, per), request)
+        mv.map { request => (grade(request.hour.toInt, request.ptgmv, per), request)
         }.groupByKey.map{
             case (grade, iter) =>
-                val result = iter.map{ case Request(ad_request_id, hour, poi_id, act, is_charge, final_charge, sub_order_num, sub_total, sub_mt_charge_fee) =>
+                val result = iter.map{ case Request(ad_request_id, hour, poi_id, act, is_charge, final_charge, sub_order_num, sub_total, sub_mt_charge_fee, ptgmv) =>
                     val view_num = if (act == 3) 1 else 0
                     val click_num = if(act == 2) 1 else 0
                     val charge = if(is_charge == 1) final_charge else 0
