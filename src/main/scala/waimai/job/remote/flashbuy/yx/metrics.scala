@@ -11,9 +11,9 @@ object metrics extends RemoteSparkJob {
         val endDt = params.endDt
         val mv = spark.sql(
             s"""
-               |select mv.ad_request_id,
+               |select ad_request_id,
                |       hour,
-               |       mv.poi_id,
+               |       poi_id,
                |       act,
                |       is_charge,
                |       final_charge,
@@ -21,7 +21,7 @@ object metrics extends RemoteSparkJob {
                |       sub_mt_charge_fee,
                |       sub_total,
                |       ptgmv
-               |  from mart_waimai_dw_ad.fact_flow_ad_entry_mv mv
+               |  from mart_waimaiad.pt_newpage_dsa_ad_mpv
                |  where dt between $beginDt and $endDt
                |""".stripMargin).as[Request].rdd.cache()
 
