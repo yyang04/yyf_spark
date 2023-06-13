@@ -20,7 +20,7 @@ object metrics extends RemoteSparkJob {
                |       sub_ord_num,
                |       sub_mt_charge_fee,
                |       sub_total,
-               |       ptgmv
+               |       get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.bid_ocpm') as gmv
                |  from mart_waimaiad.pt_newpage_dsa_ad_mpv
                |  where dt between $beginDt and $endDt
                |  and get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.poi_id') = cast(poi_id as string)
@@ -58,7 +58,7 @@ object metrics extends RemoteSparkJob {
     def grade(hour: Int, gmv: Double, gmvPerHour: Array[(Int, Array[Double])]): Int = {
         val gmvPerHourMap = gmvPerHour.toMap
         val gmvPer = gmvPerHourMap(hour)
-        var resultIndex = gmvPerHour.length
+        var resultIndex = gmvPerHour(0)._2.length
         breakable {
             for ((gmvGrid, index) <- gmvPer.zipWithIndex) {
                 if (gmv < gmvGrid) {
