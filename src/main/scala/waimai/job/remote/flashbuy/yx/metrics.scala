@@ -17,9 +17,9 @@ object metrics extends RemoteSparkJob {
                |       act,
                |       is_charge,
                |       final_charge,
-               |       sub_ord_num,
-               |       sub_mt_charge_fee,
-               |       sub_total
+               |       coalesce(sub_ord_num, 0) as sub_ord_num,
+               |       coalesce(sub_mt_charge_fee, 0.0) as sub_mt_charge_fee,
+               |       coalesce(sub_total, 0.0) as sub_total
                |  from mart_waimai_dw_ad.fact_flow_ad_entry_mv mv
                |  join (
                |       select dt, poi_id
