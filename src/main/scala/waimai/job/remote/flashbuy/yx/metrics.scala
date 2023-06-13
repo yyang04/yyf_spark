@@ -22,7 +22,7 @@ object metrics extends RemoteSparkJob {
                |       sub_total
                |  from mart_waimai_dw_ad.fact_flow_ad_entry_mv mv
                |  join (
-               |       select poi_id
+               |       select dt, poi_id
                |         from mart_lingshou.aggr_poi_info_dd
                |        where dt between $beginDt and $endDt
                |  ) info on mv.poi_id=info.poi_id and mv.dt=info.dt
