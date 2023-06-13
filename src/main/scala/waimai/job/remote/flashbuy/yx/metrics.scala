@@ -17,7 +17,7 @@ object metrics extends RemoteSparkJob {
                |       act,
                |       is_charge,
                |       final_charge,
-               |       sub_ord_num as order_num,
+               |       sub_ord_num,
                |       sub_mt_charge_fee,
                |       sub_total
                |  from mart_waimai_dw_ad.fact_flow_ad_entry_mv mv

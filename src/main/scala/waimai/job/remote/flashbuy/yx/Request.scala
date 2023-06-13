@@ -6,7 +6,7 @@ case class Request(ad_request_id: String,
                    act:Int,
                    is_charge:Int,
                    final_charge:Double,
-                   sub_order_num:Int,
+                   sub_ord_num:Int,
                    sub_total:Double,
                    sub_mt_charge_fee:Double
                   )
