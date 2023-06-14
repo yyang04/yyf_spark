@@ -1,15 +1,24 @@
 package waimai.job.remote.flashbuy.yx
 
+import com.taobao.tair3.client.TairClient
 import waimai.utils.SparkJobs.RemoteSparkJob
-import waimai.utils.JsonUtils.jsonObjectStrToArrayMap
+import waimai.utils.JsonUtils.{iterableToJsonObjectStr, jsonObjectStrToArrayMap}
 import org.apache.commons.math3.stat.descriptive.rank.Percentile
+import utils.TairUtil
+
 import scala.util.control.Breaks._
+import waimai.utils.DateUtils.getNDaysAgo
+import waimai.utils.FileOp
 
 object metrics extends RemoteSparkJob {
 
     override def run(): Unit = {
-        val beginDt = params.beginDt
-        val endDt = params.endDt
+        val beginDt = "20230606"
+        val endDt = getNDaysAgo(1)
+        val threshold = 45
+        val expName = "ctr_45"
+        val jsonKey = expName + "_" + "195"
+
         val mv = spark.sql(
             s"""
                |select ad_request_id,
@@ -37,7 +46,7 @@ object metrics extends RemoteSparkJob {
                 breakable {
                     while (i < tmp.size) {
                         if ( i % checkpoint == 0) {
-                            if (check(view_num, final_charge)) {
+                            if (check(view_num, final_charge, threshold)) {
                                 break()
                             }
                         }
@@ -58,7 +67,11 @@ object metrics extends RemoteSparkJob {
                     }
                 }
                 (poi_id, ctr)
-        }
+        }.cache()
+
+        FileOp.saveAsTable(spark, ctrThreshold.toDF("poi_id", "ctrThreshold"), "pt_sg_dsa_ctr_threshold", Map("dt" -> endDt, "threshold" -> threshold))
+        val tairData = ctrThreshold.collect.map{ case (poi_id, ctr) => ("PtSgAdFlowSmooth" + poi_id.toString, iterableToJsonObjectStr(Map(jsonKey -> ctr.toString))) }
+        saveTair(tairData)
 
 
         val x = mv.map{request => (request.poi_id, request)}.join(ctrThreshold).filter{
@@ -73,12 +86,26 @@ object metrics extends RemoteSparkJob {
             (view_num, click_num, charge, order_num, price)
         }.reduce((x, y) => (x._1 + y._1, x._2 + y._2, x._3 + y._3, x._4 + y._4, x._5 + y._5))
 
-
         println(s"${x._1}, ${x._2}, ${x._3}, ${x._4}, ${x._5}")
 
     }
 
-    def check(view_num: Int, final_charge: Double, threshold: Double = 45.0): Boolean = {
+    def check(view_num: Int, final_charge: Double, threshold: Int = 45): Boolean = {
         final_charge / view_num * 1000 >= threshold
     }
+
+    def saveTair(data: Array[(String, String)]) : Unit = {
+        val client = new TairUtil
+        val tairOption = new TairClient.TairOption(500)
+        val rs = new java.util.HashMap[String, String]()
+        data.foreach { case (key, value) =>
+            if (value != "") {
+                rs.put(key, value)
+                println(key, value)
+            }
+        }
+
+        client.batchPutString(rs, 4, tairOption)
+    }
+
 }
