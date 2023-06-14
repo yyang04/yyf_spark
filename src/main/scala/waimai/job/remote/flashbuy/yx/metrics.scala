@@ -30,7 +30,7 @@ object metrics extends RemoteSparkJob {
         val ctrThreshold = mv.map{ request => (request.poi_id, request) }.groupByKey.map{
             case (poi_id, iter) =>
                 val tmp = iter.toList.sortBy(_.metric)
-                val checkpoint = scala.math.max(tmp.size / 10, 10)    // 551 / 10 => 55
+                val checkpoint = scala.math.max(tmp.size / 50, 10)    // 551 / 10 => 55
                 var view_num = tmp.count(x => x.act == 3)
                 var final_charge = tmp.filter(x => x.is_charge == 1).map(_.final_charge).sum
                 var i = 0
