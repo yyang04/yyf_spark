@@ -94,18 +94,19 @@ object metrics extends RemoteSparkJob {
         final_charge / view_num * 1000 >= threshold
     }
 
-    def saveTair(data: Array[(String, String)]) : Unit = {
+    def saveTair(data: Array[(String, String)], step: Int = 500) : Unit = {
         val client = new TairUtil
         val tairOption = new TairClient.TairOption(500)
-        val rs = new java.util.HashMap[String, String]()
-        data.foreach { case (key, value) =>
-            if (value != "") {
-                rs.put(key, value)
-                println(key, value)
+        data.grouped(step).foreach{ x =>
+            val rs = new java.util.HashMap[String, String]()
+            x.foreach{ case (key, value) =>
+                if (value != "") {
+                    rs.put(key, value)
+                    println(key, value)
+                }
             }
+            client.batchPutString(rs, 4, tairOption)
         }
-
-        client.batchPutString(rs, 4, tairOption)
     }
 
 }
