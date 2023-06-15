@@ -74,7 +74,7 @@ object metrics extends RemoteSparkJob {
 
         FileOp.saveAsTable(spark, ctrThreshold.toDF("slot", "poi_id", "ctr_threshold"), "pt_sg_dsa_ctr_threshold_slot", Map("dt" -> endDt, "threshold" -> threshold))
         val tairData = ctrThreshold.collect.map{ case (slot, poi_id, ctr) =>
-            val jsonKey = expName + slot.toString
+            val jsonKey = expName + "_" + slot.toString
             ("PtSgAdFlowSmooth" + poi_id.toString, Map(jsonKey -> ctr.toString)) }
         saveTair(tairData)
 
@@ -108,7 +108,7 @@ object metrics extends RemoteSparkJob {
             val parseQueryResult = queryResult.map {
                 case (k, v) =>
                     val valueMap = jsonObjectStrToMap[String](v)
-                    (k, valueMap)
+                    (k, valueMap.filter{ case (k, v) => !v.startsWith("ctr_5019") } )
             }
 
             val inputData = x.map{ case (k, v) =>
