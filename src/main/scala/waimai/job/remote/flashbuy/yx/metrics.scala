@@ -108,7 +108,7 @@ object metrics extends RemoteSparkJob {
             val parseQueryResult = queryResult.map {
                 case (k, v) =>
                     val valueMap = jsonObjectStrToMap[String](v)
-                    (k, valueMap.filter{ case (k, v) => !v.startsWith("ctr_5019") } )
+                    (k, valueMap.filter{ case (k, v) => !k.startsWith("ctr_5019") } )
             }
 
             val inputData = x.map{ case (k, v) =>
