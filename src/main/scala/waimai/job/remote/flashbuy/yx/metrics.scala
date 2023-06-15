@@ -102,9 +102,9 @@ object metrics extends RemoteSparkJob {
 
     def saveTair(data: Array[(String, Map[String, String])], step: Int = 500) : Unit = {
         val client = new TairUtil
-        val tairOption = new TairClient.TairOption(500)
+        val tairOption = new TairClient.TairOption(5000)
         data.grouped(step).foreach{ x =>
-            val queryResult = client.batchGetString(x.map(_._1).toBuffer.asJava, 4, 500).asScala
+            val queryResult = client.batchGetString(x.map(_._1).toBuffer.asJava, 4, 5000).asScala
             val parseQueryResult = queryResult.map {
                 case (k, v) =>
                     val valueMap = jsonObjectStrToMap[String](v)
