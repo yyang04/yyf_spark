@@ -1,6 +1,7 @@
 package waimai.job.remote.flashbuy.yx
 
 case class Request(ad_request_id: String,
+                   slot:Int,
                    hour:String,
                    poi_id:Long,
                    act:Int,

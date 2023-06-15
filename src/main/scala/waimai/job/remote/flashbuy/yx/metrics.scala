@@ -2,26 +2,29 @@ package waimai.job.remote.flashbuy.yx
 
 import com.taobao.tair3.client.TairClient
 import waimai.utils.SparkJobs.RemoteSparkJob
-import waimai.utils.JsonUtils.{iterableToJsonObjectStr, jsonObjectStrToArrayMap}
-import org.apache.commons.math3.stat.descriptive.rank.Percentile
+import waimai.utils.JsonUtils.{iterableToJsonObjectStr, jsonObjectStrToArrayMap, jsonObjectStrToMap}
+import scala.collection.JavaConverters._
 import utils.TairUtil
 
 import scala.util.control.Breaks._
 import waimai.utils.DateUtils.getNDaysAgo
 import waimai.utils.FileOp
 
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+
 object metrics extends RemoteSparkJob {
 
     override def run(): Unit = {
-        val beginDt = "20230606"
+        val beginDt = "20230601"
         val endDt = getNDaysAgo(1)
-        val threshold = 45
-        val expName = "ctr_45"
-        val jsonKey = expName + "_" + "195"
+        val threshold = 50
+        val expName = s"ctr_$threshold"
 
         val mv = spark.sql(
             s"""
                |select ad_request_id,
+               |       slot,
                |       hour,
                |       poi_id,
                |       act,
@@ -36,10 +39,10 @@ object metrics extends RemoteSparkJob {
                |  and get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.poi_id') = cast(poi_id as string)
                |""".stripMargin).as[Request].rdd.cache()
 
-        val ctrThreshold = mv.map{ request => (request.poi_id, request) }.groupByKey.map{
-            case (poi_id, iter) =>
+        val ctrThreshold = mv.map{ request => ((request.poi_id, request.slot), request) }.groupByKey.map{
+            case ((poi_id, slot), iter) =>
                 val tmp = iter.toList.sortBy(_.metric)
-                val checkpoint = scala.math.max(tmp.size / 20, 10)    // 551 / 10 => 55
+                val checkpoint = scala.math.max(tmp.size / 50, 10)    // 551 / 10 => 55
                 var view_num = tmp.count(x => x.act == 3)
                 var final_charge = tmp.filter(x => x.is_charge == 1).map(_.final_charge).sum
                 var i = 0
@@ -66,18 +69,23 @@ object metrics extends RemoteSparkJob {
                         tmp(i).metric
                     }
                 }
-                (poi_id, ctr)
+                (slot, poi_id, ctr)
         }.cache()
 
-        FileOp.saveAsTable(spark, ctrThreshold.toDF("poi_id", "ctrThreshold"), "pt_sg_dsa_ctr_threshold", Map("dt" -> endDt, "threshold" -> threshold))
-        val tairData = ctrThreshold.collect.map{ case (poi_id, ctr) => ("PtSgAdFlowSmooth" + poi_id.toString, iterableToJsonObjectStr(Map(jsonKey -> ctr.toString))) }
+        FileOp.saveAsTable(spark, ctrThreshold.toDF("slot", "poi_id", "ctr_threshold"), "pt_sg_dsa_ctr_threshold_slot", Map("dt" -> endDt, "threshold" -> threshold))
+        val tairData = ctrThreshold.collect.map{ case (slot, poi_id, ctr) =>
+            val jsonKey = expName + slot.toString
+            ("PtSgAdFlowSmooth" + poi_id.toString, Map(jsonKey -> ctr.toString)) }
         saveTair(tairData)
 
+        val tmp = ctrThreshold.map{ case (slot, poi_id, ctr) => ((slot, poi_id), ctr) }
 
-        val x = mv.map{request => (request.poi_id, request)}.join(ctrThreshold).filter{
-            case (poi_id, (request, ctr)) =>
+        val x = mv.map{ request => ((request.slot, request.poi_id), request) }
+          .join(tmp)
+          .filter{
+            case ((slot, poi_id), (request, ctr)) =>
                 request.metric >= ctr
-        }.map{ case (poi, (Request(ad_request_id, hour, poi_id, act, is_charge, final_charge, sub_order_num, sub_total, sub_mt_charge_fee, metric), ctr)) =>
+        }.map{ case (x, (Request(ad_request_id, slot, hour, poi_id, act, is_charge, final_charge, sub_order_num, sub_total, sub_mt_charge_fee, metric), ctr)) =>
             val view_num = if (act == 3) 1 else 0
             val click_num = if (act == 2) 1 else 0
             val charge = if (is_charge == 1) final_charge else 0
@@ -85,27 +93,34 @@ object metrics extends RemoteSparkJob {
             val price = sub_total + sub_mt_charge_fee
             (view_num, click_num, charge, order_num, price)
         }.reduce((x, y) => (x._1 + y._1, x._2 + y._2, x._3 + y._3, x._4 + y._4, x._5 + y._5))
-
         println(s"${x._1}, ${x._2}, ${x._3}, ${x._4}, ${x._5}")
-
     }
 
     def check(view_num: Int, final_charge: Double, threshold: Int = 45): Boolean = {
         final_charge / view_num * 1000 >= threshold
     }
 
-    def saveTair(data: Array[(String, String)], step: Int = 500) : Unit = {
+    def saveTair(data: Array[(String, Map[String, String])], step: Int = 500) : Unit = {
         val client = new TairUtil
         val tairOption = new TairClient.TairOption(500)
         data.grouped(step).foreach{ x =>
-            val rs = new java.util.HashMap[String, String]()
-            x.foreach{ case (key, value) =>
-                if (value != "") {
-                    rs.put(key, value)
-                    println(key, value)
-                }
+            val queryResult = client.batchGetString(x.map(_._1).toBuffer.asJava, 4, 500).asScala
+            val parseQueryResult = queryResult.map {
+                case (k, v) =>
+                    val valueMap = jsonObjectStrToMap[String](v)
+                    (k, valueMap)
             }
-            client.batchPutString(rs, 4, tairOption)
+
+            val inputData = x.map{ case (k, v) =>
+                val lastMap = parseQueryResult.getOrElse(k, Map())
+                val updateMap = lastMap ++ v
+                val oldStr = iterableToJsonObjectStr(lastMap)
+                val updateStr = iterableToJsonObjectStr(updateMap)
+                println(k, oldStr, updateStr)
+                (k, updateStr)
+            }.toMap.asJava
+
+            client.batchPutString(inputData, 4, tairOption)
         }
     }
 
