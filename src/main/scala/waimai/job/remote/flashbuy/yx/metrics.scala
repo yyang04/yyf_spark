@@ -18,7 +18,7 @@ object metrics extends RemoteSparkJob {
     override def run(): Unit = {
         val beginDt = "20230601"
         val endDt = getNDaysAgo(1)
-        val threshold = 50
+        val threshold = params.threshold
         val expName = s"ctr_$threshold"
 
         val mv = spark.sql(
