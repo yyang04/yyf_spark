@@ -19,7 +19,7 @@ object metrics extends RemoteSparkJob {
         val beginDt = "20230601"
         val endDt = getNDaysAgo(1)
         val threshold = params.threshold
-        val expName = s"ctr_$threshold"
+        val expName = s"ctr_common_$threshold"
 
         val mv = spark.sql(
             s"""
@@ -39,8 +39,8 @@ object metrics extends RemoteSparkJob {
                |  and get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.poi_id') = cast(poi_id as string)
                |""".stripMargin).as[Request].rdd.cache()
 
-        val ctrThreshold = mv.map{ request => ((request.poi_id, request.slot), request) }.groupByKey.map{
-            case ((poi_id, slot), iter) =>
+        val ctrThreshold = mv.map{ request => (request.poi_id, request) }.groupByKey.map{
+            case (poi_id, iter) =>
                 val tmp = iter.toList.sortBy(_.metric)
                 val checkpoint = scala.math.max(tmp.size / 50, 10)    // 551 / 10 => 55
                 var view_num = tmp.count(x => x.act == 3)
@@ -69,21 +69,21 @@ object metrics extends RemoteSparkJob {
                         tmp(i).metric
                     }
                 }
-                (slot, poi_id, ctr)
+                (poi_id, ctr)
         }.cache()
 
-        FileOp.saveAsTable(spark, ctrThreshold.toDF("slot", "poi_id", "ctr_threshold"), "pt_sg_dsa_ctr_threshold_slot", Map("dt" -> endDt, "threshold" -> threshold))
-        val tairData = ctrThreshold.collect.map{ case (slot, poi_id, ctr) =>
-            val jsonKey = expName + "_" + slot.toString
-            ("PtSgAdFlowSmooth" + poi_id.toString, Map(jsonKey -> ctr.toString)) }
+        FileOp.saveAsTable(spark, ctrThreshold.toDF("poi_id", "ctr_threshold"), "pt_sg_dsa_ctr_threshold_common", Map("dt" -> endDt, "threshold" -> threshold))
+        val tairData = ctrThreshold.collect.map{ case (poi_id, ctr) =>
+            val jsonKey192 = expName + "_" + "192"
+            val jsonKey193 = expName + "_" + "193"
+            val jsonKey195 = expName + "_" + "195"
+            ("PtSgAdFlowSmooth" + poi_id.toString, Map(jsonKey192 -> ctr.toString, jsonKey193 -> ctr.toString, jsonKey195 -> ctr.toString)) }
         saveTair(tairData)
 
-        val tmp = ctrThreshold.map{ case (slot, poi_id, ctr) => ((slot, poi_id), ctr) }
-
-        val x = mv.map{ request => ((request.slot, request.poi_id), request) }
-          .join(tmp)
+        val x = mv.map{ request => (request.poi_id, request) }
+          .join(ctrThreshold)
           .filter{
-            case ((slot, poi_id), (request, ctr)) =>
+            case (poi_id, (request, ctr)) =>
                 request.metric >= ctr
         }.map{ case (x, (Request(ad_request_id, slot, hour, poi_id, act, is_charge, final_charge, sub_order_num, sub_total, sub_mt_charge_fee, metric), ctr)) =>
             val view_num = if (act == 3) 1 else 0
