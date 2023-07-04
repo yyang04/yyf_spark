@@ -13,16 +13,20 @@ object Cid2Item extends RemoteSparkJob {
 
         val base = spark.sql(
             s"""
-               |select distinct concat_ws('_', poi_id, second_category_id) as poi_cate,
+               |select poi_id, second_category_id, third_category_id,
                |       sku_id,
                |       price
                |  from mart_waimaiad.recsys_linshou_pt_poi_skus
                |where dt=$dt
-               |""".stripMargin).rdd.map { row =>
-            val poi_cate = row.getAs[String](0)
-            val sku_id = row.getAs[Long](1)
-            val price = row.getAs[Double](2)
-            (poi_cate, (sku_id, price))
+               |""".stripMargin).rdd.flatMap { row =>
+            val poiId = row.getAs[Long](0)
+            val cate2 = row.getAs[Long](1)
+            val cate3 = row.getAs[Long](2)
+            val sku_id = row.getAs[Long](3)
+            val price = row.getAs[Double](4)
+            val v1 = (s"${poiId}_${cate2}", (sku_id, price))
+            val v2 = (s"${poiId}_${cate3}", (sku_id, price))
+            Array(v1, v2)
         }.groupByKey.mapValues{_.toArray.sortBy(_._2).take(threshold).map{ case(sku_id, price) => (sku_id, 1L)} }
 
         val supplement = spark.sql(
