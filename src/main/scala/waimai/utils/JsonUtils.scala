@@ -162,7 +162,7 @@ object JsonUtils {
         val a = jsonObjectStrToArrayMap("[{\"bid\":65.0,\"bid_ocpm\":0.9622094426304101,\"bid_ocpm_ratio\":1.0,\"charge_mode\":1,\"charge_rate\":0.0,\"gmv\":0.13727099924973363,\"gmv_k1\":0.12,\"gmv_no_k\":1.1439249937477802,\"gsp_price\":0.0,\"pctr\":0.014803222194314002,\"pcvr\":0.7727540522813797,\"poi\":17046340,\"price\":0.0,\"rank_score\":1.0994804418801438,\"unit\":37079002},{\"bid\":110.0,\"bid_ocpm\":2.870927631855011,\"bid_ocpm_ratio\":1.0,\"charge_mode\":1,\"charge_rate\":0.0,\"gmv\":1.6175536642090065,\"gmv_k1\":0.12,\"gmv_no_k\":13.479613868408387,\"gsp_price\":0.0,\"pctr\":0.026099342107772826,\"pcvr\":5.164733200073242,\"poi\":1093919,\"price\":0.0,\"rank_score\":4.488481296064018,\"unit\":26783094},{\"bid\":80.0,\"bid_ocpm\":3.3212842941284175,\"bid_ocpm_ratio\":1.0,\"charge_mode\":1,\"charge_rate\":0.0,\"gmv\":6.818439337837525,\"gmv_k1\":0.12,\"gmv_no_k\":56.82032781531271,\"gsp_price\":0.0,\"pctr\":0.04151605367660522,\"pcvr\":13.686350889205933,\"poi\":15723035,\"price\":0.0,\"rank_score\":10.139723631965943,\"unit\":27701717},{\"bid\":80.0,\"bid_ocpm\":2.0324150919914246,\"bid_ocpm_ratio\":1.0,\"charge_mode\":1,\"charge_rate\":0.0,\"gmv\":0.6312036036034141,\"gmv_k1\":0.12,\"gmv_no_k\":5.260030030028451,\"gsp_price\":0.0,\"pctr\":0.025405188649892805,\"pcvr\":2.0704550170898437,\"poi\":14614733,\"price\":0.0,\"rank_score\":2.6636186955948387,\"unit\":26040989}]")
         println(1)
 
-        println(iterableToJsonObjectStr(Map("1" -> "2")))
+        println(iterableToJsonObjectStr(Array(("1",2), ("3", 4))))
 
     }
 }
