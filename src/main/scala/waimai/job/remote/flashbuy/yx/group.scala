@@ -8,7 +8,7 @@ object group extends RemoteSparkJob {
     override def run(): Unit = {
         val df = spark.sql(
             s"""
-               |select uuid,
+               |select uuid
                |  from mart_waimai.fact_flow_sdk_log_view mv
                |  join (
                |    select dt, poi_id,
