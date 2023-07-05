@@ -9,15 +9,15 @@ object group extends RemoteSparkJob {
         val df = spark.sql(
             s"""
                |select uuid
-               |  from mart_waimai.fact_flow_sdk_log_view mv
+               |  from mart_waimai.fact_flow_sdk_entry_mv mv
                |  join (
                |    select dt, poi_id
                |      from mart_lingshou.aggr_poi_info_dd
                |     where dt between 20230601 and 20230701
                |  ) info on mv.poi_id=info.poi_id and mv.dt=info.dt
                |  where mv.dt between 20230601 and 20230701
-               |    and partition_view=0
-               |    and log_type=1
+               |    and event_type='click'
+               |    and is_poi=1
                |    and mv.poi_id is not null and uuid is not null
                |""".stripMargin).rdd.map{ row =>
             val uuid = row.getAs[String](0)
