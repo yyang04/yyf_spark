@@ -11,7 +11,7 @@ object group extends RemoteSparkJob {
                |select uuid
                |  from mart_waimai.fact_flow_sdk_log_view mv
                |  join (
-               |    select dt, poi_id,
+               |    select dt, poi_id
                |      from mart_lingshou.aggr_poi_info_dd
                |     where dt between 20230601 and 20230701
                |  ) info on mv.poi_id=info.poi_id and mv.dt=info.dt
