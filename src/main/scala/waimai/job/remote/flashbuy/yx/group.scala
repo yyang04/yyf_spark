@@ -3,7 +3,7 @@ package waimai.job.remote.flashbuy.yx
 import waimai.utils.FileOp
 import waimai.utils.SparkJobs.RemoteSparkJob
 
-class group extends RemoteSparkJob {
+object group extends RemoteSparkJob {
 
     override def run(): Unit = {
         val df = spark.sql(
