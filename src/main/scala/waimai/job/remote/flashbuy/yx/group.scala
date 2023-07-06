@@ -24,10 +24,14 @@ object group extends RemoteSparkJob {
                |    and event_type='click'
                |    and is_poi=1
                |    and mv.poi_id is not null and uuid is not null
+               |    group by 1
                |""".stripMargin).rdd.map{ row =>
             val uuid = row.getAs[String](0)
             uuid
         }.toDF("uuid")
         FileOp.saveAsTable(spark, df, "pt_sg_uuid_not_click", partition=Map("dt" -> endDt, "window" -> window))
     }
+
+
+
 }
