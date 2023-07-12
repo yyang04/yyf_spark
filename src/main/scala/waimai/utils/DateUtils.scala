@@ -130,6 +130,16 @@ object DateUtils{
         (cal.getTimeInMillis / 1000).toInt - 1
     }
 
+    def getTsForNextWeek: Int = {
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.DAY_OF_YEAR, 7)
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        (cal.getTimeInMillis / 1000).toInt - 1
+    }
+
 
     def getTsForNextHour(hour: Int): Int = {
         val cal = Calendar.getInstance()

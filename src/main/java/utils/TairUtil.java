@@ -109,6 +109,18 @@ public class TairUtil {
         client.batchPut((short) area, resultMap, opt);
     }
 
+    public static void batchPutStringTest(Map<String, String> kv) throws TairRpcError, TairFlowLimit, TairTimeout, InterruptedException {
+
+        Map<ByteArray, byte[]> resultMap = new HashMap<>();
+        for (Map.Entry<String, String> entry : kv.entrySet()) {
+            ByteArray key = new ByteArray(StringSerializer.serialize(entry.getKey()));
+            byte[] val = StringSerializer.serialize(entry.getValue());
+            resultMap.put(key, val);
+            System.out.println(entry.getKey());
+            System.out.println(entry.getValue());
+        }
+    }
+
     public Map<String, Double> batchGetDoubleCount(List<String> ids, int area, int timeout) {
         List<byte[]> keyList = new ArrayList<>();
         for (String id : ids) {

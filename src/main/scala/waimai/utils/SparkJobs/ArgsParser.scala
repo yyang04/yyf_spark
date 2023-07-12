@@ -1,24 +1,25 @@
 package waimai.utils.SparkJobs
 
 import scopt.OptionParser
-case class Config(beginDt: String = "20221201",
+case class Config(beginDt: String = "",
                   endDt: String = "",
                   dt: String = "",
-                  tableName: String = "",
-                  sql: String = "",
-                  threshold: Int = 1,
-                  threshold2: Int = 60,
-                  algorithm: String = "simhash",
+                  algorithm: String = "",
                   timestamp: String = "",
-                  hour:Int = 0,
+                  tableName: String = "",
+                  src_table_name: String = "",
+                  dst_table_name: String = "",
+                  sql: String = "",
                   city:String = "",
                   mode:String = "",
                   model_path:String = "",
-                  src_table_name: String= "",
-                  dst_table_name: String = "",
-                  window: Int = 0,
                   version: String = "",
-                  config: String = ""
+                  config: String = "",
+                  threshold: Int = 0,
+                  threshold1: Int = 0,
+                  threshold2: Int = 0,
+                  hour: Int = 0,
+                  window: Int = 0,
                  )
 
 class ArgsParser {
@@ -39,6 +40,7 @@ class ArgsParser {
         opt[String]("version").action((x, c) => c.copy(version = x))
         opt[String]("config").action((x, c) => c.copy(config = x))
         opt[Int]("threshold").action((x, c) => c.copy(threshold = x))
+        opt[Int]("threshold1").action((x, c) => c.copy(threshold1 = x))
         opt[Int]("threshold2").action((x, c) => c.copy(threshold2 = x))
         opt[Int]("hour").action((x, c) => c.copy(hour = x))
         opt[Int]("window").action((x, c) => c.copy(window = x))
