@@ -9,6 +9,7 @@ import waimai.utils.DateUtils.{getNDaysAgo, getNDaysAgoFrom, getTsForNextWeek}
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 
+
 object group extends RemoteSparkJob {
     val prefix = "PtSgOneStopTrigger_"
 
@@ -46,6 +47,7 @@ object group extends RemoteSparkJob {
                 (prefix + k, v)
             }.toMap.asJava
             client.batchPutString(inputData, 4, tairOption)
+            Thread.sleep(30.seconds.toMillis)
         }
     }
 
