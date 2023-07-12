@@ -46,7 +46,7 @@ object group extends RemoteSparkJob {
             }.toMap.asJava
             client.batchPutString(inputData, 4, tairOption)
 
-            Thread.sleep(0.5.second.toMillis)
+            Thread.sleep(1.second.toMillis)
         }
     }
 
