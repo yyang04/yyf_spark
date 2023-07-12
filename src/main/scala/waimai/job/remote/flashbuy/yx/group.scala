@@ -10,12 +10,13 @@ import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 
 object group extends RemoteSparkJob {
+    val prefix = "PtSgOneStopTrigger_"
 
     override def run(): Unit = {
         val window = params.window match { case 0 => 30 ; case x: Int => x }
         val prod = params.mode match { case "" => true; case _: String => false }
         val endDt = params.endDt match { case "" => getNDaysAgo(1); case x: String => x}
-        val prefix = "PtSgOneStopTrigger_"
+
         val beginDt = getNDaysAgoFrom(endDt, window)
         val expireTs = getTsForNextWeek
 
@@ -31,7 +32,7 @@ object group extends RemoteSparkJob {
         }.cache
         FileOp.saveAsTable(spark, rdd.toDF("uuid"), "pt_sg_uuid_click_flow_opti", partition=Map("dt" -> endDt, "window" -> window))
         if (prod) {
-            val data = rdd.collect().map{x => (prefix + x, "1")}
+            val data = rdd.collect().map{x => (x, "1")}
             saveTair(data, expireTs)
         }
     }
@@ -41,8 +42,8 @@ object group extends RemoteSparkJob {
         val tairOption = new TairClient.TairOption(5000, 0, expireTs)
         data.grouped(step).foreach { x =>
             val inputData = x.map { case (k, v) =>
-                println(k, v)
-                (k, v)
+                println(prefix + k, v)
+                (prefix + k, v)
             }.toMap.asJava
             client.batchPutString(inputData, 4, tairOption)
         }
