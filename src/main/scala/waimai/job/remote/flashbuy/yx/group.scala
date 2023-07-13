@@ -38,7 +38,7 @@ object group extends RemoteSparkJob {
         }
     }
 
-    def saveTair(data: Array[(String, String)], expireTs: Int, step: Int = 5000): Unit = {
+    def saveTair(data: Array[(String, String)], expireTs: Int, step: Int = 50000): Unit = {
         val client = new TairUtil
         val tairOption = new TairClient.TairOption(5000, 0, expireTs)
         data.grouped(step).foreach { x =>
@@ -47,7 +47,7 @@ object group extends RemoteSparkJob {
                 (prefix + k, v)
             }.toMap.asJava
             client.batchPutString(inputData, 4, tairOption)
-            Thread.sleep(30.seconds.toMillis)
+            Thread.sleep(10.seconds.toMillis)
         }
     }
 
