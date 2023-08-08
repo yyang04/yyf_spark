@@ -63,7 +63,7 @@ object Cid2Item extends RemoteSparkJob {
             val sku_id = row.getAs[Long](1)
             val cnt = row.getAs[Long](2)
             (poi_cate, (sku_id, cnt))
-        }.groupByKey.mapValues{_.toArray.sortBy(-_._2).take(threshold)}
+        }.filter(_._2._1 != 0).groupByKey.mapValues{_.toArray.sortBy(-_._2).take(threshold)}
 
         val df = base.fullOuterJoin(supplement).mapValues{ case (v1, v2) =>
             val left = v1.getOrElse(Array())

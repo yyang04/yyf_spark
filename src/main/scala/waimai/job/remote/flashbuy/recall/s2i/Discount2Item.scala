@@ -3,6 +3,9 @@ package waimai.job.remote.flashbuy.recall.s2i
 import waimai.utils.DateUtils.{getNDaysAgo, getNDaysAgoFrom}
 import waimai.utils.SparkJobs.RemoteSparkJob
 
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+
 object Discount2Item extends RemoteSparkJob {
 
     override def run(): Unit = {
@@ -48,7 +51,7 @@ object Discount2Item extends RemoteSparkJob {
             val sku_id = row.getAs[Long](1)
             val second_category_id = row.getAs[Long](2)
             val cnt = row.getAs[Long](3)
-            (poi_id, sku_id, second_category_id, cnt)
+            (poi_id, (sku_id, second_category_id, cnt))
         }
 
     }
