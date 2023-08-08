@@ -1,6 +1,7 @@
 package waimai.job.remote.flashbuy.recall.s2i
 
 import waimai.utils.DateUtils.{getNDaysAgo, getNDaysAgoFrom}
+import waimai.utils.FileOp.saveAsTable
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 import scala.collection.mutable
@@ -9,8 +10,12 @@ import scala.collection.mutable.ArrayBuffer
 object Discount2Item extends RemoteSparkJob {
 
     override def run(): Unit = {
-        val dt = params.dt match { case "" => getNDaysAgo(1); case x => x }
-        spark.sql(
+        val dt = params.dt match {
+            case "" => getNDaysAgo(1);
+            case x => x
+        }
+        val threshold = params.threshold
+        val df = spark.sql(
             s"""
                |select poi_id,
                |       sku_id,
@@ -46,17 +51,33 @@ object Discount2Item extends RemoteSparkJob {
                |               )
                |       )
                | where rank <= 20
-               |""".stripMargin).rdd.map{ row =>
+               |""".stripMargin).rdd.map { row =>
             val poi_id = row.getAs[Long](0)
             val sku_id = row.getAs[Long](1)
             val second_category_id = row.getAs[Long](2)
             val cnt = row.getAs[Long](3)
             (poi_id, (sku_id, second_category_id, cnt))
-        }
+        }.filter(_._2._1 != 0).groupByKey.map {
+            case (poi_id, iter) =>
+                val result = mutable.Map[Long, ArrayBuffer[(Long, Long)]]()
+                iter.toList.sortBy(-_._3).foreach {
+                    case (sku_id, second_category_id, cnt) =>
+                        if ((result contains second_category_id) && (result(second_category_id).size < threshold)) {
+                            result(second_category_id).append((sku_id, cnt))
+                        } else {
+                            result += (second_category_id -> ArrayBuffer((sku_id, cnt)))
+                        }
+                }
+                val skuScore = result.flatMap {
+                    case (_, arr) =>
+                        val maxCnt = arr.map(_._2).max.toDouble
+                        val normalizeArr = arr.map { x => (x._1, ((x._2.toDouble / maxCnt * 100.0).round / 100.0).toFloat) }
+                        normalizeArr
+                }
+                (poi_id, skuScore)
+        }.toDF("key", "value")
 
+        val partition = Map("dt" -> dt, "table_name" -> "pt_uuid2sku", "method_name" -> "pt_discount_sales")
+        saveAsTable(spark, df, "pt_multi_recall_results_xxx2sku", partition = partition)
     }
-
-
-
-
 }
