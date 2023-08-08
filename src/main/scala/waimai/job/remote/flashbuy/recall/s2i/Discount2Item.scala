@@ -52,7 +52,7 @@ object Discount2Item extends RemoteSparkJob {
                |       )
                | where rank <= 20
                |""".stripMargin).rdd.map { row =>
-            val poi_id = row.getAs[Long](0)
+            val poi_id = row.getAs[String](0)
             val sku_id = row.getAs[Long](1)
             val second_category_id = row.getAs[Long](2)
             val cnt = row.getAs[Long](3)
@@ -74,7 +74,7 @@ object Discount2Item extends RemoteSparkJob {
                         val normalizeArr = arr.map { x => (x._1, ((x._2.toDouble / maxCnt * 100.0).round / 100.0).toFloat) }
                         normalizeArr
                 }
-                (poi_id.toString, skuScore)
+                (poi_id, skuScore)
         }.toDF("key", "value")
 
         val partition = Map("dt" -> dt, "table_name" -> "pt_uuid2sku", "method_name" -> "pt_discount_sales")
