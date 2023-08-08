@@ -1,13 +1,11 @@
 package waimai.job.remote.flashbuy.recall.c2i
 
-import waimai.utils.ArrayOperations
 import waimai.utils.DateUtils.getNDaysAgo
 import waimai.utils.FileOp.saveAsTable
-import waimai.utils.TimeOperations.getDateDelta
 import waimai.utils.SparkJobs.RemoteSparkJob
+import waimai.utils.TimeOperations.getDateDelta
 
-
-object Cid2Item extends RemoteSparkJob {
+object CidDiscount2Item extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.dt match { case "" => getNDaysAgo(1); case x => x }
         val threshold = params.threshold
@@ -63,7 +61,7 @@ object Cid2Item extends RemoteSparkJob {
             val sku_id = row.getAs[Long](1)
             val cnt = row.getAs[Long](2)
             (poi_cate, (sku_id, cnt))
-        }.groupByKey.mapValues{_.toArray.sortBy(-_._2).take(threshold)}
+        }.filter(_._2._1 != 0).groupByKey.mapValues{_.toArray.sortBy(-_._2).take(threshold)}
 
         val df = base.fullOuterJoin(supplement).mapValues{ case (v1, v2) =>
             val left = v1.getOrElse(Array())
@@ -79,7 +77,7 @@ object Cid2Item extends RemoteSparkJob {
             value
         }.toDF("key", "value")
 
-        val partition = Map("dt" -> dt, "table_name" -> "pt_cid2sku", "method_name" -> "pt_cid_sales_sku_base")
+        val partition = Map("dt" -> dt, "table_name" -> "pt_cid2sku", "method_name" -> "pt_cid_sales_sku_discounted")
         saveAsTable(spark, df, "pt_multi_recall_results_xxx2sku", partition=partition)
     }
 }
