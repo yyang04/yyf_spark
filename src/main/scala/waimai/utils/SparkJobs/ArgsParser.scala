@@ -7,6 +7,8 @@ case class Config(beginDt: String = "",
                   algorithm: String = "",
                   timestamp: String = "",
                   tableName: String = "",
+                  methodName: String = "",
+                  branch: String = "",
                   src_table_name: String = "",
                   dst_table_name: String = "",
                   sql: String = "",
@@ -39,6 +41,8 @@ class ArgsParser {
         opt[String]("dst_table_name").action((x, c) => c.copy(dst_table_name = x))
         opt[String]("version").action((x, c) => c.copy(version = x))
         opt[String]("config").action((x, c) => c.copy(config = x))
+        opt[String]("methodName").action((x, c) => c.copy(config = x))
+        opt[String]("branch").action((x, c) => c.copy(config = x))
         opt[Int]("threshold").action((x, c) => c.copy(threshold = x))
         opt[Int]("threshold1").action((x, c) => c.copy(threshold1 = x))
         opt[Int]("threshold2").action((x, c) => c.copy(threshold2 = x))

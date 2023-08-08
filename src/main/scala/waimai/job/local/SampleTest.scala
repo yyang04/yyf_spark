@@ -1,6 +1,6 @@
 package waimai.job.local
 
-import waimai.job.remote.flashbuy.u2i.sample.ModelSample
+import waimai.job.remote.flashbuy.recall.u2i.sample.ModelSample
 import waimai.utils.{Sample, SampleOperations}
 import waimai.utils.SparkJobs.LocalSparkJob
 
