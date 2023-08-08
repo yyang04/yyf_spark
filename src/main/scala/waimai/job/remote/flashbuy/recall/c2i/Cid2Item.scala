@@ -1,7 +1,7 @@
 package waimai.job.remote.flashbuy.recall.c2i
 
 import waimai.utils.ArrayOperations
-import waimai.utils.DateUtils.getNDaysAgo
+import waimai.utils.DateUtils.{getNDaysAgo, getNDaysAgoFrom}
 import waimai.utils.FileOp.saveAsTable
 import waimai.utils.TimeOperations.getDateDelta
 import waimai.utils.SparkJobs.RemoteSparkJob
@@ -11,6 +11,7 @@ object Cid2Item extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.dt match { case "" => getNDaysAgo(1); case x => x }
         val threshold = params.threshold
+        print(dt, threshold)
 
         val base = spark.sql(
             s"""
@@ -52,7 +53,7 @@ object Cid2Item extends RemoteSparkJob {
                |                      from mart_waimaiad.recsys_linshou_pt_poi_skus
                |                where dt=$dt
                |        ) b on a.sku_id=b.sku_id
-               |      where dt between ${ getDateDelta(dt,-60) } and $dt
+               |      where dt between ${ getNDaysAgoFrom(dt,-60) } and $dt
                |        and a.sku_id is not null
                |        and event_type in ('click','order','cart')
                |)
@@ -74,7 +75,6 @@ object Cid2Item extends RemoteSparkJob {
                 case 2 =>
                     val arr = tmp.toArray.sortBy(_._2).reverse
                     Map(arr.apply(0)._1 -> 1.0f, arr.apply(1)._1 -> 0.1f)
-                case _ => println(1)
             }
             value
         }.toDF("key", "value")

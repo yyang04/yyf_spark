@@ -63,6 +63,18 @@ object CidDiscount2Item extends RemoteSparkJob {
             (poi_cate, (sku_id, cnt))
         }.filter(_._2._1 != 0).groupByKey.mapValues{_.toArray.sortBy(-_._2).take(threshold)}
 
+        val discountItem = spark.sql(
+            s"""
+               |
+               |
+               |
+               |
+               |
+               |
+               |
+               |""".stripMargin)
+
+
         val df = base.fullOuterJoin(supplement).mapValues{ case (v1, v2) =>
             val left = v1.getOrElse(Array())
             val right = v2.getOrElse(Array())

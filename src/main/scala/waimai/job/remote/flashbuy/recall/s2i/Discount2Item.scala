@@ -74,7 +74,7 @@ object Discount2Item extends RemoteSparkJob {
                         val normalizeArr = arr.map { x => (x._1, ((x._2.toDouble / maxCnt * 100.0).round / 100.0).toFloat) }
                         normalizeArr
                 }
-                (poi_id, skuScore)
+                (poi_id.toString, skuScore)
         }.toDF("key", "value")
 
         val partition = Map("dt" -> dt, "table_name" -> "pt_uuid2sku", "method_name" -> "pt_discount_sales")
