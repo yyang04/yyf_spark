@@ -70,7 +70,7 @@ object Cid2Item extends RemoteSparkJob {
             val left = v1.getOrElse(Array())
             val right = v2.getOrElse(Array())
             val tmp = (left ++ right).sortBy(-_._2).take(threshold).toMap
-            val value = tmp.size match {
+            val value: Map[Long, Float] = tmp.size match {
                 case 1 => Map(tmp.toArray.apply(0)._1 -> 1.0f)
                 case 2 =>
                     val arr = tmp.toArray.sortBy(_._2).reverse
