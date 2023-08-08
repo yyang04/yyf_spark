@@ -74,7 +74,7 @@ object Cid2Item extends RemoteSparkJob {
                 case 1 => Some(Map(tmp.toArray.apply(0)._1 -> 1.0f))
                 case 2 =>
                     val arr = tmp.toArray.sortBy(_._2).reverse
-                    Some(Map(arr.apply(0)._1 -> 1.0f, arr.apply(1)._1 -> 0.1f)))
+                    Some(Map(arr.apply(0)._1 -> 1.0f, arr.apply(1)._1 -> 0.1f))
                 case 0 =>
                     None
             }
