@@ -53,7 +53,7 @@ object Cid2Item extends RemoteSparkJob {
                |                      from mart_waimaiad.recsys_linshou_pt_poi_skus
                |                where dt=$dt
                |        ) b on a.sku_id=b.sku_id
-               |      where dt between ${ getNDaysAgoFrom(dt,-60) } and $dt
+               |      where dt between ${ getNDaysAgoFrom(dt,60) } and $dt
                |        and a.sku_id is not null
                |        and event_type in ('click','order','cart')
                |)
