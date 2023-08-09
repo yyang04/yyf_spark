@@ -5,6 +5,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SparkSession}
+import scala.concurrent.duration._
 
 import scala.util.control._
 import scala.collection.mutable.Seq
@@ -94,23 +95,22 @@ object FileOp extends Serializable {
         finalSchema
     }
 
-    def waitUntilFileExist(hdfs: FileSystem,
-                           path: String,
-                           interval: Int = 5,
-                           maxTimes: Int = 180 / 5): Boolean = {
-        var index = 0
+    def waitUntilFileExist(hdfs: FileSystem, path: String, minuteStep: Int, hourWait: Int): Boolean = {
+        // 5分钟检测一次
+        val maxTimes = (hourWait.hour / minuteStep.minute).round.toInt
         val loop = new Breaks
-        loop.breakable {
-            while (index < maxTimes) {
+        loop.breakable{
+            (0 until maxTimes).foreach { x =>
                 val exist = hdfs.exists(new Path(path))
                 if (exist) {
-                    loop.break
+                    loop.break()
+                    return true
+                } else {
+                    println(s"Try $x / $maxTimes")
                 }
-                Thread.sleep(interval * 1000 * 60)
-                index = index + 1
             }
         }
-        index != maxTimes  // 存在返回 True, 不存在返回 false
+        false
     }
 
     class GenericRowWithSchemaWithOptionalField(values: Array[Any], override val schema: StructType)

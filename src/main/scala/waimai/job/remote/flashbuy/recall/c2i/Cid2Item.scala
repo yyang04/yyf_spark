@@ -68,12 +68,10 @@ object Cid2Item extends RemoteSparkJob {
         val df = base.fullOuterJoin(supplement).mapValues{ case (v1, v2) =>
             val left = v1.getOrElse(Array())
             val right = v2.getOrElse(Array())
-            val tmp = (left ++ right).sortBy(-_._2).take(threshold).toMap
-            val value = tmp.size match {
-                case 1 => Map(tmp.toArray.apply(0)._1 -> 1.0f)
-                case 2 =>
-                    val arr = tmp.toArray.sortBy(-_._2)
-                    Map(arr.apply(0)._1 -> 1.0f, arr.apply(1)._1 -> 0.1f)
+            val tmp = (left ++ right).sortBy(-_._2).take(threshold)
+            val value = tmp.length match {
+                case 1 => Map(tmp.apply(0)._1 -> 1.0f)
+                case 2 => Map(tmp.apply(0)._1 -> 1.0f, tmp.apply(1)._1 -> 0.1f)
             }
             value
         }.toDF("key", "value")
