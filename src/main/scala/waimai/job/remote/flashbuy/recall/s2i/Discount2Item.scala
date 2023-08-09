@@ -43,7 +43,7 @@ object Discount2Item extends RemoteSparkJob {
                |                               second_category_id
                |                          from mart_waimaiad.recsys_linshou_pt_poi_skus
                |                         where dt=$dt
-               |                  ) info on mv.poi_id=info.wm_sku_id
+               |                  ) info on mv.sku_id=info.wm_sku_id
                |                 where dt between ${getNDaysAgoFrom(dt, 7)} and $dt
                |                   and event_id='b_xU9Ua'
                |                   and attribute['category_name'] in ('活动')
