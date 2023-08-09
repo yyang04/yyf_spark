@@ -6,8 +6,12 @@ import org.apache.spark.SparkContext
 
 object SaveToHive extends RemoteSparkJob {
     override def run(): Unit = {
+        val dt = params.dt
+        val version = params.version
         val userEmbeddingPath = params.src_table_name
         val itemEmbeddingPath = params.dst_table_name
+
+        val partition = Map("dt" -> dt, "version" -> "")
     }
 
     def readUserEmbedding(sc: SparkContext, path: String): RDD[(String, String, Array[Float])] = {

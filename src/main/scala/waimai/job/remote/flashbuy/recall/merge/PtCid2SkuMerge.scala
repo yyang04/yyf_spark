@@ -25,8 +25,8 @@ object PtCid2SkuMerge extends RemoteSparkJob {
                |       key,
                |       value
                |  from mart_waimaiad.pt_multi_recall_results_xxx2sku
-               | where dt=$dt
-               |   and table_name=$tableName
+               | where dt='$dt'
+               |   and table_name='$tableName'
                |   and size(value) != 0
                |""".stripMargin).rdd.map{ row =>
             val methodNames = row.getString(0)
