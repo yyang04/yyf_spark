@@ -62,8 +62,10 @@ object Discount2Item extends RemoteSparkJob {
                 val result = mutable.Map[Long, ArrayBuffer[(Long, Long)]]()
                 iter.toList.sortBy(-_._3).foreach {
                     case (sku_id, second_category_id, cnt) =>
-                        if ((result contains second_category_id) && (result(second_category_id).size < threshold)) {
-                            result(second_category_id).append((sku_id, cnt))
+                        if (result contains second_category_id) {
+                            if (result(second_category_id).size < threshold) {
+                                result(second_category_id).append((sku_id, cnt))
+                            }
                         } else {
                             result += (second_category_id -> ArrayBuffer((sku_id, cnt)))
                         }
