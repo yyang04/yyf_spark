@@ -105,7 +105,7 @@ object CidDiscount2Item extends RemoteSparkJob {
             val poi_cate = row.getAs[String](0)
             val sku_id = row.getAs[Long](1)
             val cnt = row.getAs[Long](2)
-            (poi_cate, (sku_id, cnt * 10000))
+            (poi_cate, (sku_id, cnt * 1000000000))
         }.groupByKey.mapValues{_.toArray.sortBy(-_._2).take(threshold)}
 
         val df = base.union(supplement).union(discount)
