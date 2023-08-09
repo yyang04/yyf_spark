@@ -12,6 +12,7 @@ object PtCid2SkuMerge extends RemoteSparkJob {
     // 表名为 pt_cid2sku / pt_uuid2sku 目前线上就这两个表
     // pt_cid2sku:
     //    1. pt_cid_sales_sku_base
+    //    2. pt_cid_sales_sku_discount
 
     override def run(): Unit = {
         val dt = params.dt match { case "" => getNDaysAgo(1); case x => x }

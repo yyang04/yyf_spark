@@ -4,6 +4,9 @@ import waimai.utils.DateUtils.{getNDaysAgo, getNDaysAgoFrom}
 import waimai.utils.FileOp.saveAsTable
 import waimai.utils.SparkJobs.RemoteSparkJob
 
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+
 
 object CidDiscount2Item extends RemoteSparkJob {
     override def run(): Unit = {
@@ -65,20 +68,57 @@ object CidDiscount2Item extends RemoteSparkJob {
             (poi_cate, (sku_id, cnt))
         }.groupByKey.mapValues{_.toArray.sortBy(-_._2).take(threshold)}
 
-        val df = base.fullOuterJoin(supplement).mapValues{ case (v1, v2) =>
-            val left = v1.getOrElse(Array())
-            val right = v2.getOrElse(Array())
-            val tmp = (left ++ right).sortBy(-_._2).take(threshold).toMap
+        val discount = spark.sql(
+            s"""
+               |select concat_ws('_', poi_id, second_category_id) as poi_cate,
+               |       sku_id,
+               |       cnt
+               |  from (
+               |        select poi_id,
+               |               sku_id,
+               |               second_category_id,
+               |               category_name,
+               |               category_sec_name,
+               |               cnt
+               |          from (
+               |                select poi_id,
+               |                       sku_id,
+               |                       second_category_id,
+               |                       max(attribute['category_name']) as category_name,
+               |                       max(attribute['category_sec_name']) as category_sec_name,
+               |                       count(1) as cnt
+               |                  from mart_lingshou.fact_flow_sdk_product_mv mv
+               |                  join (
+               |                        select sku_id as wm_sku_id,
+               |                               second_category_id
+               |                          from mart_waimaiad.recsys_linshou_pt_poi_skus
+               |                         where dt=$dt
+               |                  ) info on mv.sku_id=info.wm_sku_id
+               |                 where dt between ${getNDaysAgoFrom(dt, 7)} and $dt
+               |                   and event_id='b_xU9Ua'
+               |                   and attribute['category_name'] in ('活动')
+               |                   and attribute['category_sec_name'] in ('爆品', '折扣')
+               |                 group by 1,2,3
+               |               )
+               |       )
+               |""".stripMargin).rdd.map { row =>
+            val poi_cate = row.getAs[String](0)
+            val sku_id = row.getAs[Long](1)
+            val cnt = row.getAs[Long](2)
+            (poi_cate, (sku_id, cnt * 10000))
+        }.groupByKey.mapValues{_.toArray.sortBy(-_._2).take(threshold)}
+
+        val df = base.union(supplement).union(discount)
+          .groupByKey.map{ case (poi_cate, iter) =>
+            val tmp = iter.flatten.groupBy(_._1).mapValues(_.toArray.map(_._2).max).toSeq.sortBy(-_._2).take(threshold)
             val value = tmp.size match {
-                case 1 => Map(tmp.toArray.apply(0)._1 -> 1.0f)
-                case 2 =>
-                    val arr = tmp.toArray.sortBy(-_._2)
-                    Map(arr.apply(0)._1 -> 1.0f, arr.apply(1)._1 -> 0.1f)
+                case 1 => Map(tmp.head._1 -> 1.0f)
+                case 2 => Map(tmp.head._1 -> 1.0f, tmp.apply(1)._1 -> 0.1f)
             }
             value
         }.toDF("key", "value")
 
-        val partition = Map("dt" -> dt, "table_name" -> "pt_cid2sku", "method_name" -> "pt_cid_sales_sku_base")
+        val partition = Map("dt" -> dt, "table_name" -> "pt_cid2sku", "method_name" -> "pt_cid_sales_sku_discount")
         saveAsTable(spark, df, "pt_multi_recall_results_xxx2sku", partition=partition)
     }
 }
