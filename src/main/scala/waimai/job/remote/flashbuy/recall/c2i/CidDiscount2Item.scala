@@ -1,14 +1,16 @@
 package waimai.job.remote.flashbuy.recall.c2i
 
-import waimai.utils.DateUtils.getNDaysAgo
+import waimai.utils.DateUtils.{getNDaysAgo, getNDaysAgoFrom}
 import waimai.utils.FileOp.saveAsTable
 import waimai.utils.SparkJobs.RemoteSparkJob
-import waimai.utils.TimeOperations.getDateDelta
+
 
 object CidDiscount2Item extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.dt match { case "" => getNDaysAgo(1); case x => x }
-        val threshold = params.threshold
+        val threshold = params.threshold match { case 0 => 2; case x => x }
+
+        print(dt, threshold)
 
         val base = spark.sql(
             s"""
@@ -50,7 +52,7 @@ object CidDiscount2Item extends RemoteSparkJob {
                |                      from mart_waimaiad.recsys_linshou_pt_poi_skus
                |                where dt=$dt
                |        ) b on a.sku_id=b.sku_id
-               |      where dt between ${ getDateDelta(dt,-60) } and $dt
+               |      where dt between ${ getNDaysAgoFrom(dt,60) } and $dt
                |        and a.sku_id is not null
                |        and event_type in ('click','order','cart')
                |)
@@ -61,19 +63,7 @@ object CidDiscount2Item extends RemoteSparkJob {
             val sku_id = row.getAs[Long](1)
             val cnt = row.getAs[Long](2)
             (poi_cate, (sku_id, cnt))
-        }.filter(_._2._1 != 0).groupByKey.mapValues{_.toArray.sortBy(-_._2).take(threshold)}
-
-        val discountItem = spark.sql(
-            s"""
-               |
-               |
-               |
-               |
-               |
-               |
-               |
-               |""".stripMargin)
-
+        }.groupByKey.mapValues{_.toArray.sortBy(-_._2).take(threshold)}
 
         val df = base.fullOuterJoin(supplement).mapValues{ case (v1, v2) =>
             val left = v1.getOrElse(Array())
@@ -82,14 +72,13 @@ object CidDiscount2Item extends RemoteSparkJob {
             val value = tmp.size match {
                 case 1 => Map(tmp.toArray.apply(0)._1 -> 1.0f)
                 case 2 =>
-                    val arr = tmp.toArray.sortBy(_._2).reverse
+                    val arr = tmp.toArray.sortBy(-_._2)
                     Map(arr.apply(0)._1 -> 1.0f, arr.apply(1)._1 -> 0.1f)
-                case _ => println(1)
             }
             value
         }.toDF("key", "value")
 
-        val partition = Map("dt" -> dt, "table_name" -> "pt_cid2sku", "method_name" -> "pt_cid_sales_sku_discounted")
+        val partition = Map("dt" -> dt, "table_name" -> "pt_cid2sku", "method_name" -> "pt_cid_sales_sku_base")
         saveAsTable(spark, df, "pt_multi_recall_results_xxx2sku", partition=partition)
     }
 }

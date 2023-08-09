@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 
-object VectorMerge extends RemoteSparkJob with S3Connect {
+object PtVectorMerge extends RemoteSparkJob with S3Connect {
     override def run(): Unit = {
         initConnect(sc)
         // 将sku embedding上传到s3，并加载到函谷
