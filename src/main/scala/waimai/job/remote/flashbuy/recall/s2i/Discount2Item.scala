@@ -15,6 +15,7 @@ object Discount2Item extends RemoteSparkJob {
             case x => x
         }
         val threshold = params.threshold
+        println(dt, threshold)
         val df = spark.sql(
             s"""
                |select poi_id,

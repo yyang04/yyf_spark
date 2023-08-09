@@ -1,9 +1,7 @@
 package waimai.job.remote.flashbuy.recall.c2i
 
-import waimai.utils.ArrayOperations
 import waimai.utils.DateUtils.{getNDaysAgo, getNDaysAgoFrom}
 import waimai.utils.FileOp.saveAsTable
-import waimai.utils.TimeOperations.getDateDelta
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 
@@ -74,7 +72,7 @@ object Cid2Item extends RemoteSparkJob {
             val value = tmp.size match {
                 case 1 => Map(tmp.toArray.apply(0)._1 -> 1.0f)
                 case 2 =>
-                    val arr = tmp.toArray.sortBy(_._2).reverse
+                    val arr = tmp.toArray.sortBy(-_._2)
                     Map(arr.apply(0)._1 -> 1.0f, arr.apply(1)._1 -> 0.1f)
             }
             value
