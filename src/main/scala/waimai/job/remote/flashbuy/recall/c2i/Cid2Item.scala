@@ -65,7 +65,7 @@ object Cid2Item extends RemoteSparkJob {
             (poi_cate, (sku_id, cnt))
         }.groupByKey.mapValues{_.toArray.sortBy(-_._2).take(threshold)}
 
-        val df = base.fullOuterJoin(supplement).flatMapValues{ case (v1, v2) =>
+        val df = base.fullOuterJoin(supplement).mapValues{ case (v1, v2) =>
             val left = v1.getOrElse(Array())
             val right = v2.getOrElse(Array())
             val tmp = (left ++ right).sortBy(-_._2).take(threshold).toMap
