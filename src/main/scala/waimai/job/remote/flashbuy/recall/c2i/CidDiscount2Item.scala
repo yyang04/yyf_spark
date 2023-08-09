@@ -115,7 +115,7 @@ object CidDiscount2Item extends RemoteSparkJob {
                 case 1 => Map(tmp.head._1 -> 1.0f)
                 case 2 => Map(tmp.head._1 -> 1.0f, tmp.apply(1)._1 -> 0.1f)
             }
-            value
+            (poi_cate, value)
         }.toDF("key", "value")
 
         val partition = Map("dt" -> dt, "table_name" -> "pt_cid2sku", "method_name" -> "pt_cid_sales_sku_discount")
