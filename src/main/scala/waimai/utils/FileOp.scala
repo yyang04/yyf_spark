@@ -95,7 +95,7 @@ object FileOp extends Serializable {
         finalSchema
     }
 
-    def waitUntilFileExist(hdfs: FileSystem, path: String, minuteStep: Int, hourWait: Int): Boolean = {
+    def waitUntilFileExist(hdfs: FileSystem, path: String, minuteStep: Int=5, hourWait: Int=3): Boolean = {
         // 5分钟检测一次
         val maxTimes = (hourWait.hour / minuteStep.minute).round.toInt
         val loop = new Breaks
