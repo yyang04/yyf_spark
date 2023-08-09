@@ -1,14 +1,13 @@
 package waimai.utils
 
 import org.apache.hadoop.fs.{FileSystem, Path}
-import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.util.control._
-import scala.reflect.ClassTag
+import scala.collection.mutable.Seq
 
 object FileOp extends Serializable {
     def saveAsTable(spark: SparkSession,

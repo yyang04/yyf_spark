@@ -1,4 +1,4 @@
-package waimai.job.remote.flashbuy.recall.u2i
+package waimai.job.remote.flashbuy.recall.u2i.postprocessing
 
 import com.github.jelmerk.knn.scalalike.Item
 

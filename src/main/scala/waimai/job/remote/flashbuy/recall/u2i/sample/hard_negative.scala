@@ -6,7 +6,7 @@ import org.apache.spark.rdd.RDD
 
 import scala.reflect.ClassTag
 import com.github.jelmerk.knn.scalalike.floatInnerProduct
-import waimai.job.remote.flashbuy.recall.u2i.{SkuInfo, UserInfo}
+import waimai.job.remote.flashbuy.recall.u2i.postprocessing.{SkuInfo, UserInfo}
 import waimai.utils.{ArrayOperations, FileOp}
 import waimai.utils.SparkJobs.RemoteSparkJob
 

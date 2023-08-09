@@ -60,9 +60,9 @@ object PtUuid2SkuMerge extends RemoteSparkJob {
         if (hdfs.exists(new Path(path))) {
             val originFiles = sc.textFile(path).collect().toBuffer.filterNot(_ contains tableName)
             originFiles.append(s"$dt/$tableName")
-            FileOp.saveTextFile(hdfs, originFiles, indexPath)
+            FileOp.saveTextFile(hdfs, originFiles, path)
         } else {
-            FileOp.saveTextFile(hdfs, Seq(s"$dt/$tableName"), indexPath)
+            FileOp.saveTextFile(hdfs, Seq(s"$dt/$tableName").toBuffer, path)
         }
     }
 

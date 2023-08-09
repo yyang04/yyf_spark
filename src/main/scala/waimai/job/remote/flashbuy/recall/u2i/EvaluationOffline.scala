@@ -4,6 +4,7 @@ import com.github.jelmerk.knn.scalalike.floatInnerProduct
 import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import waimai.job.remote.flashbuy.recall.u2i.postprocessing.{SkuInfo, UserInfo}
 import waimai.utils.{ArrayOperations, FileOp, MapOperations, RecallEvaluation}
 import waimai.utils.SparkJobs.RemoteSparkJob
 

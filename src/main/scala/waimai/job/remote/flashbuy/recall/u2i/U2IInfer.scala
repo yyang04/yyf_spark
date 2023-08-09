@@ -1,11 +1,12 @@
 package waimai.job.remote.flashbuy.recall.u2i
 
-import com.github.jelmerk.knn.scalalike.{Item, floatInnerProduct}
+import com.github.jelmerk.knn.scalalike.floatInnerProduct
 import com.github.jelmerk.knn.scalalike.hnsw.HnswIndex
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import waimai.utils.{ArrayOperations, FileOp}
+import waimai.job.remote.flashbuy.recall.u2i.postprocessing.{SkuInfo, UserInfo}
 import waimai.utils.SparkJobs.RemoteSparkJob
+import waimai.utils.{ArrayOperations, FileOp}
 
 
 object U2IInfer extends RemoteSparkJob {
