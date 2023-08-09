@@ -39,7 +39,7 @@ object PtUuid2SkuMerge extends RemoteSparkJob {
 
         // 存储数据
         val dataPath = "/user/hadoop-hmart-waimaiad/ad/admultirecall/online_dict"
-        val indexPath = s"/user/hadoop-hmart-waimaiad/ad/admultirecall/file_list"
+        val indexPath = "/user/hadoop-hmart-waimaiad/ad/admultirecall/file_list"
 
         saveData(result, dataPath, dt, tableName)
         saveIndex(indexPath, dt, tableName)

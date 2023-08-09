@@ -38,7 +38,7 @@ object EvaluationOfflineV2 extends RemoteSparkJob {
         // 1. 从mv表里选取用户点击广告
         val mv = spark.sql(
             s"""
-               | select ad_request_id,
+               | select concat_ws('_', uuid, ad_request_id) as key,
                |        uuid,
                |        poi_id,
                |        reserves['spu_id'] as spu_id,
