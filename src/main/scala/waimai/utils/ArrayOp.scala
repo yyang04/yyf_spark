@@ -4,7 +4,7 @@ import scala.math.{exp, log}
 import scala.reflect.ClassTag
 import scala.util.Random
 
-object ArrayOperations {
+object ArrayOp {
     // element-wise addition
     def add(x: Array[Double], y:Array[Double]): Array[Double] = {
         require(x.length == y.length)

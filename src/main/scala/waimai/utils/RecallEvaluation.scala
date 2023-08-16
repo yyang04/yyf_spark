@@ -49,10 +49,10 @@ class RecallEvaluation (rel:Set[Long],
     }
 
     def union(e: RecallEvaluation) : RecallEvaluation ={
-        this.hit_rate = ArrayOperations.add(this.hit_rate, e.hit_rate)
-        this.precision = ArrayOperations.add_2(this.precision, e.precision)
-        this.recall = ArrayOperations.add_2(this.recall, e.recall)
-        this.ndcg_k = ArrayOperations.add(this.ndcg_k, e.ndcg_k)
+        this.hit_rate = ArrayOp.add(this.hit_rate, e.hit_rate)
+        this.precision = ArrayOp.add_2(this.precision, e.precision)
+        this.recall = ArrayOp.add_2(this.recall, e.recall)
+        this.ndcg_k = ArrayOp.add(this.ndcg_k, e.ndcg_k)
         this.count = this.count + e.count
         this
     }

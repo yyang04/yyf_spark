@@ -1,7 +1,7 @@
 package waimai.utils.PrivacyClustering
 
 import org.apache.spark.rdd.RDD
-import waimai.utils.ArrayOperations.{distance, cosineSimilarity}
+import waimai.utils.ArrayOp.{distance, cosineSimilarity}
 
 
 object ClusteringMetrics {

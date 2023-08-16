@@ -1,26 +1,22 @@
 package waimai.utils
 
 import java.text.SimpleDateFormat
-import java.util.{Calendar, Date, Locale}
+import java.util.Calendar
 import scala.collection.mutable.ArrayBuffer
 
 
 object DateUtils{
-    // 20w key => 2000000 * 73
+    // 时间戳如果是秒是16亿
+    // 时间戳如果是毫秒则是1万6千亿
+    val dtFormat = new SimpleDateFormat("yyyyMMdd")
 
-    val dtFormat = new SimpleDateFormat("yyyyMMdd")         // 年月日
-//    val fpFormat = new SimpleDateFormat("yyyyMMddHH")       // 年月日小时
-//    val dvFormat = new SimpleDateFormat("yyyyMMddHHmmss")   // 年月日小时分钟秒
-//    val sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")   // 年月日小时分钟秒
-    val stdTs = 1638172000L
-
-//    def timeStamp2Date(ts: Long): String = sdf.format(new Date(ts))
     def dt2TimeStamp(dt: String): Long = dtFormat.parse(dt).getTime   // dt转ts
 
     /**
      * 获取N天前的时间字符串
-     * @param num  代表N
-     * @return
+     *
+     * @param num 代表N
+     * @return "yyyyMMdd"
      */
     def getNDaysAgo(num: Int): String = {
         val c = Calendar.getInstance()
@@ -28,8 +24,7 @@ object DateUtils{
         dtFormat.format(c.getTime)
     }
 
-
-    def getNDaysAgoFrom(dt: String, num: Int):String={
+    def getNDaysAgoFrom(dt: String, num: Int): String = {
         val c = Calendar.getInstance()
         try {
             val date = dtFormat.parse(dt)
@@ -41,6 +36,7 @@ object DateUtils{
         dtFormat.format(c.getTime)
     }
 
+    // 包括首尾
     def getDtRange(begin: String, end: String): Iterable[String] = {
         val beginDt = dtFormat.parse(begin)
         val c = Calendar.getInstance()
@@ -50,7 +46,7 @@ object DateUtils{
         val c1 = Calendar.getInstance()
         c1.setTime(endDt)
 
-        val diff = (c1.getTime.getTime - c.getTime.getTime) / 3600000 / 24
+        val diff = (c1.getTimeInMillis - c.getTimeInMillis) / 1000 / 3600 / 24
         val rs = new ArrayBuffer[String]()
         rs.append(begin)
         for (i <- 0L until diff) {
@@ -60,12 +56,13 @@ object DateUtils{
         rs
     }
 
+    // 获取当前时间戳s
     def getTs: Int = {
         val cal = Calendar.getInstance()
         (cal.getTimeInMillis / 1000).toInt
     }
 
-
+    // 获取当前星期几
     def getWeekDay(dt: String): Int = {
         val c = Calendar.getInstance()
         c.setTime(dtFormat.parse(dt))
@@ -103,9 +100,19 @@ object DateUtils{
         cal.set(Calendar.SECOND, 0)
         cal.set(Calendar.MINUTE, 0)
         cal.set(Calendar.MILLISECOND, 0)
-        ((cal.getTimeInMillis() - System.currentTimeMillis()) / 1000).toInt
+        ((cal.getTimeInMillis - System.currentTimeMillis()) / 1000).toInt
     }
 
+    // 今天的24点的时间戳 s
+    def getTsForDawn: Int = {
+        val cal = Calendar.getInstance()
+        cal.add(Calendar.DAY_OF_YEAR, 1)
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+        (cal.getTimeInMillis / 1000).toInt - 1
+    }
 
     /**
      * 当前时间距离下一小时有多少秒
@@ -119,17 +126,7 @@ object DateUtils{
         ((cal.getTimeInMillis - System.currentTimeMillis()) / 1000).toInt
     }
 
-
-    def getTsForDawn: Int = {
-        val cal = Calendar.getInstance()
-        cal.add(Calendar.DAY_OF_YEAR, 1)
-        cal.set(Calendar.HOUR_OF_DAY, 0)
-        cal.set(Calendar.MINUTE, 0)
-        cal.set(Calendar.SECOND, 0)
-        cal.set(Calendar.MILLISECOND, 0)
-        (cal.getTimeInMillis / 1000).toInt - 1
-    }
-
+    // 下个星期的时间戳 s
     def getTsForNextWeek: Int = {
         val cal = Calendar.getInstance()
         cal.add(Calendar.DAY_OF_YEAR, 7)
@@ -140,13 +137,14 @@ object DateUtils{
         (cal.getTimeInMillis / 1000).toInt - 1
     }
 
-
+    // 下个小时的时间戳 s
     def getTsForNextHour(hour: Int): Int = {
         val cal = Calendar.getInstance()
         cal.add(Calendar.HOUR_OF_DAY, hour)
         (cal.getTimeInMillis / 1000).toInt - 1
     }
 
+    // 今天0点时间戳 s
     def getTsForBeginOfDay: Int = {
         val cal: Calendar = Calendar.getInstance()
         cal.set(Calendar.HOUR_OF_DAY, 0)
@@ -156,12 +154,14 @@ object DateUtils{
         (cal.getTimeInMillis / 1000).toInt - 1
     }
 
+    // 时间戳ms, 转换成小时
     def getHourFromTs(ts: Long): Int = {
         val c = Calendar.getInstance()
         c.setTimeInMillis(ts)
-        c.getTime.getHours
+        c.get(Calendar.HOUR_OF_DAY)
     }
 
+    // 时间戳ms，转换成周末或者周中，周末为1，周中为0
     def getWeekDayFromTs(ts: Long): Int = {
         val c = Calendar.getInstance()
         c.setTimeInMillis(ts)
@@ -171,10 +171,12 @@ object DateUtils{
 
 
     def main(args: Array[String]): Unit = {
-        getDtRange("20210101", "20210102").foreach(println(_)) // 20210101, 20210102
-        println(getHourFromTs(1594787450270L))
-        println(getWeekDayFromTs(1677734274397L))
-
+        val c1 = Calendar.getInstance()
+        println(c1.getTime.getTime)
+        println(c1.getTimeInMillis)
+//        getDtRange("20210101", "20210102").foreach(println(_)) // 20210101, 20210102
+//        println(getHourFromTs(1594787450270L))
+//        println(getWeekDayFromTs(1677734274397L))
     }
 }
 

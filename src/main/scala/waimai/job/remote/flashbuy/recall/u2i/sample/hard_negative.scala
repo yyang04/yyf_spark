@@ -7,7 +7,7 @@ import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
 import com.github.jelmerk.knn.scalalike.floatInnerProduct
 import waimai.job.remote.flashbuy.recall.u2i.postprocessing.{SkuInfo, UserInfo}
-import waimai.utils.{ArrayOperations, FileOp}
+import waimai.utils.{ArrayOp, FileOp}
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 
@@ -79,7 +79,7 @@ object hard_negative extends RemoteSparkJob {
         }
         val df = pos.map(x => ((x.uuid, x.poi_id), x)).join(neg_hard).values.flatMap{
             case (pos, skuArr) =>
-                val result = ArrayOperations.randomChoice[ModelSample](
+                val result = ArrayOp.randomChoice[ModelSample](
                   skuArr.map{ x =>
                     require(x.split(",").length == 2)
                     val sku_id = x.split(",")(0).toLong

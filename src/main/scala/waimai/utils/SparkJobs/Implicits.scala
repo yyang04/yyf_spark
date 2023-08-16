@@ -13,7 +13,7 @@ trait SQLImplicits extends LowPrioritySQLImplicits {
     var _sqlContext: SQLContext
 
     /**
-     * Converts $"col name" into a [[Column]].
+     * Converts $"col name" into a Column.
      *
      * @since 2.0.0
      */
@@ -206,7 +206,7 @@ trait SQLImplicits extends LowPrioritySQLImplicits {
     }
 
     /**
-     * An implicit conversion that turns a Scala `Symbol` into a [[Column]].
+     * An implicit conversion that turns a Scala `Symbol` into a Column.
      * @since 1.3.0
      */
     implicit def symbolToColumn(s: Symbol): ColumnName = new ColumnName(s.name)
@@ -214,7 +214,7 @@ trait SQLImplicits extends LowPrioritySQLImplicits {
 }
 
 /**
- * Lower priority implicit methods for converting Scala objects into [[Dataset]]s.
+ * Lower priority implicit methods for converting Scala objects into Datasets.
  * Conflicting implicits are placed here to disambiguate resolution.
  *
  * Reasons for including specific implicits:

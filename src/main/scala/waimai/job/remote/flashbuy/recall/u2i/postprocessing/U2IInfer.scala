@@ -1,12 +1,11 @@
-package waimai.job.remote.flashbuy.recall.u2i
+package waimai.job.remote.flashbuy.recall.u2i.postprocessing
 
 import com.github.jelmerk.knn.scalalike.floatInnerProduct
 import com.github.jelmerk.knn.scalalike.hnsw.HnswIndex
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
-import waimai.job.remote.flashbuy.recall.u2i.postprocessing.{SkuInfo, UserInfo}
 import waimai.utils.SparkJobs.RemoteSparkJob
-import waimai.utils.{ArrayOperations, FileOp}
+import waimai.utils.{ArrayOp, FileOp}
 
 
 object U2IInfer extends RemoteSparkJob {
@@ -71,7 +70,7 @@ object U2IInfer extends RemoteSparkJob {
             val tmp = result.flatMap {
                 case (poi_id, skuIdList, average) => skuIdList
             }
-            val scores = ArrayOperations.maxScale(tmp.map(_._2))
+            val scores = ArrayOp.maxScale(tmp.map(_._2))
             tmp.map(_._1).zip(scores).map { case (sku_id, score) => s"$sku_id:${"%.5f".format(score)}" }
         }.toDF("key", "value")
         val partition = Map("date" -> dt, "branch" -> "u2i", "method" -> "dual_tower_v1")

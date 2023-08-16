@@ -5,7 +5,7 @@ import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
 import waimai.job.remote.flashbuy.recall.u2i.postprocessing.{SkuInfo, UserInfo}
-import waimai.utils.{ArrayOperations, FileOp, MapOperations, RecallEvaluation}
+import waimai.utils.{ArrayOp, FileOp, MapOp, RecallEvaluation}
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 
@@ -83,8 +83,8 @@ object EvaluationOffline extends RemoteSparkJob {
         }.cache
 
         val coverage = tmp.map(x => (x._1, x._3.map(_._1).groupBy(identity).mapValues(_.length)))
-          .reduceByKey(MapOperations.mergeMap)
-          .values.map(x => (ArrayOperations.entropy(x.map(_._2.toDouble).toArray), 1d))
+          .reduceByKey(MapOp.mergeMap)
+          .values.map(x => (ArrayOp.entropy(x.map(_._2.toDouble).toArray), 1d))
           .reduce((x, y) => (x._1 + y._1, x._2 + y._2))
 
         println(f"Coverage@20: ${coverage._1/coverage._2}%.2f")

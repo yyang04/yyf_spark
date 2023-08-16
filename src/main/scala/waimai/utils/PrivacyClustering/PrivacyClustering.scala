@@ -1,7 +1,7 @@
 package waimai.utils.PrivacyClustering
 
 import org.apache.spark.rdd.RDD
-import waimai.utils.ArrayOperations
+import waimai.utils.ArrayOp
 
 object PrivacyClustering {
     // data[id, cluster] label need cached
@@ -31,9 +31,9 @@ object PrivacyClustering {
         val le = x.join(label_cached)
           .map{
             case (_, (embedding, label)) => (label, (embedding, 1))
-        }.reduceByKey((x, y) => (ArrayOperations.add(x._1, y._1), x._2 + y._2))
+        }.reduceByKey((x, y) => (ArrayOp.add(x._1, y._1), x._2 + y._2))
           .map{
-            case (label, (embedding, count)) => (label, ArrayOperations.div(embedding, count.toDouble))
+            case (label, (embedding, count)) => (label, ArrayOp.div(embedding, count.toDouble))
         }
         val result = label_cached.map(_.swap).join(le).map{ case (_, (id, embedding)) => (id, embedding) }
         label_cached.unpersist()

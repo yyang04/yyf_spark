@@ -1,11 +1,10 @@
-package waimai.utils
+package waimai.utils.AF
 
 import org.apache.spark.rdd.RDD
-import waimai.utils.AF.{ArrayUnionFind, ArrayUnionFindCompressed}
 
 import scala.collection.mutable
-import scala.util.control.Breaks
 import scala.util.Random
+import scala.util.control.Breaks
 
 object MinimumSpanningTree {
     // Kruskal Local Minimum Spanning Tree

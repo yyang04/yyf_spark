@@ -2,8 +2,6 @@ package waimai.utils
 
 import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.catalyst.expressions.GenericRowWithSchema
-import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import scala.concurrent.duration._
 
@@ -11,11 +9,8 @@ import scala.util.control._
 import scala.collection.mutable.Seq
 
 object FileOp extends Serializable {
-    def saveAsTable(spark: SparkSession,
-                    df: DataFrame,
-                    tableName: String,
-                    partition: Map[String, Any]): Unit = {
-
+    // DF 写表操作，自动加前缀mart_waimaiad
+    def saveAsTable(df: DataFrame, tableName: String, partition: Map[String, Any])(implicit spark: SparkSession): Unit = {
         val typeMap = Map("String" -> "string", "Integer" -> "int")
         val full_table_name = "mart_waimaiad." + tableName
         val schema = df.schema.map(x => x.name + " " + x.dataType.simpleString).mkString(",\n")
@@ -55,18 +50,15 @@ object FileOp extends Serializable {
         spark.sql(sql_insert_table)
     }
 
-    def saveAsTextFile(hdfs: FileSystem,
-                       rdd:RDD[_],
-                       path: String): Unit ={
+    // RDD文件写入hdfs路径(覆盖), 写之前记得要 repartition
+    def saveAsTextFile(rdd:RDD[_], path: String)(implicit hdfs: FileSystem): Unit = {
         val p = new Path(path)
         if (hdfs.exists(p)) hdfs.delete(p, true)
         rdd.saveAsTextFile(path)
     }
 
-    def saveTextFile(hdfs: FileSystem,
-                     data: Seq[String],
-                     path: String
-                     ): Unit ={
+    // 将字符串写入hdfs文件，在driver端操作，是覆盖写
+    def saveTextFile(data: Seq[String], path: String)(implicit hdfs: FileSystem): Unit = {
         val p = new Path(path)
         if (hdfs.exists(p)) hdfs.delete(p, true)
         val writer = HdfsOp.openHdfsFile(path, hdfs)
@@ -76,26 +68,14 @@ object FileOp extends Serializable {
         HdfsOp.closeHdfsFile(writer)
     }
 
-    def deleteTextFile(hdfs: FileSystem,
-                       path: String) : Unit ={
+    // 删掉hdfs文件，在driver端操作，如果存在就删除
+    def deleteTextFile(path: String)(implicit hdfs: FileSystem): Unit = {
         val p = new Path(path)
         if (hdfs.exists(p)) hdfs.delete(p, true)
     }
 
-
-    def parseSchema(schema: String): StructType = {
-        val type_map = Map("int" -> IntegerType, "string" -> StringType, "bigint" -> LongType, "double" -> DoubleType)
-        val finalSchema = StructType(
-            schema
-              .split("\n")
-              .map(x => {
-                  val arr = x.split(" ")
-                  StructField(arr(0), type_map(arr(1)), nullable=true)
-        }))
-        finalSchema
-    }
-
-    def waitUntilFileExist(hdfs: FileSystem, path: String, minuteStep: Int=5, hourWait: Int=3): Boolean = {
+    // 检验文件是否存在，默认5分钟检查一次，等待3个小时，如果存在则返回true，3个小时还不存在返回false
+    def waitUntilFileExist(path: String, minuteStep: Int = 5, hourWait: Int = 3)(implicit hdfs: FileSystem): Boolean = {
         // 5分钟检测一次
         val maxTimes = (hourWait.hour / minuteStep.minute).round.toInt
         val loop = new Breaks
@@ -111,13 +91,5 @@ object FileOp extends Serializable {
             }
         }
         false
-    }
-
-    class GenericRowWithSchemaWithOptionalField(values: Array[Any], override val schema: StructType)
-      extends GenericRowWithSchema(values, schema) {
-        def getOpt[T](fieldname: String): Option[T] = {
-            if (isNullAt(fieldIndex(fieldname))) None
-            else Some(getAs[T](fieldname))
-        }
     }
 }

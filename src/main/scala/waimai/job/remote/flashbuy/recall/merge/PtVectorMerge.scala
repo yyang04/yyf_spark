@@ -55,8 +55,8 @@ object PtVectorMerge extends RemoteSparkJob with S3Connect {
 
         // 发送请求
         mode.foreach {
-            case "stage" => println(send_request(mode="stage", version=timestamp, tableName=tableName, config=config))
-            case "prod" => println(send_request(mode="prod", version=timestamp, tableName=tableName, config=config))
+            case "stage" => println(sendRequest(mode="stage", version=timestamp, tableName=tableName, config=config))
+            case "prod" => println(sendRequest(mode="prod", version=timestamp, tableName=tableName, config=config))
         }
 
         println("end")
@@ -84,13 +84,15 @@ object PtVectorMerge extends RemoteSparkJob with S3Connect {
         }
     }
 
-    def send_request(mode: String, version:String, tableName:String= "PtVectorSg", config: String="sku_vector_pt.proto"): String = {
-
+    def sendRequest(mode: String,
+                    version:String,
+                    tableName:String="PtVectorSg",
+                    config:String="sku_vector_pt.proto"
+                    ):String={
         val url = mode match {
             case "prod" => "http://10.176.17.101:8088/v1/tasks"
             case "stage" => "http://10.176.17.167:8088/v1/tasks"
         }
-
         val data = Json.parse(
             s"""
               |{

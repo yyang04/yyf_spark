@@ -12,7 +12,6 @@ import scala.concurrent.duration._
 
 object group extends RemoteSparkJob {
     val prefix = "PtSgOneStopTrigger_"
-
     override def run(): Unit = {
         val window = params.window match { case 0 => 30 ; case x: Int => x }
         val prod = params.mode match { case "" => true; case _: String => false }
@@ -31,7 +30,7 @@ object group extends RemoteSparkJob {
             val uuid = row.getAs[String](0)
             uuid
         }.cache
-        FileOp.saveAsTable(spark, rdd.toDF("uuid"), "pt_sg_uuid_click_flow_opti", partition=Map("dt" -> endDt, "window" -> window))
+        FileOp.saveAsTable(rdd.toDF("uuid"), "pt_sg_uuid_click_flow_opti", partition=Map("dt" -> endDt, "window" -> window))
         if (prod) {
             val data = rdd.collect().map{x => (x, "1")}
             saveTair(data, expireTs)

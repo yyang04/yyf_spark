@@ -2,16 +2,13 @@ package waimai.job.remote.flashbuy.flowOpti
 
 import com.taobao.tair3.client.TairClient
 import waimai.utils.SparkJobs.RemoteSparkJob
-import waimai.utils.JsonUtils.{iterableToJsonObjectStr, jsonObjectStrToArrayMap, jsonObjectStrToMap}
+import waimai.utils.JsonUtils.{iterableToJsonObjectStr, jsonObjectStrToMap}
 import scala.collection.JavaConverters._
 import utils.TairUtil
 
 import scala.util.control.Breaks._
 import waimai.utils.DateUtils.getNDaysAgo
 import waimai.utils.FileOp
-
-import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 
 object metrics extends RemoteSparkJob {
 
@@ -72,7 +69,7 @@ object metrics extends RemoteSparkJob {
                 (poi_id, ctr)
         }.cache()
 
-        FileOp.saveAsTable(spark, ctrThreshold.toDF("poi_id", "ctr_threshold"), "pt_sg_dsa_ctr_threshold_common", Map("dt" -> endDt, "threshold" -> threshold))
+        FileOp.saveAsTable(ctrThreshold.toDF("poi_id", "ctr_threshold"), "pt_sg_dsa_ctr_threshold_common", Map("dt" -> endDt, "threshold" -> threshold))
         val tairData = ctrThreshold.collect.map{ case (poi_id, ctr) =>
             val jsonKey192 = expName + "_" + "192"
             val jsonKey193 = expName + "_" + "193"

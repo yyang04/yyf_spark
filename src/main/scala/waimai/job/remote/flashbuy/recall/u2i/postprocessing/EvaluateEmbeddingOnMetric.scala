@@ -8,7 +8,7 @@ import waimai.utils.FileOp
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 
-object EvaluationOfflineV2 extends RemoteSparkJob {
+object EvaluateEmbeddingOnMetric extends RemoteSparkJob {
 
     def saveToHive(userPath:String, skuPath:String): Unit = {
 
@@ -18,8 +18,6 @@ object EvaluationOfflineV2 extends RemoteSparkJob {
         // task 1. saveToHive
         // task 2. evaluateEmbeddingOnMetric
         // task 3. evaluateEmbeddingOnCase
-        //
-
 
         val dt = params.dt                // 需要evaluate的日期，需要确认模型下面有embedding
         val ts = params.timestamp         // 模型的timestamp
@@ -33,12 +31,10 @@ object EvaluationOfflineV2 extends RemoteSparkJob {
         val sku_emb = read_raw(sc, sku_path)
         val dim = user_emb.take(1)(0)._2.length
 
-
-
         // 1. 从mv表里选取用户点击广告
         val mv = spark.sql(
             s"""
-               | select concat_ws('_', uuid, ad_request_id) as key,
+               | select concat_ws('_', ad_request_id, uuid) as key,
                |        uuid,
                |        poi_id,
                |        reserves['spu_id'] as spu_id,
