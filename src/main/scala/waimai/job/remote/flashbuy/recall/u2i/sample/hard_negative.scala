@@ -22,8 +22,8 @@ object hard_negative extends RemoteSparkJob {
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$dt"
-        if (!FileOp.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
-        if (!FileOp.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(user_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(sku_path)) { sc.stop(); return }
         val user_emb = read_raw[String](user_path)
         val sku_emb = read_raw[String](sku_path)
         val dim = user_emb.take(1)(0)._2.length
@@ -92,7 +92,7 @@ object hard_negative extends RemoteSparkJob {
             case ModelSample(event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id) =>
                 (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
         }.toDF("event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id", "poi_id")
-        FileOp.saveAsTable(spark, df, dst_table_name, Map("dt" -> s"$dt", "threshold"-> threshold))
+        FileOp.saveAsTable(df, dst_table_name, Map("dt" -> s"$dt", "threshold"-> threshold))
     }
 
     def read_raw[T: ClassTag](path: String)(implicit sc: SparkContext): RDD[(T, Array[Float])] = {

@@ -113,7 +113,7 @@ object PtVectorMerge extends RemoteSparkJob with S3Connect {
 
     def prepare_data(ts: String, dt: String, version: String): RDD[(String, (String, Array[Float]))] = {
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
-        if (!FileOp.waitUntilFileExist(hdfs, sku_path)) {
+        if (!FileOp.waitUntilFileExist(sku_path)) {
             sc.stop()
         }
         read_raw(sc, sku_path, version)

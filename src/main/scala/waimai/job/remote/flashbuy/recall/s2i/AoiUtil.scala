@@ -2,11 +2,11 @@ package waimai.job.remote.flashbuy.recall.s2i
 
 import com.sankuai.waimai.aoi.core.index.WmAoiIndexBuilder
 import org.apache.spark.sql.SparkSession
-import waimai.utils.DateUtils
+import waimai.utils.DateOp
 
 object AoiUtil {
     def getAoiInstance(implicit spark: SparkSession): WmAoiIndexBuilder#WmAoiIndex = {
-        val dt = DateUtils.getNDaysAgo(1)
+        val dt = DateOp.getNDaysAgo(1)
         val builder = new WmAoiIndexBuilder().buffer(0.0002)
         spark.sql(
             s"""

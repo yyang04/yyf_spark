@@ -1,7 +1,7 @@
 package waimai.utils.SparkJobs
 
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.sql.{SQLContext, SparkSession, SQLImplicits}
+import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.hadoop.fs.FileSystem
 

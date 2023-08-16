@@ -25,8 +25,8 @@ object EvaluateEmbeddingOnMetric extends RemoteSparkJob {
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
-        if (!FileOp.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
-        if (!FileOp.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(user_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(sku_path)) { sc.stop(); return }
         val user_emb = read_raw(sc, user_path)
         val sku_emb = read_raw(sc, sku_path)
         val dim = user_emb.take(1)(0)._2.length

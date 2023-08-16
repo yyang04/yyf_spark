@@ -4,7 +4,7 @@ import com.taobao.tair3.client.TairClient
 import utils.TairUtil
 import waimai.utils.FileOp
 import waimai.utils.SparkJobs.RemoteSparkJob
-import waimai.utils.DateUtils.{getNDaysAgo, getNDaysAgoFrom, getTsForNextWeek}
+import waimai.utils.DateOp.{getNDaysAgo, getNDaysAgoFrom, getTsForNextWeek}
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._

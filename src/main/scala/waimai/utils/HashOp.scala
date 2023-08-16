@@ -3,7 +3,7 @@ package waimai.utils
 import com.google.common.hash.Hashing
 import java.nio.charset.StandardCharsets.UTF_8
 
-object Murmurhash {
+object HashOp {
     def hashString(prefix: String, input: String) : Long = {
         val feature = prefix + input
         var hash = Hashing.murmur3_32().hashString(feature, UTF_8).asInt().toLong

@@ -1,10 +1,10 @@
 package waimai.utils.SparkJobs
 
 import scopt.OptionParser
-import waimai.utils.DateUtils
+import waimai.utils.DateOp
 case class Config(beginDt: String = "",
                   endDt: String = "",
-                  dt: String = DateUtils.getNDaysAgo(1),   // 如果不传参数自动取昨天
+                  dt: String = DateOp.getNDaysAgo(1), // 如果不传参数自动取昨天
                   algorithm: String = "",
                   timestamp: String = "",
                   tableName: String = "",

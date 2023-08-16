@@ -1,6 +1,6 @@
 package waimai.job.remote.flashbuy.recall.evaluation
 
-//import waimai.utils.JsonUtils.jsonPv
+//import waimai.utils.JsonOp.jsonPv
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 object RecallCoverRate extends RemoteSparkJob{

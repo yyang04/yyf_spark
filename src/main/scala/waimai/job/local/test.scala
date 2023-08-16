@@ -2,7 +2,7 @@ package waimai.job.local
 
 import ch.hsr.geohash.GeoHash
 import scalaj.http.{Http, HttpResponse}
-import waimai.utils.Murmurhash.hashString
+import waimai.utils.HashOp.hashString
 
 object test {
     def main(args: Array[String]): Unit = {

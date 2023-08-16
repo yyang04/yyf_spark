@@ -1,7 +1,7 @@
 package waimai.job.remote.flashbuy.recall.s2i
 
 import waimai.utils.SparkJobs.RemoteSparkJob
-import waimai.utils.DateUtils.{getFoodTime, getHourFromTs, getNDaysAgoFrom, getWeekDayFromTs}
+import waimai.utils.DateOp.{getFoodTime, getHourFromTs, getNDaysAgoFrom, getWeekDayFromTs}
 import waimai.utils.FileOp
 
 import scala.collection.mutable
@@ -76,7 +76,7 @@ object AoiRecallTable extends RemoteSparkJob {
                         (s"${poi_id}_${k._1}_${k._2}", ret)
                 }.toList
         }.toDF("key", "value")
-        FileOp.saveAsTable(spark, df, "recsys_linshou_multi_recall_results_v2" + version,
+        FileOp.saveAsTable(df, "recsys_linshou_multi_recall_results_v2" + version,
             Map("method" -> "eges", "date" -> dt, "branch" -> "u2i"))
 
 

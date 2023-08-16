@@ -13,7 +13,7 @@ case class Sample[T](weight: Double, obj: T)
  *  Obtain a sample of size `numSamples` from an RDD `ar` using a two-phase distributed sampling approach.
  */
 
-object SampleOperations {
+object SampleOp {
     // 分布式重要性采样，n为采样个数
     def sampleWeightedRDDWithReplacement[T: ClassTag](ar: RDD[Sample[T]], n: Int)(implicit sc: SparkContext): RDD[T] = {
         // 1. Get total weight on each partition

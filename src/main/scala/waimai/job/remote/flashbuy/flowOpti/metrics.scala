@@ -2,12 +2,12 @@ package waimai.job.remote.flashbuy.flowOpti
 
 import com.taobao.tair3.client.TairClient
 import waimai.utils.SparkJobs.RemoteSparkJob
-import waimai.utils.JsonUtils.{iterableToJsonObjectStr, jsonObjectStrToMap}
+import waimai.utils.JsonOp.{iterableToJsonObjectStr, jsonObjectStrToMap}
 import scala.collection.JavaConverters._
 import utils.TairUtil
 
 import scala.util.control.Breaks._
-import waimai.utils.DateUtils.getNDaysAgo
+import waimai.utils.DateOp.getNDaysAgo
 import waimai.utils.FileOp
 
 object metrics extends RemoteSparkJob {

@@ -5,7 +5,7 @@ import java.util.Calendar
 import scala.collection.mutable.ArrayBuffer
 
 
-object DateUtils{
+object DateOp{
     // 时间戳如果是秒是16亿
     // 时间戳如果是毫秒则是1万6千亿
     val dtFormat = new SimpleDateFormat("yyyyMMdd")

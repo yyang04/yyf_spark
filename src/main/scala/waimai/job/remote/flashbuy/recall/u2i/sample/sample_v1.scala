@@ -1,7 +1,7 @@
 package waimai.job.remote.flashbuy.recall.u2i.sample
 
+import waimai.utils.DateOp.getNDaysAgoFrom
 import waimai.utils.FileOp
-import waimai.utils.TimeOperations.getDateDelta
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 import scala.util.Random
@@ -16,7 +16,7 @@ object sample_v1 extends RemoteSparkJob {
             s"""
                |SELECT distinct poi_id
                |  FROM mart_waimaiad.pt_flashbuy_expose_poi_daily_v1
-               | WHERE dt BETWEEN '${getDateDelta(dt, -10)}' AND '$dt'
+               | WHERE dt BETWEEN '${getNDaysAgoFrom(dt, 10)}' AND '$dt'
                |""".stripMargin).rdd.map { row =>
             val poi_id = row.getLong(0)
             (poi_id, 0L)
@@ -78,7 +78,7 @@ object sample_v1 extends RemoteSparkJob {
             (poi_id, event_type, request_id, uuid, user_id, sku_id, spu_id)
         }.toDF("poi_id", "event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id")
 
-        FileOp.saveAsTable(spark, df, "pt_sg_u2i_sample_v1", Map("dt" -> s"$dt"))
+        FileOp.saveAsTable(df, "pt_sg_u2i_sample_v1", Map("dt" -> s"$dt"))
     }
 
 }

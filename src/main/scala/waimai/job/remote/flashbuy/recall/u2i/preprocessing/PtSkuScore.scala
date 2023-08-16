@@ -1,9 +1,8 @@
 package waimai.job.remote.flashbuy.recall.u2i.preprocessing
 
-import waimai.utils.DateUtils.{getNDaysAgo, getNDaysAgoFrom}
+import waimai.utils.DateOp.{getNDaysAgo, getNDaysAgoFrom}
 import waimai.utils.FileOp.saveAsTable
 import waimai.utils.SparkJobs.RemoteSparkJob
-import waimai.utils.TimeOperations.getDateDelta
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.Breaks

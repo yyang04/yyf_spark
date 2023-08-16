@@ -26,6 +26,6 @@ object AoiSearchLog extends RemoteSparkJob {
                     (aoiInfo.aoi_type_name, word)
             }
         }.toDF("aoi_type_name", "word")
-        FileOp.saveAsTable(spark, df, "pt_aoi_word", Map("dt" -> dt))
+        FileOp.saveAsTable(df, "pt_aoi_word", Map("dt" -> dt))
     }
 }

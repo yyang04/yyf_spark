@@ -7,7 +7,7 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 
-object JsonUtils {
+object JsonOp {
 
     ParserConfig.getGlobalInstance.setSafeMode(true)
 

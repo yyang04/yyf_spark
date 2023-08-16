@@ -1,6 +1,6 @@
 package waimai.job.remote.flashbuy.recall.u2i.preprocessing
 
-import waimai.utils.DateUtils.getNDaysAgoFrom
+import waimai.utils.DateOp.getNDaysAgoFrom
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 object PositiveSampleStatistics extends RemoteSparkJob {

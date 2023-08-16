@@ -56,6 +56,6 @@ object InstantSeqFeature extends RemoteSparkJob {
             val tag_id_list = result.map(_._1.tag_id)
               (uuid, timestamp_list, first_category_id_list, second_category_id_list, third_category_id_list, tag_id_list)}
           .toDF("uuid", "timestamp", "first_category_id", "second_category_id", "third_category_id", "tag_id")
-        saveAsTable(spark, sku_info, dst_table, Map("dt" -> dt))
+        saveAsTable(sku_info, dst_table, Map("dt" -> dt))
     }
 }

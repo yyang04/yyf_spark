@@ -20,8 +20,8 @@ object EvaluationCase extends RemoteSparkJob {
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/user_embedding/$dt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$ts/sku_embedding/$dt"
-        if (!FileOp.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
-        if (!FileOp.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(user_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(sku_path)) { sc.stop(); return }
 
         val user = read_raw(sc, user_path)
         val sku = read_raw(sc, sku_path)
@@ -67,7 +67,7 @@ object EvaluationCase extends RemoteSparkJob {
             tmp.map(_._1).zip(scores).map { case (sku_id, score) => s"$sku_id:${"%.5f".format(score)}" }
         }.toDF("key", "value")
         val partition = Map("date" -> dt, "method" -> method)
-        FileOp.saveAsTable(spark, res, "recsys_linshou_multi_recall_results_vtest", partition)
+        FileOp.saveAsTable(res, "recsys_linshou_multi_recall_results_vtest", partition)
     }
 
     def read_raw(sc: SparkContext, path: String): RDD[(String, Array[Float])] = {

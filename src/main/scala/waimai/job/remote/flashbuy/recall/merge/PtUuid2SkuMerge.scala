@@ -2,10 +2,9 @@ package waimai.job.remote.flashbuy.recall.merge
 
 import org.apache.hadoop.fs.Path
 import org.apache.spark.rdd.RDD
-import waimai.utils.DateUtils.getNDaysAgo
+import waimai.utils.DateOp.{getNDaysAgo, getNDaysAgoFrom}
 import waimai.utils.SparkJobs.RemoteSparkJob
-import waimai.utils.TimeOperations.getDateDelta
-import waimai.utils.{FileOp, JsonUtils}
+import waimai.utils.{FileOp, JsonOp}
 
 object PtUuid2SkuMerge extends RemoteSparkJob {
     // 将召回结果写入s3
@@ -47,22 +46,22 @@ object PtUuid2SkuMerge extends RemoteSparkJob {
 
     private def saveData(result: RDD[String], dataPath: String, dt: String, tableName: String): Unit = {
         // 存入当天数据
-        FileOp.saveAsTextFile(hdfs, result, path=s"$dataPath/$dt/$tableName")
+        FileOp.saveAsTextFile(result, path=s"$dataPath/$dt/$tableName")
         // 删除30天前的数据
-        val dtOneMonthAgo = getDateDelta(dt, -30)
-        FileOp.deleteTextFile(hdfs, path=s"$dataPath/$dtOneMonthAgo/$tableName")
+        val dtOneMonthAgo = getNDaysAgoFrom(dt, 30)
+        FileOp.deleteTextFile(path=s"$dataPath/$dtOneMonthAgo/$tableName")
     }
     private def saveIndex(indexPath: String, dt: String, tableName: String): Unit = {
         // index 日期在数据日期之后
-        val indexDt = getDateDelta(dt, 1)
+        val indexDt = getNDaysAgoFrom(dt, -1)
         val path = s"$indexPath/$indexDt"
         // 如果存在就Append进去，不存在就加上
         if (hdfs.exists(new Path(path))) {
             val originFiles = sc.textFile(path).collect().toBuffer.filterNot(_ contains tableName)
             originFiles.append(s"$dt/$tableName")
-            FileOp.saveTextFile(hdfs, originFiles, path)
+            FileOp.saveTextFile(originFiles, path)
         } else {
-            FileOp.saveTextFile(hdfs, Seq(s"$dt/$tableName").toBuffer, path)
+            FileOp.saveTextFile(Seq(s"$dt/$tableName").toBuffer, path)
         }
     }
 
@@ -72,10 +71,10 @@ object PtUuid2SkuMerge extends RemoteSparkJob {
         val methodSkuScoreJson = value.map{
             case (methodName, skuScore) =>
                 val skuScoreJson = skuScore.toArray.sortBy(-_._2).take(threshold).map{
-                    case (skuId, relatedScore) => JsonUtils.iterableToJsonObject(Map("skuId" -> skuId, "relatedScore" -> relatedScore))
+                    case (skuId, relatedScore) => JsonOp.iterableToJsonObject(Map("skuId" -> skuId, "relatedScore" -> relatedScore))
                 }
-                JsonUtils.iterableToJsonObject(Map("methodName" -> methodName, "relatedSkus" -> JsonUtils.iterableToJsonArray(skuScoreJson)))
+                JsonOp.iterableToJsonObject(Map("methodName" -> methodName, "relatedSkus" -> JsonOp.iterableToJsonArray(skuScoreJson)))
         }
-        JsonUtils.iterableToJsonObjectStr(Map("uuid" -> key, "methods" -> JsonUtils.iterableToJsonArray(methodSkuScoreJson)))
+        JsonOp.iterableToJsonObjectStr(Map("uuid" -> key, "methods" -> JsonOp.iterableToJsonArray(methodSkuScoreJson)))
     }
 }

@@ -1,6 +1,6 @@
 package waimai.job.remote.flashbuy.recall.s2i
 
-import waimai.utils.DateUtils.{getNDaysAgo, getNDaysAgoFrom}
+import waimai.utils.DateOp.{getNDaysAgo, getNDaysAgoFrom}
 import waimai.utils.FileOp.saveAsTable
 import waimai.utils.SparkJobs.RemoteSparkJob
 
@@ -81,6 +81,6 @@ object Discount2Item extends RemoteSparkJob {
         }.toDF("key", "value")
 
         val partition = Map("dt" -> dt, "table_name" -> "pt_uuid2sku", "method_name" -> "pt_discount_sales")
-        saveAsTable(spark, df, "pt_multi_recall_results_xxx2sku", partition = partition)
+        saveAsTable(df, "pt_multi_recall_results_xxx2sku", partition = partition)
     }
 }

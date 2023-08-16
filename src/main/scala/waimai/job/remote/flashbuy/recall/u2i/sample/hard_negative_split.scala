@@ -4,7 +4,6 @@ import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.{Partitioner, SparkContext}
 import org.apache.spark.rdd.RDD
 import waimai.utils.FileOp
-import waimai.utils.TimeOperations.getDate
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 import scala.collection.mutable
@@ -24,13 +23,13 @@ object hard_negative_split extends RemoteSparkJob{
 
         val user_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$beginDt"
         val sku_path = s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$beginDt"
-        if (!FileOp.waitUntilFileExist(hdfs, user_path)) { sc.stop(); return }
-        if (!FileOp.waitUntilFileExist(hdfs, sku_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(user_path)) { sc.stop(); return }
+        if (!FileOp.waitUntilFileExist(sku_path)) { sc.stop(); return }
 
         val user_emb = read_raw(user_path)
         val sku_emb = read_raw(sku_path)
-        FileOp.saveAsTextFile(hdfs, user_emb.filter(_._1 == dt).map(_._2).coalesce(200), s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$dt")
-        FileOp.saveAsTextFile(hdfs, sku_emb.filter(_._1 == dt).map(_._2).coalesce(1000), s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$dt")
+        FileOp.saveAsTextFile(user_emb.filter(_._1 == dt).map(_._2).coalesce(200), s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/user_embedding/$dt")
+        FileOp.saveAsTextFile(sku_emb.filter(_._1 == dt).map(_._2).coalesce(1000), s"viewfs://hadoop-meituan/user/hadoop-hmart-waimaiad/yangyufeng04/bigmodel/multirecall/$timestamp/sku_embedding/$dt")
     }
 
 

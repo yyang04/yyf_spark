@@ -1,6 +1,6 @@
 package waimai.job.remote.flashbuy.data
 
-import waimai.utils.DateUtils.getNDaysAgo
+import waimai.utils.DateOp.getNDaysAgo
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 object PtSkuClick extends RemoteSparkJob {

@@ -25,6 +25,6 @@ object SimHashJob extends RemoteSparkJob {
 
         val model = new SimHashClustering(18, 1, threshold)
         val result = model.fit(data).toDF("uuid", "user_emb", "cluster_center")
-        saveAsTable(spark, result, "privacy_clustering_test", Map("dt" -> dt, "algorithm" -> "simhash", "threshold" -> threshold))
+        saveAsTable(result, "privacy_clustering_test", Map("dt" -> dt, "algorithm" -> "simhash", "threshold" -> threshold))
     }
 }

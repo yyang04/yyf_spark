@@ -28,14 +28,14 @@ object SaveToHive extends RemoteSparkJob {
 
         val userPartition = Map("dt" -> dt, "version" -> version, "entity" -> "user")
         val itemPartition = Map("dt" -> dt, "version" -> version, "entity" -> "item")
-        saveAsTable(spark, userDF, "pt_multi_recall_results_vector", partition=userPartition)
-        saveAsTable(spark, itemDF, "pt_multi_recall_results_vector", partition=itemPartition)
+        saveAsTable(userDF, "pt_multi_recall_results_vector", partition=userPartition)
+        saveAsTable(itemDF, "pt_multi_recall_results_vector", partition=itemPartition)
     }
 
     private def readEmbedding(sc: SparkContext, path: String, hourWait: Int): Option[RDD[(String, Array[Float])]] = {
         // request_id_uuid,embedding1,embedding2...
         // poi_id,embedding1,embedding2
-        if (!FileOp.waitUntilFileExist(hdfs, path, hourWait=hourWait, minuteStep=5)) {
+        if (!FileOp.waitUntilFileExist(path, hourWait=hourWait, minuteStep=5)) {
             sc.stop(); return None
         }
         val result = sc.textFile(path).map { row =>

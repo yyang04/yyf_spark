@@ -1,7 +1,7 @@
 package waimai.job.remote.flashbuy.recall.u2i.sample
 
-import waimai.utils.{FileOp, Sample, SampleOperations}
-import waimai.utils.TimeOperations.getDateDelta
+import waimai.utils.DateOp.getNDaysAgoFrom
+import waimai.utils.{FileOp, Sample, SampleOp}
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 import scala.util.Random
@@ -23,7 +23,7 @@ object sample_v2 extends RemoteSparkJob{
             s"""
                |SELECT distinct poi_id
                |  FROM mart_waimaiad.pt_flashbuy_expose_poi_daily_v1
-               | WHERE dt BETWEEN '${getDateDelta(dt, -10)}' AND '$dt'
+               | WHERE dt BETWEEN '${getNDaysAgoFrom(dt, 10)}' AND '$dt'
                |""".stripMargin).rdd.map { row =>
             val poi_id = row.getLong(0)
             (poi_id, 0L)
@@ -51,7 +51,7 @@ object sample_v2 extends RemoteSparkJob{
         val total_count = sku_pos_tmp.count().toDouble
         val sku_pos_count = sku_pos_tmp.map{ x => ((x.sku_id, x.spu_id), 1d) }.reduceByKey(_+_)
         val sku_pos = sku_pos_tmp.map(x => ((x.sku_id, x.spu_id), x)).join(sku_pos_count).map{ x => Sample(norm_pos(x._2._2 / total_count), x._2._1) }
-        val sample_sku_pos = SampleOperations.sampleWeightedRDD[ModelSample](sku_pos, total_count.toInt).map(x => (x.poi_id, x))
+        val sample_sku_pos = SampleOp.sampleWeightedRDDWithReplacement[ModelSample](sku_pos, total_count.toInt).map(x => (x.poi_id, x))
 
 
         val sku_neg = spark.sql(
@@ -78,14 +78,14 @@ object sample_v2 extends RemoteSparkJob{
             case (x, score) => (x.poi_id, Sample(1d, x))
         }.groupByKey.join(sample_sku_pos).values.flatMap {
             case (iter, x_pos) =>
-                SampleOperations.weightedSampleWithReplacement(iter.toArray, threshold, new Random)
+                SampleOp.weightedSampleWithReplacement(iter.toArray, threshold)
                 .map{ x => ModelSample("view", x_pos.request_id, x_pos.uuid, x_pos.user_id, x.sku_id, x.spu_id, x.poi_id) } :+ x_pos
         }.map{
             case ModelSample(event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id) =>
                 (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
         }.toDF("event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id", "poi_id")
 
-        FileOp.saveAsTable(spark, sku_neg, dst_table_name, Map("dt" -> s"$dt", "threshold" -> s"$threshold"))
+        FileOp.saveAsTable(sku_neg, dst_table_name, Map("dt" -> s"$dt", "threshold" -> s"$threshold"))
     }
 
     def norm_pos(rate: Double): Double = {
