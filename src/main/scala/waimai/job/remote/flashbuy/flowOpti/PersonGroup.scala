@@ -46,7 +46,7 @@ object PersonGroup extends RemoteSparkJob {
                 (prefix + k, v)
             }.toMap.asJava
             client.batchPutString(inputData, 4, tairOption)
-            Thread.sleep(10.seconds.toMillis)
+            Thread.sleep(1.minutes.toMillis)
         }
     }
 
