@@ -20,8 +20,7 @@ case class Request(ad_request_id: String,
                    sub_ord_num:Int,
                    sub_total:Double,
                    sub_mt_charge_fee:Double,
-                   metric: Double
-                  )
+                   metric: Double)
 
 object OfflineMetrics extends RemoteSparkJob {
 
