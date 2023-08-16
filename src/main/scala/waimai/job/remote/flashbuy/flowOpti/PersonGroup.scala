@@ -10,7 +10,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 
 
-object group extends RemoteSparkJob {
+object PersonGroup extends RemoteSparkJob {
     val prefix = "PtSgOneStopTrigger_"
     override def run(): Unit = {
         val window = params.window match { case 0 => 30 ; case x: Int => x }

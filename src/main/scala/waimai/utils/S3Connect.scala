@@ -5,9 +5,9 @@ import org.apache.spark.rdd.RDD
 
 trait S3Connect {
 
-  private var host: String = "s3plus.vip.sankuai.com"
-  private var secretKey: String = "9d0ecb5da3f84f57b8ff26aa8414dcf6"
-  private var accessKey: String = "d4f23cbe570e4268a871291726a2ff5e"
+  private val host: String = "s3plus.vip.sankuai.com"
+  private val secretKey: String = "9d0ecb5da3f84f57b8ff26aa8414dcf6"
+  private val accessKey: String = "d4f23cbe570e4268a871291726a2ff5e"
 
   @transient
   var s3Handler: S3Handler = _
