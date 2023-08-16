@@ -10,7 +10,20 @@ import scala.util.control.Breaks._
 import waimai.utils.DateOp.getNDaysAgo
 import waimai.utils.FileOp
 
-object metrics extends RemoteSparkJob {
+case class Request(ad_request_id: String,
+                   slot:Int,
+                   hour:String,
+                   poi_id:Long,
+                   act:Int,
+                   is_charge:Int,
+                   final_charge:Double,
+                   sub_ord_num:Int,
+                   sub_total:Double,
+                   sub_mt_charge_fee:Double,
+                   metric: Double
+                  )
+
+object OfflineMetrics extends RemoteSparkJob {
 
     override def run(): Unit = {
         val beginDt = "20230601"
