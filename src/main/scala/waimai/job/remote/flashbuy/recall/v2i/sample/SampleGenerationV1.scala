@@ -33,7 +33,7 @@ case class MixSample(dt: String,
                     )
 
 
-object PositiveSampleV1 extends RemoteSparkJob {
+object SampleGenerationV1 extends RemoteSparkJob {
 
     override def run(): Unit = {
 
