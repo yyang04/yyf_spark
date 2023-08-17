@@ -1,4 +1,4 @@
-package waimai.job.remote.flashbuy.data
+package waimai.job.remote.flashbuy.feature
 
 import waimai.utils.DateOp.getNDaysAgo
 import waimai.utils.SparkJobs.RemoteSparkJob

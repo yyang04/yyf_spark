@@ -1,4 +1,6 @@
-package waimai.utils
+package waimai.job.remote.flashbuy.recall.evaluation
+
+import waimai.utils.ArrayOp
 
 class RecallEvaluation (rel:Set[Long],
                         predict: Array[Long],

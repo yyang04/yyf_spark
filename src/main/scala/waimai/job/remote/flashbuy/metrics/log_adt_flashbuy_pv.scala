@@ -1,4 +1,4 @@
-package waimai.job.remote.flashbuy.temporal
+package waimai.job.remote.flashbuy.metrics
 
 import waimai.utils.SparkJobs.RemoteSparkJob
 

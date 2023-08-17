@@ -5,7 +5,7 @@ import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
 
 abstract class LocalSparkJob extends SQLImplicits with Serializable {
-    Logger.getLogger("org").setLevel(Level.OFF)
+    Logger.getLogger("org").setLevel(Level.INFO)
     var conf: SparkConf = _
     implicit var sc: SparkContext = _
     var spark : SparkSession = _
