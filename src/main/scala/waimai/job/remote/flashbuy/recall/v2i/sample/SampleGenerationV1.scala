@@ -82,7 +82,7 @@ object SampleGenerationV1 extends RemoteSparkJob {
         }.toDF.withColumn("version", lit("one_neg"))
           .write
           .mode("overwrite")
-          .partitionBy("dt")
+          .partitionBy("dt", "version")
           .format("orc")
           .saveAsTable("mart_waimaiad.pt_multirecall_sample_with_negative")
     }
