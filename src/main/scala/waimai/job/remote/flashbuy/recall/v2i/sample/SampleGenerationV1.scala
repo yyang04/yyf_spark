@@ -49,7 +49,7 @@ object SampleGenerationV1 extends RemoteSparkJob {
                |       poi_id,
                |       sku_id,
                |       spu_id,
-               |       coalesce(user_id, 0) as user_id
+               |       coalesce(user_id, 0) as user_id,
                |       uuid,
                |       city_id,
                |       event_id,
