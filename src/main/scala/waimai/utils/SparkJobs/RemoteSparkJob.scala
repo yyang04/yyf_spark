@@ -4,6 +4,7 @@ import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{SQLContext, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.hadoop.fs.FileSystem
+import waimai.utils.DateOp
 
 
 abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializable {
@@ -13,6 +14,7 @@ abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializ
     implicit var sc: SparkContext = _
     implicit var hdfs: FileSystem = _
     override var _sqlContext: SQLContext = _
+    var dtRange: Iterable[String] = _
 
     def main(args: Array[String]): Unit ={
         initSpark(args)
@@ -62,6 +64,7 @@ abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializ
         this.sc = spark.sparkContext
         this.sc.hadoopConfiguration.set("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false")
         this.hdfs = FileSystem.get(sc.hadoopConfiguration)
+        this.dtRange = DateOp.getDtRange(params.beginDt, params.endDt)
     }
 }
 

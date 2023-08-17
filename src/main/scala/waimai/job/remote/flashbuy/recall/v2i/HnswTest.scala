@@ -1,8 +1,8 @@
-package waimai.job.remote.flashbuy.recall.u2i
+package waimai.job.remote.flashbuy.recall.v2i
 
 import com.github.jelmerk.knn.scalalike.floatInnerProduct
 import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
-import waimai.job.remote.flashbuy.recall.u2i.postprocessing.SkuInfo
+import waimai.job.remote.flashbuy.recall.v2i.postprocessing.SkuInfo
 
 object HnswTest {
 

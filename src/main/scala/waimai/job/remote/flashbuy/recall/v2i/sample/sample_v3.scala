@@ -1,4 +1,4 @@
-package waimai.job.remote.flashbuy.recall.u2i.sample
+package waimai.job.remote.flashbuy.recall.v2i.sample
 
 import waimai.utils.DateOp.getNDaysAgoFrom
 import waimai.utils.{FileOp, Sample, SampleOp}
@@ -7,8 +7,7 @@ import waimai.utils.SparkJobs.RemoteSparkJob
 import scala.util.Random
 
 
-
-object sample_v2 extends RemoteSparkJob{
+object sample_v3 extends RemoteSparkJob{
 
     override def run(): Unit = {
         // 正样本扩充并按照采样方式采样
@@ -28,8 +27,8 @@ object sample_v2 extends RemoteSparkJob{
             val poi_id = row.getLong(0)
             (poi_id, 0L)
         }
-//
-//        // 正样本
+
+        // 正样本
         val sku_pos_tmp = spark.sql(
             s"""
                |SELECT event_type,
@@ -46,13 +45,13 @@ object sample_v2 extends RemoteSparkJob{
                |   AND sku_id is not null
                |   AND poi_id is not null
                |   AND event_id='b_xU9Ua'
+               |   AND category_type in (1, 13)
                |""".stripMargin
         ).as[ModelSample].rdd.distinct.map { sample => (sample.poi_id, sample) }.join(sku_pool).map{ _._2._1 }.cache
         val total_count = sku_pos_tmp.count().toDouble
-        val sku_pos_count = sku_pos_tmp.map{ x => ((x.sku_id, x.spu_id), 1d) }.reduceByKey(_+_)
-        val sku_pos = sku_pos_tmp.map(x => ((x.sku_id, x.spu_id), x)).join(sku_pos_count).map{ x => Sample(norm_pos(x._2._2 / total_count), x._2._1) }
+        val sku_pos_count = sku_pos_tmp.map{ x => (x.sku_id, 1d) }.reduceByKey(_+_)
+        val sku_pos = sku_pos_tmp.map(x => (x.sku_id, x)).join(sku_pos_count).map{ x => Sample(norm_pos(x._2._2), x._2._1) }
         val sample_sku_pos = SampleOp.sampleWeightedRDDWithReplacement[ModelSample](sku_pos, total_count.toInt).map(x => (x.poi_id, x))
-
 
         val sku_neg = spark.sql(
             s"""
@@ -71,7 +70,7 @@ object sample_v2 extends RemoteSparkJob{
             (sample.poi_id, sample)
         }.join(sku_pool)
           .map(_._2._1)
-          .map(x => ((x.sku_id, x.spu_id), x))
+          .map(x => (x.sku_id, x))
           .leftOuterJoin(sku_pos_count)
           .values
           .map{
@@ -85,13 +84,16 @@ object sample_v2 extends RemoteSparkJob{
                 (event_type, request_id, uuid, user_id, sku_id, spu_id, poi_id)
         }.toDF("event_type", "request_id", "uuid", "user_id", "sku_id", "spu_id", "poi_id")
 
+        sku_neg.cache
+
         FileOp.saveAsTable(sku_neg, dst_table_name, Map("dt" -> s"$dt", "threshold" -> s"$threshold"))
     }
 
-    def norm_pos(rate: Double): Double = {
-        (scala.math.sqrt(rate/0.001) + 1) * 0.001 / rate
+    def norm_pos(freq: Double): Double = {
+        (math.sqrt(freq / 0.001) + 1) * 0.001 / freq
     }
+
     def norm_neg(freq: Double): Double = {
-        scala.math.pow(freq, 0.25)
+        math.pow(freq, 0.25)
     }
 }

@@ -1,4 +1,4 @@
-package waimai.job.remote.flashbuy.recall.u2i.sample
+package waimai.job.remote.flashbuy.recall.v2i.sample
 
 import org.apache.hadoop.fs.FileSystem
 import org.apache.spark.{Partitioner, SparkContext}

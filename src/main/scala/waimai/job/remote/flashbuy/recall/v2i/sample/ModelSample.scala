@@ -1,4 +1,4 @@
-package waimai.job.remote.flashbuy.recall.u2i.sample
+package waimai.job.remote.flashbuy.recall.v2i.sample
 
 case class ModelSample (event_type: String= "",
                         request_id: String= "",

@@ -1,4 +1,4 @@
-package waimai.job.remote.flashbuy.recall.u2i.feature
+package waimai.job.remote.flashbuy.recall.v2i.feature
 
 case class SeqEntity(sku_id: Long,
                first_category_id: Long,

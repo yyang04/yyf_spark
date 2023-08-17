@@ -2,9 +2,7 @@ package waimai.job.remote.flashbuy.recall.evaluation
 
 import waimai.utils.ArrayOp
 
-class RecallEvaluation (rel:Set[Long],
-                        predict: Array[Long],
-                        k: Array[Int]) {
+class RecallEvaluation (rel:Set[Long], predict: Array[Long], k: Array[Int]) {
     var count: Double = 1d
 
     var hit_rate: Array[Double] = {
@@ -50,7 +48,7 @@ class RecallEvaluation (rel:Set[Long],
         if (idcg == 0) 0d else dcg / idcg
     }
 
-    def union(e: RecallEvaluation) : RecallEvaluation ={
+    def union(e: RecallEvaluation) : RecallEvaluation = {
         this.hit_rate = ArrayOp.add(this.hit_rate, e.hit_rate)
         this.precision = ArrayOp.add_2(this.precision, e.precision)
         this.recall = ArrayOp.add_2(this.recall, e.recall)

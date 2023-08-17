@@ -10,10 +10,9 @@ import scala.collection.mutable.ArrayBuffer
 
 object CidDiscount2Item extends RemoteSparkJob {
     override def run(): Unit = {
-        val dt = params.dt match { case "" => getNDaysAgo(1); case x => x }
+        val dt = params.dt
+        // 每个折扣品类只保留两个
         val threshold = params.threshold match { case 0 => 2; case x => x }
-
-        print(dt, threshold)
 
         val base = spark.sql(
             s"""

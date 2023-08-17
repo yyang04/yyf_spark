@@ -1,4 +1,4 @@
-package waimai.job.remote.flashbuy.recall.u2i.sample
+package waimai.job.remote.flashbuy.recall.v2i.sample
 
 import com.github.jelmerk.knn.scalalike.bruteforce.BruteForceIndex
 import org.apache.spark.SparkContext
@@ -6,7 +6,7 @@ import org.apache.spark.rdd.RDD
 
 import scala.reflect.ClassTag
 import com.github.jelmerk.knn.scalalike.floatInnerProduct
-import waimai.job.remote.flashbuy.recall.u2i.postprocessing.{SkuInfo, UserInfo}
+import waimai.job.remote.flashbuy.recall.v2i.postprocessing.{SkuInfo, UserInfo}
 import waimai.utils.{ArrayOp, FileOp}
 import waimai.utils.SparkJobs.RemoteSparkJob
 

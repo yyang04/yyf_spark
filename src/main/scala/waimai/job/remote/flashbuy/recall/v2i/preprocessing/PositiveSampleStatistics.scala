@@ -1,4 +1,4 @@
-package waimai.job.remote.flashbuy.recall.u2i.preprocessing
+package waimai.job.remote.flashbuy.recall.v2i.preprocessing
 
 import waimai.utils.DateOp.getNDaysAgoFrom
 import waimai.utils.SparkJobs.RemoteSparkJob
@@ -8,31 +8,33 @@ object PositiveSampleStatistics extends RemoteSparkJob {
         val dt = params.dt
         val window = params.window
 
-
-        val pos = spark.sql(
+        val posSample = spark.sql(
             s"""
-               |select poi_id,
-               |       sku_id,
+               |select dt, poi_id, sku_id, spu_id, user_id, uuid,
+               |       city_id, event_id, event_timestamp, hour, client_id, appversion, is_pt
+               |
+               |
+               |
+               |
+               |
+               |""".stripMargin)
+
+        val skuScore = spark.sql(
+            s"""
+               |select sku_id,
                |       count(*) as cnt
-               |  from mart_waimaiad.pt_multirecall_sample mv
+               |  from mart_waimaiad.pt_multirecall_sample
                | where dt between '${getNDaysAgoFrom(dt, window)}' and '$dt'
-               |  group by 1,2
+               |  group by 1
                |""".stripMargin).rdd.map{ row =>
-            val poi_id = row.getAs[Long](0)
-            val sku_id = row.getAs[Long](1)
-            val cnt = row.getAs[Long](2)
-            (poi_id, (sku_id, cnt + 1))
-        }.groupByKey.mapValues(_.toMap)
+            val sku_id = row.getAs[Long](0)
+            val cnt = row.getAs[Long](1)
+            (sku_id, cnt)
+        }.collect
 
-        val sup = spark.sql(
+        val mixSample = spark.sql(
             s"""
-               |select poi_id, product_id
-               |  from mart_lingshou.dim_prod_product_sku_s_snapshot
-               |  WHERE dt='$dt'
-               |    AND sell_status=0
-               |    AND product_status=0
-               |    AND is_valid=1
-               |    AND is_online_poi_flag=1
+               |
                |""".stripMargin).rdd.map { row =>
             val poi_id = row.getAs[Long](0)
             val sku_id = row.getAs[Long](1)

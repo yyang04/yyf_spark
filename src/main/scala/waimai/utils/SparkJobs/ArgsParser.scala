@@ -2,8 +2,8 @@ package waimai.utils.SparkJobs
 
 import scopt.OptionParser
 import waimai.utils.DateOp
-case class Config(beginDt: String = "",
-                  endDt: String = "",
+case class Config(beginDt: String = DateOp.getNDaysAgo(1), // 如果不传参数自动取昨天
+                  endDt: String = DateOp.getNDaysAgo(1), // 如果不传参数自动取昨天
                   dt: String = DateOp.getNDaysAgo(1), // 如果不传参数自动取昨天
                   algorithm: String = "",
                   timestamp: String = "",
