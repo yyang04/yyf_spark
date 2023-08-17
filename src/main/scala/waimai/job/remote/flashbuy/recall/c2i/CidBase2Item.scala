@@ -5,7 +5,7 @@ import waimai.utils.FileOp.saveAsTable
 import waimai.utils.SparkJobs.RemoteSparkJob
 
 
-object Cid2Item extends RemoteSparkJob {
+object CidBase2Item extends RemoteSparkJob {
     override def run(): Unit = {
         val dt = params.dt match { case "" => getNDaysAgo(1); case x => x }
         val threshold = params.threshold match { case 0 => 2; case x => x }
