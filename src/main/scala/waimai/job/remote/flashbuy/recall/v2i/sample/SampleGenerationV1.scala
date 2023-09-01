@@ -58,7 +58,7 @@ object SampleGenerationV1 extends RemoteSparkJob {
                |       client_id,
                |       appversion
                |  from mart_waimaiad.pt_multirecall_sample
-               |  where dt between ${getNDaysAgoFrom(endDt, window)} and $endDt
+               |  where dt between '${getNDaysAgoFrom(endDt, window)}' and '$endDt'
                |""".stripMargin).as[PositiveSample].rdd.cache
 
         // 计算负样本采样概率(从正样本里采样）
