@@ -5,41 +5,49 @@ import waimai.utils.SparkJobs.RemoteSparkJob
 import scala.collection.mutable
 import scala.concurrent.duration._
 
-case class ActivityDayMetricEntity (uuid: String,
+case class ActivityDayMetricEntity (dt: String,
+                                    uuid: String,
                                     sku_id: Long,
                                     event_timestamp: Long,
-                                    upc_code: String)
+                                    upc_code: String,
+                                    event_id: String,
+                                    page_id: String)
 
 
 object ActivityDayMetric extends RemoteSparkJob {
 
     override def run(): Unit = {
-        val dt = params.dt
+        val beginDt = params.beginDt
+        val endDt = params.endDt
         val result = spark.sql(
             s"""
-               | select uuid,
+               | select dt,
+               |        uuid,
                |        sku_id,
                |        event_timestamp,
-               |        upc_code
+               |        upc_code,
+               |        event_id,
+               |        page_id
                |   from mart_lingshou.fact_flow_sdk_product_mv mv
                |   join
                |    ( select product_id,
                |             upc_code
                |        from mart_lingshou.dim_prod_product_sku_s_snapshot
-               |        where dt=$dt
+               |        where dt between $beginDt and $endDt
                |          and upc_code is not null
+               |          group by 1,2
                |    ) info
                |    on mv.sku_id=info.product_id
-               |  where dt=$dt
+               |  where dt between $beginDt and $endDt
                |    and event_type='view'
                |    and uuid is not null
                |    and sku_id is not null
                |""".stripMargin).as[ActivityDayMetricEntity]
           .rdd
-          .map{ x => (x.uuid, x) }
+          .map{ x => ((x.dt, x.uuid), x) }
           .groupByKey
           .map{
-              case (uuid, iter) =>
+              case (key, iter) =>
                   val itemSeq = iter.toList.sortBy(_.event_timestamp)
                   val dailyBehavior = new mutable.ListBuffer[mutable.ListBuffer[ActivityDayMetricEntity]]
                   val session = new mutable.ListBuffer[ActivityDayMetricEntity]
@@ -61,9 +69,14 @@ object ActivityDayMetric extends RemoteSparkJob {
                           count += 1
                       }
                   }
-                  (count, 1)
-        }.reduce((x, y) => (x._1 + y._1, x._2 + y._2))
-        println(result._1, result._2)
+                  (key._1, (count, dailyBehavior.size))
+        }
+          .reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2))
+          .collect
+
+        result.sortBy(_._1).foreach{ case (dt, (seqCount, totalSize)) =>
+            println(dt, seqCount, totalSize)
+        }
     }
 
 }
