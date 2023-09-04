@@ -75,7 +75,7 @@ object ActivityDayMetric extends RemoteSparkJob {
           .collect
 
         result.sortBy(_._1).foreach{ case (dt, (seqCount, totalSize, totalUser)) =>
-            println(dt, seqCount, totalSize)
+            println(dt, seqCount, totalSize, totalUser)
         }
     }
 
