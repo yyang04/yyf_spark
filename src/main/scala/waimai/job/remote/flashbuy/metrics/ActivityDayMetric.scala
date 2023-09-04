@@ -21,7 +21,7 @@ object ActivityDayMetric extends RemoteSparkJob {
         val endDt = params.endDt
         val result = spark.sql(
             s"""
-               | select dt,
+               | select mv.dt,
                |        uuid,
                |        sku_id,
                |        event_timestamp,
@@ -30,15 +30,15 @@ object ActivityDayMetric extends RemoteSparkJob {
                |        page_id
                |   from mart_lingshou.fact_flow_sdk_product_mv mv
                |   join
-               |    ( select product_id,
+               |    ( select dt,
+			   |             product_id,
                |             upc_code
                |        from mart_lingshou.dim_prod_product_sku_s_snapshot
                |        where dt between $beginDt and $endDt
                |          and upc_code is not null
-               |          group by 1,2
                |    ) info
-               |    on mv.sku_id=info.product_id
-               |  where dt between $beginDt and $endDt
+               |    on mv.sku_id=info.product_id and mv.dt=info.dt
+               |  where mv.dt between $beginDt and $endDt
                |    and event_type='view'
                |    and uuid is not null
                |    and sku_id is not null
