@@ -66,7 +66,7 @@ object ActivityDayMetric extends RemoteSparkJob {
                   var count = 0
                   for (sess <- dailyBehavior) {
                       val upcCode = sess.groupBy(_.upc_code).mapValues(_.toList.map(_.sku_id).distinct.size)
-                      if (upcCode.values.exists(_ >= 2)){
+                      if (upcCode.values.exists(_ >= 3)){
                           count += 1
                       }
                   }
