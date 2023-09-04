@@ -19,6 +19,7 @@ object ActivityDayMetric extends RemoteSparkJob {
     override def run(): Unit = {
         val beginDt = params.beginDt
         val endDt = params.endDt
+        val threshold = params.threshold
         val result = spark.sql(
             s"""
                | select mv.dt,
@@ -66,7 +67,7 @@ object ActivityDayMetric extends RemoteSparkJob {
                   var count = 0
                   for (sess <- dailyBehavior) {
                       val upcCode = sess.groupBy(_.upc_code).mapValues(_.toList.map(_.sku_id).distinct.size)
-                      if (upcCode.values.exists(_ >= 3)){
+                      if (upcCode.values.exists(_ >= threshold)){
                           count += 1
                       }
                   }
