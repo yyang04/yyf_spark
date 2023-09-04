@@ -61,20 +61,20 @@ object ActivityDayMetric extends RemoteSparkJob {
                       session.append(itemSeq(i))
                       lastTimeStamp = itemSeq(i).event_timestamp
                   }
+                  dailyBehavior.append(session)
 
                   var count = 0
                   for (sess <- dailyBehavior) {
-                      val upcCode = sess.groupBy(_.upc_code).mapValues(iter => iter.toList.map(_.sku_id).distinct.size)
+                      val upcCode = sess.groupBy(_.upc_code).mapValues(_.toList.map(_.sku_id).distinct.size)
                       if (upcCode.values.exists(_ >= 2)){
                           count += 1
                       }
                   }
-                  (key._1, (count, dailyBehavior.size))
-        }
-          .reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2))
+                  (key._1, (count, dailyBehavior.size, 1)) }
+          .reduceByKey((x, y) => (x._1 + y._1, x._2 + y._2, x._3 + y._3))
           .collect
 
-        result.sortBy(_._1).foreach{ case (dt, (seqCount, totalSize)) =>
+        result.sortBy(_._1).foreach{ case (dt, (seqCount, totalSize, totalUser)) =>
             println(dt, seqCount, totalSize)
         }
     }
