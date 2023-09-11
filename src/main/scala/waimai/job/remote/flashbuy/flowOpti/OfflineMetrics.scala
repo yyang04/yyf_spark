@@ -22,7 +22,6 @@ case class Request(ad_request_id: String,
                    sub_total:Double,
                    sub_mt_charge_fee:Double,
                    pctr:Double,
-                   pcvr:Double,
                    pgmv:Double
                   )
 
@@ -120,7 +119,7 @@ object OfflineMetrics extends RemoteSparkJob {
           .filter{
             case (poi_id, (request, ctr)) =>
                 request.pctr >= ctr
-        }.map{ case (x, (Request(ad_request_id, slot, hour, poi_id, act, is_charge, final_charge, sub_order_num, sub_total, sub_mt_charge_fee, pctr, pcvr, pgmv), ctr)) =>
+        }.map{ case (x, (Request(ad_request_id, slot, hour, poi_id, act, is_charge, final_charge, sub_order_num, sub_total, sub_mt_charge_fee, pctr, pgmv), ctr)) =>
             val view_num = if (act == 3) 1 else 0
             val click_num = if (act == 2) 1 else 0
             val charge = if (is_charge == 1) final_charge else 0
