@@ -49,7 +49,7 @@ class ArgsParser {
         opt[String]("branch").action((x, c) => c.copy(branch = x))
         opt[String]("item_embedding_path").action((x, c) => c.copy(item_embedding_path = x))
         opt[String]("user_embedding_path").action((x, c) => c.copy(user_embedding_path = x))
-        opt[String]("exp_name").action((x, c) => c.copy(expName = x))
+        opt[String]("expName").action((x, c) => c.copy(expName = x))
         opt[Int]("threshold").action((x, c) => c.copy(threshold = x))
         opt[Int]("threshold1").action((x, c) => c.copy(threshold1 = x))
         opt[Int]("threshold2").action((x, c) => c.copy(threshold2 = x))
