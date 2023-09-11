@@ -24,7 +24,8 @@ case class Config(beginDt: String = DateOp.getNDaysAgo(1), // 如果不传参数
                   hour: Int = 0,
                   window: Int = 0,
                   item_embedding_path: String = "",
-                  user_embedding_path: String = ""
+                  user_embedding_path: String = "",
+                  expName: String = ""
                  )
 
 class ArgsParser {
@@ -44,10 +45,11 @@ class ArgsParser {
         opt[String]("dst_table_name").action((x, c) => c.copy(dst_table_name = x))
         opt[String]("version").action((x, c) => c.copy(version = x))
         opt[String]("config").action((x, c) => c.copy(config = x))
-        opt[String]("methodName").action((x, c) => c.copy(config = x))
-        opt[String]("branch").action((x, c) => c.copy(config = x))
-        opt[String]("item_embedding_path").action((x, c) => c.copy(config = x))
-        opt[String]("user_embedding_path").action((x, c) => c.copy(config = x))
+        opt[String]("methodName").action((x, c) => c.copy(methodName = x))
+        opt[String]("branch").action((x, c) => c.copy(branch = x))
+        opt[String]("item_embedding_path").action((x, c) => c.copy(item_embedding_path = x))
+        opt[String]("user_embedding_path").action((x, c) => c.copy(user_embedding_path = x))
+        opt[String]("exp_name").action((x, c) => c.copy(expName = x))
         opt[Int]("threshold").action((x, c) => c.copy(threshold = x))
         opt[Int]("threshold1").action((x, c) => c.copy(threshold1 = x))
         opt[Int]("threshold2").action((x, c) => c.copy(threshold2 = x))

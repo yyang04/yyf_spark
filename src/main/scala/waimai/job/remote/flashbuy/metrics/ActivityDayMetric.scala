@@ -1,7 +1,6 @@
 package waimai.job.remote.flashbuy.metrics
 
 import waimai.utils.SparkJobs.RemoteSparkJob
-
 import scala.collection.mutable
 import scala.concurrent.duration._
 

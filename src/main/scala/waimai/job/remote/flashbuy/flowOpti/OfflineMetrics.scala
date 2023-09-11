@@ -3,11 +3,12 @@ package waimai.job.remote.flashbuy.flowOpti
 import com.taobao.tair3.client.TairClient
 import waimai.utils.SparkJobs.RemoteSparkJob
 import waimai.utils.JsonOp.{iterableToJsonObjectStr, jsonObjectStrToMap}
+
 import scala.collection.JavaConverters._
 import utils.TairUtil
 
 import scala.util.control.Breaks._
-import waimai.utils.DateOp.getNDaysAgo
+import waimai.utils.DateOp.{getNDaysAgo, getNDaysAgoFrom}
 import waimai.utils.FileOp
 
 case class Request(ad_request_id: String,
@@ -20,15 +21,21 @@ case class Request(ad_request_id: String,
                    sub_ord_num:Int,
                    sub_total:Double,
                    sub_mt_charge_fee:Double,
-                   metric: Double)
+                   pctr:Double,
+                   pcvr:Double,
+                   pgmv:Double
+                  )
 
 object OfflineMetrics extends RemoteSparkJob {
 
     override def run(): Unit = {
-        val beginDt = "20230601"
-        val endDt = getNDaysAgo(1)
-        val threshold = params.threshold
-        val expName = s"ctr_common_$threshold"
+        val window = params.window
+        val endDt = params.endDt
+        val beginDt = getNDaysAgoFrom(endDt, window)
+        val expName = params.expName                             // 实验名称: 例如 CTR_50 或者 ROI_3
+        val threshold = expName.split("_").last.toInt
+        val factor = expName.split("_").head             // 暂时只有CTR的，没有ROI的
+        val mode = ""
 
         val mv = spark.sql(
             s"""
@@ -42,18 +49,26 @@ object OfflineMetrics extends RemoteSparkJob {
                |       sub_ord_num,
                |       sub_mt_charge_fee,
                |       sub_total,
-               |       cast(get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.pctr') as double) as metric
+               |       cast(get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.pctr') as double) as pctr,
+			   |       cast(get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.ppt_gmv') as double) as pgmv
                |  from mart_waimaiad.pt_newpage_dsa_ad_mpv
                |  where dt between $beginDt and $endDt
-               |  and get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.poi_id') = cast(poi_id as string)
-               |""".stripMargin).as[Request].rdd.cache()
+               |    and get_json_object(substr(ad_result_list, 2, length(ad_result_list)-2), '$$.poi_id') = cast(poi_id as string)
+               |""".stripMargin)
+          .as[Request]
+          .rdd
+          .cache()
 
-        val ctrThreshold = mv.map{ request => (request.poi_id, request) }.groupByKey.map{
-            case (poi_id, iter) =>
-                val tmp = iter.toList.sortBy(_.metric)
-                val checkpoint = scala.math.max(tmp.size / 50, 10)    // 551 / 10 => 55
+        val ctrThreshold = mv
+          .map{ request => ((request.poi_id, request.slot), request) }
+          .groupByKey
+          .map{
+            case ((poi_id, slot), iter) =>
+                val tmp = iter.toList.sortBy(_.pctr)
+                val checkpoint = scala.math.max(tmp.size / 100, 10)    // max(551/50, 10) => 11
                 var view_num = tmp.count(x => x.act == 3)
                 var final_charge = tmp.filter(x => x.is_charge == 1).map(_.final_charge).sum
+
                 var i = 0
                 breakable {
                     while (i < tmp.size) {
@@ -73,28 +88,39 @@ object OfflineMetrics extends RemoteSparkJob {
                 }
                 val ctr = {
                     if (i == tmp.size) {
-                        tmp.takeRight(1).head.metric
+                        tmp.takeRight(1).head.pctr
                     } else {
-                        tmp(i).metric
+                        tmp(i).pctr
                     }
                 }
-                (poi_id, ctr)
-        }.cache()
+                (poi_id, slot, ctr)
+        }.cache
 
-        FileOp.saveAsTable(ctrThreshold.toDF("poi_id", "ctr_threshold"), "pt_sg_dsa_ctr_threshold_common", Map("dt" -> endDt, "threshold" -> threshold))
-        val tairData = ctrThreshold.collect.map{ case (poi_id, ctr) =>
-            val jsonKey192 = expName + "_" + "192"
-            val jsonKey193 = expName + "_" + "193"
-            val jsonKey195 = expName + "_" + "195"
-            ("PtSgAdFlowSmooth" + poi_id.toString, Map(jsonKey192 -> ctr.toString, jsonKey193 -> ctr.toString, jsonKey195 -> ctr.toString)) }
+        FileOp.saveAsTable(ctrThreshold.toDF("poi_id","slot", "ctr"), "pt_sg_dsa_ctr_threshold_common_slot", Map("dt" -> endDt, "threshold" -> threshold))
+
+        val tairData = ctrThreshold.map{
+              case (poi_id, slot, ctr) ⇒ (poi_id, (slot, ctr))
+          }
+          .groupByKey
+          .map { case (poi_id, iter) ⇒
+                  (poi_id, iter.toMap) }
+          .collect
+          .map{
+            case (poi_id, ctrMap) =>
+                val value = ctrMap.map{ case(k, v) ⇒ (expName + "_" + k.toString, v.toString) }
+            ("PtSgAdFlowSmooth" + poi_id.toString, value)
+        }
+
         saveTair(tairData)
 
-        val x = mv.map{ request => (request.poi_id, request) }
-          .join(ctrThreshold)
+        val ctr = ctrThreshold.map{ case (a, b, c) ⇒ ((a, b), c) }
+
+        val x = mv.map{ request => ((request.poi_id, request.slot), request) }
+          .join(ctr)
           .filter{
             case (poi_id, (request, ctr)) =>
-                request.metric >= ctr
-        }.map{ case (x, (Request(ad_request_id, slot, hour, poi_id, act, is_charge, final_charge, sub_order_num, sub_total, sub_mt_charge_fee, metric), ctr)) =>
+                request.pctr >= ctr
+        }.map{ case (x, (Request(ad_request_id, slot, hour, poi_id, act, is_charge, final_charge, sub_order_num, sub_total, sub_mt_charge_fee, pctr, pcvr, pgmv), ctr)) =>
             val view_num = if (act == 3) 1 else 0
             val click_num = if (act == 2) 1 else 0
             val charge = if (is_charge == 1) final_charge else 0
@@ -105,7 +131,7 @@ object OfflineMetrics extends RemoteSparkJob {
         println(s"${x._1}, ${x._2}, ${x._3}, ${x._4}, ${x._5}")
     }
 
-    def check(view_num: Int, final_charge: Double, threshold: Int = 45): Boolean = {
+    def check(view_num: Int, final_charge: Double, threshold: Int): Boolean = {
         final_charge / view_num * 1000 >= threshold
     }
 
