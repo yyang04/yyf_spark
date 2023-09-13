@@ -51,6 +51,7 @@ object CrossCateRecall extends RemoteSparkJob {
 			   |  ) info on t.sku_id=info.product_id
 			   |  where sku_id is not null
 			   |    and spu_id is not null
+			   |    and poi_id is not null
 			   |""".stripMargin).as[SkuInfo]
 
 		val total = spark.sql(
@@ -76,6 +77,7 @@ object CrossCateRecall extends RemoteSparkJob {
 			   |    AND is_online_poi_flag = 1
 			   |    and product_id is not null
 			   |    and product_spu_id is not null
+			   |    and poi_id is not null
 			   |""".stripMargin).as[SkuInfo]
 
 		val result = xp.union(total).rdd.map{ skuInfo ⇒ (skuInfo.poi_id, skuInfo) }
