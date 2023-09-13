@@ -49,8 +49,8 @@ object CrossCateRecall extends RemoteSparkJob {
 			   |      from mart_lingshou.dim_prod_product_sku_s_snapshot
 			   |   where dt=20230912
 			   |  ) info on t.sku_id=info.product_id
-			   |  and sku_id is not null
-			   |  and spu_id is not null
+			   |  where sku_id is not null
+			   |    and spu_id is not null
 			   |""".stripMargin).as[SkuInfo]
 
 		val total = spark.sql(
