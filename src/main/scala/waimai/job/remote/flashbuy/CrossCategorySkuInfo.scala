@@ -90,7 +90,7 @@ object CrossCateRecall extends RemoteSparkJob {
 		  }.cache
 
 		if (mode == "test") {
-			testTair
+			testTair()
 			return
 		}
 
@@ -128,7 +128,7 @@ object CrossCateRecall extends RemoteSparkJob {
 		}
 	}
 
-	def testTair: Unit = {
+	def testTair(): Unit = {
 		val testData = Array(PoiSkuInfo(123, Array(SkuInfo(123, "123", 345, "345", 345, 345, 345, 345, 0))))
 		saveTair(testData, 1.minute.toSeconds.toInt)
 	}
