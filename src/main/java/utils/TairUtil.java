@@ -189,4 +189,14 @@ public class TairUtil {
         }
         return resultMap;
     }
+
+
+    public <T> void putListObject(String key, List<T> value, int area, TairClient.TairOption opt) {
+        try {
+            byte[] keyBytes = StringSerializer.serialize(key);
+            byte[] valueBytes = SerializableUtil.serializeList(value);
+            client.put((short) area, keyBytes, valueBytes, opt);
+        } catch (Exception ignored) {
+        }
+    }
 }
