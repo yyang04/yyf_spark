@@ -9,7 +9,6 @@ import waimai.utils.SparkJobs.RemoteSparkJob
 
 import scala.concurrent.duration._
 import scala.collection.JavaConverters._
-import scala.jdk.CollectionConverters.seqAsJavaListConverter
 
 case class SkuInfo (poiId: Long,
                     poi_name: String,
