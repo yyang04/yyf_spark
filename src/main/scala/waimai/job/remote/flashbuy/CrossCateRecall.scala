@@ -10,11 +10,11 @@ import waimai.utils.SparkJobs.RemoteSparkJob
 import scala.concurrent.duration._
 import scala.collection.JavaConverters._
 
-case class SkuInfo (poiId: Long,
+case class SkuInfo (poi_id: Long,
                     poi_name: String,
-                    skuId: Long,
+                    sku_id: Long,
                     sku_name: String,
-                    spuId: Long,
+                    spu_id: Long,
                     first_category_id: Long,
                     second_category_id: Long,
                     third_category_id: Long,
@@ -74,10 +74,10 @@ object CrossCateRecall extends RemoteSparkJob {
 			   |    AND is_online_poi_flag = 1
 			   |""".stripMargin).as[SkuInfo]
 
-		val result = xp.union(total).rdd.map{ skuInfo ⇒ (skuInfo.poiId, skuInfo) }
+		val result = xp.union(total).rdd.map{ skuInfo ⇒ (skuInfo.poi_id, skuInfo) }
 		  .groupByKey
 		  .map{ case (poi_id, iter) ⇒
-			  val skuList = iter.groupBy(_.spuId).values.map { skuInfoList ⇒
+			  val skuList = iter.groupBy(_.spu_id).values.map { skuInfoList ⇒
 				  val is_xp = skuInfoList.map(_.is_xp).min
 				  val result = skuInfoList.head
 				  result.is_xp = is_xp
@@ -99,7 +99,7 @@ object CrossCateRecall extends RemoteSparkJob {
 
 		val df = result.map { poiSkuInfo ⇒
 			val skus = poiSkuInfo.skus
-			(skus.head.poiId, skus.head.poi_name, skus.map(_.skuId), skus.map(_.spuId), skus.map(_.is_xp), skus.map(_.sku_name), skus.map(_.first_category_id))
+			(skus.head.poi_id, skus.head.poi_name, skus.map(_.sku_id), skus.map(_.spu_id), skus.map(_.is_xp), skus.map(_.sku_name), skus.map(_.first_category_id))
 		}.toDF("poiId", "poi_name", "skuId", "spuId", "is_xp", "sku_name", "first_category_id")
 
 		FileOp.saveAsTable(df, "pt_sg_apple_new_sku", Map("version" -> "test"))
@@ -115,8 +115,8 @@ object CrossCateRecall extends RemoteSparkJob {
 			    val key = prefix + poiSkuInfo.poiId.toString
 				val value = poiSkuInfo.skus.map { skuInfo ⇒
 					val skuObj = new CrossCategorySkuInfo
-					skuObj.setId(skuInfo.skuId)
-					skuObj.setSpuId(skuInfo.spuId)
+					skuObj.setId(skuInfo.sku_id)
+					skuObj.setSpuId(skuInfo.spu_id)
 					skuObj.setFirstCategoryId(skuInfo.first_category_id)
 					skuObj.setSecondCategoryId(skuInfo.second_category_id)
 					skuObj.setThirdCategoryId(skuInfo.third_category_id)
