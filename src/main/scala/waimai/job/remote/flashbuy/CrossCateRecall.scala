@@ -30,6 +30,10 @@ object CrossCateRecall extends RemoteSparkJob {
 	override def run(): Unit = {
 		val mode = params.mode
 		val version = params.version
+		if (mode == "test") {
+			testTair()
+			return
+		}
 
 
 		val xp = spark.sql(
@@ -144,7 +148,7 @@ object CrossCateRecall extends RemoteSparkJob {
 			SkuInfo(13404273, "123", 11608370724L, "345", 8867731320L, 0, 0, 0, 0),
 			SkuInfo(13404273, "123", 7485431908L, "345", 6143585652L, 0, 0, 0, 0)
 		)))
-		saveTair(testData, 1.minute.toSeconds.toInt)
+		saveTair(testData, 12.hour.toSeconds.toInt)
 	}
 
 }
