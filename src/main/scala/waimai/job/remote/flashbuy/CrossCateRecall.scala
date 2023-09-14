@@ -100,7 +100,7 @@ object CrossCateRecall extends RemoteSparkJob {
 		}
 
 		if (mode != "stage") {
-			saveTair(result.collect, 1.hour.toSeconds.toInt)
+			saveTair(result.collect, 15.days.toSeconds.toInt)
 		}
 
 		val df = result.map { poiSkuInfo ⇒
