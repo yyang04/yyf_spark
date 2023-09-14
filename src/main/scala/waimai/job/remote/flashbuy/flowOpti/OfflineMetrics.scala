@@ -28,10 +28,10 @@ case class Request(ad_request_id: String,
 object OfflineMetrics extends RemoteSparkJob {
 
     override def run(): Unit = {
-        val window = params.window
+        val window = params.window                               // 时间窗口 设置为30吧
         val endDt = params.endDt
         val beginDt = getNDaysAgoFrom(endDt, window)
-        val expName = params.expName                             // 实验名称: 例如 CTR_50 或者 ROI_3
+        val expName = params.expName                             // 实验名称: 例如 CTR_50 或者 GMV_20
         val threshold = expName.split("_").last.toInt
         val factor = expName.split("_").head             // 暂时只有CTR的，没有ROI的
         val mode = ""
