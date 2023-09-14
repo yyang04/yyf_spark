@@ -135,7 +135,15 @@ object CrossCateRecall extends RemoteSparkJob {
 	}
 
 	def testTair(): Unit = {
-		val testData = Array(PoiSkuInfo(123, Array(SkuInfo(123, "123", 345, "345", 345, 345, 345, 345, 0))))
+		val testData = Array(PoiSkuInfo(13404273, Array(
+			SkuInfo(13404273, "123", 7918052776L, "345", 6470074871L, 0, 0, 0, 0),
+			SkuInfo(13404273, "123", 7485735025L, "345", 6144884144L, 0, 0, 0, 0),
+			SkuInfo(13404273, "123", 7880070936L, "345", 6443917759L, 0, 0, 0, 0),
+			SkuInfo(13404273, "123", 7918754899L, "345", 6470886832L, 0, 0, 0, 0),
+			SkuInfo(13404273, "123", 11608370725L, "345", 8867731320L, 0, 0, 0, 0),
+			SkuInfo(13404273, "123", 11608370724L, "345", 8867731320L, 0, 0, 0, 0),
+			SkuInfo(13404273, "123", 7485431908L, "345", 6143585652L, 0, 0, 0, 0)
+		)))
 		saveTair(testData, 1.minute.toSeconds.toInt)
 	}
 
