@@ -6,8 +6,10 @@ import waimai.utils.HashOp.hashString
 
 object test {
     def main(args: Array[String]): Unit = {
+//        val backend = HttpClientSyncBackend()
+//        val response = basicRequest.header("Content-Type", "application/Json").get(url).send(backend)
+//        println(response.body.toString)
 
-        println(hashString("poi_id_", "15747670"))
 
 
         //
