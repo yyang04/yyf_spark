@@ -115,7 +115,7 @@ object CrossCateRecall extends RemoteSparkJob {
 			saveTair(result.collect, 15.days.toSeconds.toInt)
 		}
 
-		val df = result.map { poiSkuInfo ⇒
+		val df = result.filter(_.skus.length > 0).map { poiSkuInfo ⇒
 			val skus = poiSkuInfo.skus
 			(skus.head.poi_id, skus.head.poi_name, skus.map(_.sku_id), skus.map(_.spu_id), skus.map(_.is_xp), skus.map(_.sku_name), skus.map(_.first_category_id))
 		}.toDF("poiId", "poi_name", "skuId", "spuId", "is_xp", "sku_name", "first_category_id")
