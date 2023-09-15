@@ -5,6 +5,7 @@ import com.taobao.tair3.client.TairClient
 import sankuai.CrossCategorySkuInfo
 import scalaj.http.Http
 import utils.TairUtil
+import waimai.utils.DateOp.getNDaysAgoFrom
 import waimai.utils.{FileOp, JsonOp}
 import waimai.utils.SparkJobs.RemoteSparkJob
 
@@ -32,7 +33,7 @@ object CrossCateRecall extends RemoteSparkJob {
 	override def run(): Unit = {
 		val mode = params.mode
 		val version = params.version
-		val dt = params.dt
+		val dt = getNDaysAgoFrom(params.dt, 1)
 
 //		if (mode == "test") {
 //			testTair()
@@ -119,12 +120,16 @@ object CrossCateRecall extends RemoteSparkJob {
 			(skus.head.poi_id, skus.head.poi_name, skus.map(_.sku_id), skus.map(_.spu_id), skus.map(_.is_xp), skus.map(_.sku_name), skus.map(_.first_category_id))
 		}.toDF("poiId", "poi_name", "skuId", "spuId", "is_xp", "sku_name", "first_category_id")
 
+
 		FileOp.saveAsTable(df, "pt_sg_apple_new_sku", Map("version" -> version))
 
 	}
 
 
 	def saveTair(poiSkuInfos: Array[PoiSkuInfo], expire: Int): Unit = {
+		if (poiSkuInfos.length <= 1000) {
+			return
+		}
 		val op = new TairClient.TairOption(300, 0.toShort, expire)
 		val tair = new TairUtil
 
