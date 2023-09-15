@@ -165,15 +165,15 @@ object CrossCateRecall extends RemoteSparkJob {
 		val skuMap = skuInfo.map(skuInfo ⇒ (skuInfo.sku_id.toString, skuInfo)).toMap
 
 		val result = Http(requestUrl).header("content-type", "application/json").asString.body
-		val jsonResult = JsonOp.jsonObjectStrToArrayMap[String](result)
+		val jsonResult = JsonOp.jsonObjectStrToArrayMap(result)
 
 
 		for (element <- jsonResult) {
-			val sell_status = element.getOrElse("sell_status", "1")
-			val product_status = element.getOrElse("product_status", "1")
+			val sell_status = element.getOrElse("sell_status", 1)
+			val product_status = element.getOrElse("status", 1)
 			val product_id = element("id").toString
 			val status = {
-				if (sell_status == "0" && product_status == "0") {
+				if (sell_status == 0 && product_status == 0) {
 					1
 				} else {
 					0
