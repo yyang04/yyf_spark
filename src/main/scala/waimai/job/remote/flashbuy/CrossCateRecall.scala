@@ -181,8 +181,8 @@ object CrossCateRecall extends RemoteSparkJob {
 			}
 
 			skuMap.get(product_id) match {
-				case None ⇒ _
 				case Some(x) ⇒ x.status = status
+				case _ ⇒ print(1)
 			}
 
 			println(s"product_id: $product_id, sell_status: $sell_status, product_status: $product_status")
