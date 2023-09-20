@@ -33,7 +33,7 @@ object CtrSample extends RemoteSparkJob {
 			   |       coalesce(new_ctype, '5') as new_ctype,
 			   |       coalesce(user_id, 0) as user_id
 			   |       coalesce(uuid, '') as uuid,
-			   |       poi_id,
+			   |       coalesce(poi_id, 0) as poi_id,
 			   |       coalesce(device_type, '') as device_type,
 			   |       coalesce(appversion, '') as appversion,
 			   |       recommend_spus,
@@ -138,7 +138,4 @@ object CtrSample extends RemoteSparkJob {
 
 	// 获取元素在数组的索引
 	def elementIdxInArray(arr1: Seq[Long], arr2: Seq[Long]): Seq[Int] = arr1.map { arr2.indexOf(_) }
-
-
-
 }
