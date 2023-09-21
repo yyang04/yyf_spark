@@ -31,6 +31,8 @@ object CtrSample extends RemoteSparkJob {
 			   |               mv.uuid,
 			   |               mv.user_id,
 			   |               mv.poi_id,
+			   |               first_tag_id,
+			   |               second_tag_id,
 			   |               mv.operation_time as expose_time,
 			   |               cast(mv.slot as string) as slot_id,
 			   |               mv.click_num as click,
@@ -61,7 +63,9 @@ object CtrSample extends RemoteSparkJob {
 			   |                 group by 1,2
 			   |          ) pv ON mv.ad_request_id=pv.pv_id
 			   |          JOIN (
-			   |                select poi_id
+			   |                select poi_id,
+			   |                       first_category_id as first_tag_id,
+			   |                       second_category_id as second_tag_id
 			   |                  from mart_lingshou.aggr_poi_info_dd
 			   |                 where dt=$dt
 			   |          ) info ON mv.poi_id=info.poi_id
@@ -79,6 +83,8 @@ object CtrSample extends RemoteSparkJob {
 			   |       uuid,
 			   |       cast(user_id as string) as user_id,
 			   |       cast(poi_id as string) as poi_id,
+			   |       first_tag_id,
+			   |       second_tag_id,
 			   |       slot_id,
 			   |       expose_time,
 			   |       recommend_spus,
