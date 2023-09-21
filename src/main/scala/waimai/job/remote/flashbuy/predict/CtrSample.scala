@@ -24,20 +24,7 @@ object CtrSample extends RemoteSparkJob {
 
 		spark.sql(
 			s"""
-			   |SELECT dt,
-			   |       ad_request_id,
-			   |       click,
-			   |       dims,
-			   |       feature_values,
-			   |       feature_values2,
-			   |       uuid,
-			   |       cast(user_id as string) as user_id,
-			   |       cast(poi_id as string) as poi_id,
-			   |       slot_id,
-			   |       expose_time,
-			   |       recommend_spus,
-			   |       expose_spus
-			   |  from (
+			   |with cte as (
 			   |        SELECT mv.dt,
 			   |               mv.ad_request_id,
 			   |               mv.act,
@@ -52,7 +39,8 @@ object CtrSample extends RemoteSparkJob {
 			   |               m.dims as dims,
 			   |               recommend_spus,
 			   |               ele_idx_in_array(split(mv.reserves['spuIdList'], ','), pv.recommend_spus) as expose_spus,
-			   |               mv.reserves['spu_id'] as click_spu
+			   |               mv.reserves['spu_id'] as click_spu,
+			   |               row_number() over (partition by mv.ad_request_id, mv.uuid, mv.poi_id order by mv.act) as row_num
 			   |          FROM mart_waimai_dw_ad.fact_flow_ad_entry_mv mv
 			   |          JOIN (
 			   |                select requestid as pv_id,
@@ -80,8 +68,23 @@ object CtrSample extends RemoteSparkJob {
 			   |          WHERE mv.dt=$dt
 			   |            AND mv.is_valid='PASS'
 			   |            AND mv.slot in (160,162,192,193,195)
-			   |         )
-			   | where row_number() over (partition by ad_request_id, uuid, poi_id order by act) = 1
+			   |)
+			   |
+			   |SELECT dt,
+			   |       ad_request_id,
+			   |       click,
+			   |       dims,
+			   |       feature_values,
+			   |       feature_values2,
+			   |       uuid,
+			   |       cast(user_id as string) as user_id,
+			   |       cast(poi_id as string) as poi_id,
+			   |       slot_id,
+			   |       expose_time,
+			   |       recommend_spus,
+			   |       expose_spus
+			   |  from cte
+			   | where row_num = 1
 			   |""".stripMargin)
 		  .write
 		  .mode("overwrite")
