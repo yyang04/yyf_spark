@@ -33,7 +33,7 @@ object CtrSample extends RemoteSparkJob {
 			   |               mv.poi_id,
 			   |               mv.operation_time as expose_time,
 			   |               cast(mv.slot as string) as slot_id,
-			   |               mv.click_num,
+			   |               mv.click_num as click,
 			   |               m.feature_values,
 			   |               m.feature_values2,
 			   |               m.dims as dims,
