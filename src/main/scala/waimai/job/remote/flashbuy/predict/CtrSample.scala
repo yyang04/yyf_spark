@@ -14,7 +14,7 @@ object CtrSample extends RemoteSparkJob {
 		spark.sql("""CREATE TEMPORARY FUNCTION pvlog_decode AS 'com.sankuai.meituan.waimai.d.algorithm.platform.feature.job.xt.DecodePvLog';""")
 		spark.udf.register("merge_json", mergeJson(_: String))
 		spark.udf.register("json_array_parse_kv", jsonArrayParseKv(_: Seq[String], _: String))
-		spark.udf.register("ele_idx_in_array", elementIdxInArray(_: Seq[Long], _: Seq[Long]))
+		spark.udf.register("ele_idx_in_array", elementIdxInArray(_: Seq[String], _: Seq[Long]))
 	}
 
 	override def run(): Unit = {
@@ -110,6 +110,7 @@ object CtrSample extends RemoteSparkJob {
 		}
 	}
 
+
 	// 解析Json数组
 	def jsonArrayParseKv(arr: Seq[String], key: String): Seq[Long] = {
 		if (arr == null) {
@@ -122,6 +123,23 @@ object CtrSample extends RemoteSparkJob {
 		}
 	}
 
+
 	// 获取元素在数组的索引
-	def elementIdxInArray(arr1: Seq[Long], arr2: Seq[Long]): Seq[Int] = arr1.map { arr2.indexOf(_) }
+	def elementIdxInArray(arr1: Seq[String], arr2: Seq[Long]): Seq[Int] = {
+		arr1 match {
+			case null => Seq[Int]()
+			case _ => arr2 match {
+				case null => Seq.fill[Int](arr1.length)(-1)
+				case _ =>
+					val arr2Map = arr2.zipWithIndex.toMap
+					arr1.map { x =>
+						try {
+							arr2Map.getOrElse(x.toLong, -1)
+						} catch {
+							case _: NumberFormatException => -1
+						}
+					}
+			}
+		}
+	}
 }
