@@ -93,6 +93,7 @@ object CtrSample extends RemoteSparkJob {
 			   | where row_num = 1
 			   |""".stripMargin)
 		  .write
+		  .option("path", "viewfs://hadoop-meituan/ghnn07/warehouse/mart_waimaiad.db")
 		  .mode("overwrite")
 		  .partitionBy("dt")
 		  .format("orc")
