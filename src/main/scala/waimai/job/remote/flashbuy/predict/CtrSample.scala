@@ -1,6 +1,6 @@
 package waimai.job.remote.flashbuy.predict
 
-import waimai.utils.JsonOp
+import waimai.utils.{FileOp, JsonOp}
 import waimai.utils.SparkJobs.RemoteSparkJob
 import com.alibaba.fastjson.{JSON, JSONObject}
 
@@ -22,7 +22,7 @@ object CtrSample extends RemoteSparkJob {
 		val tableName = params.tableName
 		registerUDFs()
 
-		spark.sql(
+		val df = spark.sql(
 			s"""
 			   |with cte as (
 			   |        SELECT mv.dt,
@@ -74,8 +74,7 @@ object CtrSample extends RemoteSparkJob {
 			   |            AND mv.slot in (160,162,192,193,195)
 			   |)
 			   |
-			   |SELECT dt,
-			   |       ad_request_id,
+			   |SELECT ad_request_id,
 			   |       click,
 			   |       dims,
 			   |       feature_values,
@@ -92,11 +91,8 @@ object CtrSample extends RemoteSparkJob {
 			   |  from cte
 			   | where row_num = 1
 			   |""".stripMargin)
-		  .write
-		  .mode("overwrite")
-		  .partitionBy("dt")
-		  .format("orc")
-		  .saveAsTable(tableName)
+
+		FileOp.saveAsTable(df, tableName, Map("dt" → dt))
 	}
 
 
