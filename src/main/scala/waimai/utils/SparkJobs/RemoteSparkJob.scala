@@ -31,6 +31,7 @@ abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializ
               .set("spark.serializer","org.apache.spark.serializer.KryoSerializer")        // 优化应用序列化（使用Kryo）
               .set("spark.kryoserializer.buffer.max", "512m")                              // 默认64 Kryo序列化缓存允许的最大值。这个值必须大于你尝试序列化的对象
               .set("hive.exec.dynamic.partition", "true")                                  // 是否允许动态生成分区
+              .set("spark.sql.sources.partitionOverwriteMode", "dynamic")                  // 必须这么设置分区
               .set("hive.exec.dynamic.partition.mode", "nonstrict")                        // 是否容忍指定分区全部动态生成
               .set("spark.sql.adaptive.enabled", "true")                                   // 默认开启，是否开启调整partition功能
               .set("spark.sql.adaptive.shuffle.targetPostShuffleInputSize", "128000000")   // 不太清楚
