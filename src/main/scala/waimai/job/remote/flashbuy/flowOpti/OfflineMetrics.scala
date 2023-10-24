@@ -30,11 +30,9 @@ object OfflineMetrics extends RemoteSparkJob {
     override def run(): Unit = {
         val window = params.window                               // 时间窗口 设置为30吧
         val endDt = params.endDt
-        val beginDt = getNDaysAgoFrom(endDt, window)
         val expName = params.expName                             // 实验名称: 例如 CTR_50 或者 GMV_20
+        val beginDt = getNDaysAgoFrom(endDt, window)
         val threshold = expName.split("_").last.toInt
-        val factor = expName.split("_").head             // 暂时只有CTR的，没有ROI的
-        val mode = ""
 
         val mv = spark.sql(
             s"""
@@ -64,11 +62,11 @@ object OfflineMetrics extends RemoteSparkJob {
           .map{
             case ((poi_id, slot), iter) =>
                 val tmp = iter.toList.sortBy(_.pctr)
-                val checkpoint = scala.math.max(tmp.size / 100, 10)    // max(551/50, 10) => 11
+                val checkpoint = scala.math.max(tmp.size / 100, 10)    // max(600/100, 10) => 11
                 var view_num = tmp.count(x => x.act == 3)
                 var final_charge = tmp.filter(x => x.is_charge == 1).map(_.final_charge).sum
-
                 var i = 0
+
                 breakable {
                     while (i < tmp.size) {
                         if ( i % checkpoint == 0) {
