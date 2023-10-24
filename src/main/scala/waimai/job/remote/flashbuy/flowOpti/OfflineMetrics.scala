@@ -30,7 +30,7 @@ object OfflineMetrics extends RemoteSparkJob {
     override def run(): Unit = {
         val window = params.window                               // 时间窗口 设置为30吧
         val endDt = params.endDt
-        val expName = params.expName                             // 实验名称: 例如 CTR_50 或者 GMV_20
+        val expName = params.expName                             // 实验名称: 例如 ctr_50
         val beginDt = getNDaysAgoFrom(endDt, window)
         val threshold = expName.split("_").last.toInt
 
