@@ -16,8 +16,7 @@ object CvrSample extends RemoteSparkJob {
 		val tableName = params.tableName
 		val df = spark.sql(
 			s"""
-			   |SELECT mv.dt,
-			   |       mv.ad_request_id,
+			   |SELECT mv.ad_request_id,
 			   |       mv.act,
 			   |       mv.uuid,
 			   |       mv.user_id,
