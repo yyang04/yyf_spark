@@ -10,6 +10,7 @@ object CtrSample extends RemoteSparkJob {
 	def registerUDFs(): Unit = {
 		// ADD jar viewfs://hadoop-meituan/user/hadoop-hotel/user_upload/hanyecong02_hive-udf.jar;
 		// Add jar viewfs:///user/hadoop-udf-hub/etl-waimai_algorithm_udf/waimai_algorithm_udf-online.jar;
+		// mart_waimaiad.pt_sg_ctr_sample_vtest4
 		spark.sql("""CREATE TEMPORARY FUNCTION get_json_array as 'com.meituan.hive.udf.UDFJsonArray';""")
 		spark.sql("""CREATE TEMPORARY FUNCTION pvlog_decode AS 'com.sankuai.meituan.waimai.d.algorithm.platform.feature.job.xt.DecodePvLog';""")
 		spark.udf.register("merge_json", mergeJson(_: String))

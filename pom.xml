@@ -14,7 +14,7 @@
         <scala.version>2.12.10</scala.version>
         <spark.scala.version>2.12</spark.scala.version>
         <spark.version>3.0.2-mt-1.0.0</spark.version>
-        <spark.run>provided</spark.run>
+        <spark.run>compile</spark.run>
 <!--        <hadoop.version>2.7.7</hadoop.version>-->
 <!--        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
 <!--        <kafka.version>1.0.0</kafka.version>-->
@@ -176,6 +176,13 @@
             <artifactId>hanlp</artifactId>
             <version>portable-1.8.4</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.johnsnowlabs.nlp</groupId>
+            <artifactId>spark-nlp_2.12</artifactId>
+            <version>5.2.0</version>
+        </dependency>
+
 
         <!--        <dependency>-->
 <!--            <groupId>com.linkedin.sparktfrecord</groupId>-->
