@@ -11,7 +11,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <scala.version>2.12.10</scala.version>
+        <scala.version>2.12.15</scala.version>
         <spark.scala.version>2.12</spark.scala.version>
         <spark.version>3.0.2-mt-1.0.0</spark.version>
         <spark.run>compile</spark.run>
@@ -21,6 +21,7 @@
 <!--        <slf4j.version>1.7.7</slf4j.version>-->
 <!--        <log4j.version>1.2.17</log4j.version>-->
     </properties>
+
 
     <dependencies>
         <!--scala library-->
@@ -42,6 +43,12 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-hive_${spark.scala.version}</artifactId>
             <version>${spark.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.meituan.log</groupId>
+                    <artifactId>collect-client-shade</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -63,6 +70,13 @@
             <artifactId>spark-graphx_${spark.scala.version}</artifactId>
             <version>${spark.version}</version>
             <scope>${spark.run}</scope>
+        </dependency>
+
+        <!-- nlp-->
+        <dependency>
+            <groupId>com.johnsnowlabs.nlp</groupId>
+            <artifactId>spark-nlp_2.12</artifactId>
+            <version>5.2.0</version>
         </dependency>
 
         <!--Json -->
@@ -93,7 +107,7 @@
         <dependency>
             <groupId>com.typesafe.play</groupId>
             <artifactId>play-json_${spark.scala.version}</artifactId>
-            <version>2.9.3</version>
+            <version>2.9.4</version>
         </dependency>
 
         <dependency>
@@ -108,41 +122,45 @@
             <version>1.1.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>mss-java-sdk-s3</artifactId>
-            <version>1.9.14</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-aws</artifactId>
-            <version>2.7.1-mt-1.0.10</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk</artifactId>
-            <version>1.11.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-core</artifactId>
-            <version>1.11.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
-            <version>1.11.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-kms</artifactId>
-            <version>1.11.0</version>
-        </dependency>
+<!--        &lt;!&ndash; s3&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.amazonaws</groupId>-->
+<!--            <artifactId>aws-java-sdk</artifactId>-->
+<!--            <version>1.12.625</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.hadoop</groupId>-->
+<!--            <artifactId>hadoop-aws</artifactId>-->
+<!--            <version>2.7.1-mt-1.0.10</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.amazonaws</groupId>-->
+<!--            <artifactId>mss-java-sdk-s3</artifactId>-->
+<!--            <version>1.9.17</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.amazonaws</groupId>-->
+<!--            <artifactId>aws-java-sdk-core</artifactId>-->
+<!--            <version>1.12.472</version>-->
+<!--        </dependency>-->
+
+<!--        <dependency>-->
+<!--            <groupId>com.amazonaws</groupId>-->
+<!--            <artifactId>aws-java-sdk-kms</artifactId>-->
+<!--            <version>1.12.429</version>-->
+<!--        </dependency>-->
+
+
+
         <dependency>
             <groupId>org.scalaj</groupId>
             <artifactId>scalaj-http_${spark.scala.version}</artifactId>
             <version>2.4.2</version>
         </dependency>
+
         <dependency>
             <groupId>com.taobao.tair</groupId>
             <artifactId>tair3-client</artifactId>
@@ -171,20 +189,16 @@
             <version>1.2.6</version>
         </dependency>
 
+
+
         <dependency>
             <groupId>com.hankcs</groupId>
             <artifactId>hanlp</artifactId>
             <version>portable-1.8.4</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.johnsnowlabs.nlp</groupId>
-            <artifactId>spark-nlp_2.12</artifactId>
-            <version>5.2.0</version>
-        </dependency>
 
-
-        <!--        <dependency>-->
+<!--        <dependency>-->
 <!--            <groupId>com.linkedin.sparktfrecord</groupId>-->
 <!--            <artifactId>spark-tfrecord_2.12</artifactId>-->
 <!--            <version>0.4.0</version>-->
@@ -218,7 +232,6 @@
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -303,7 +316,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 </project>
