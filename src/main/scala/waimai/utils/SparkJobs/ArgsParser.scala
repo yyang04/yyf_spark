@@ -56,6 +56,7 @@ class ArgsParser {
         opt[Int]("threshold2").action((x, c) => c.copy(threshold2 = x))
         opt[Int]("hour").action((x, c) => c.copy(hour = x))
         opt[Int]("window").action((x, c) => c.copy(window = x))
+        opt[Int]("debug").action((x, c) => c.copy(debug = x))
     }
 
     def initParams(args: Array[String]):Config = {
