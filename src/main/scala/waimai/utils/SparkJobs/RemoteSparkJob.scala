@@ -20,6 +20,7 @@ abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializ
         initSpark(args)
         if (params.debug == 1) {
             println("test")
+            spark.stop()
         } else {
             run()
         }
@@ -29,9 +30,6 @@ abstract class RemoteSparkJob extends ArgsParser with SQLImplicits with Serializ
 
     def initSpark(args: Array[String]): Unit ={
         this.params = super.initParams(args)
-        if (params.debug == 1) {
-            return
-        }
 
         val conf = {
             new SparkConf()
