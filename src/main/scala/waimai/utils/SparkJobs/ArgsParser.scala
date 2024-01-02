@@ -25,7 +25,8 @@ case class Config(beginDt: String = DateOp.getNDaysAgo(1), // 如果不传参数
                   window: Int = 0,
                   item_embedding_path: String = "",
                   user_embedding_path: String = "",
-                  expName: String = ""
+                  expName: String = "",
+                  debug: Int = 0
                  )
 
 class ArgsParser {

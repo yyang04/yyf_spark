@@ -190,13 +190,26 @@ public class TairUtil {
         return resultMap;
     }
 
-
     public <T> void putListObject(String key, List<T> value, int area, TairClient.TairOption opt) {
         try {
             byte[] keyBytes = StringSerializer.serialize(key);
             byte[] valueBytes = SerializableUtil.serializeList(value);
             client.put((short) area, keyBytes, valueBytes, opt);
         } catch (Exception ignored) {
+        }
+    }
+
+    public <T> List<T> getListObject(String key, int area, TairClient.TairOption opt, Class<T> clazz) throws TairRpcError, TairFlowLimit, TairTimeout, InterruptedException, IOException {
+        try {
+            byte[] keyBytes = StringSerializer.serialize(key);
+            Result<byte[]> result = client.get((short) area, keyBytes, opt);
+            if (result.getCode() != Result.ResultCode.OK) {
+                return null;
+            }
+            byte[] ans = result.getResult();
+            return SerializableUtil.deserializeList(ans, clazz);
+        } catch (Exception ignored) {
+            return null;
         }
     }
 }
