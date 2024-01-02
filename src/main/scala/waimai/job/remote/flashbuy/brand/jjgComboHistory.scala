@@ -35,7 +35,7 @@ object jjgComboHistory extends RemoteSparkJob {
 			val spu_id = row.getLong(2)
 			val latitude = row.getLong(3)
 			val longitude = row.getLong(4)
-			val geohash = GeoHash.withCharacterPrecision(latitude, longitude, 5)
+			val geohash = GeoHash.withCharacterPrecision(latitude / 1000.0 / 1000.0, longitude / 1000.0 / 1000.0, 5)
 			val key = s"Activity_Markup_Spu_Supply_${activity_id}_${geohash}"
 			(key, new ImmutablePair(poi_id, spu_id))
 
